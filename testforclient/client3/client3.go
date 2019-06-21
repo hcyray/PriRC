@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/uchihatmtkinu/RC/Reputation"
-	"github.com/uchihatmtkinu/RC/gVar"
-	"github.com/uchihatmtkinu/RC/shard"
-	"github.com/uchihatmtkinu/RC/testforclient/network"
+	"github.com/uchihatmtkinu/PriRC/Reputation"
+	"github.com/uchihatmtkinu/PriRC/gVar"
+	"github.com/uchihatmtkinu/PriRC/shard"
+	"github.com/uchihatmtkinu/PriRC/testforclient/network"
 )
 
 func main() {

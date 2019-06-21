@@ -7,12 +7,12 @@ import (
 	"log"
 	"time"
 
-	"github.com/uchihatmtkinu/RC/gVar"
-	"github.com/uchihatmtkinu/RC/shard"
+	"github.com/uchihatmtkinu/PriRC/gVar"
+	"github.com/uchihatmtkinu/PriRC/shard"
 
 	"fmt"
-	"github.com/uchihatmtkinu/RC/Reputation/cosi"
-	"github.com/uchihatmtkinu/RC/ed25519"
+	"github.com/uchihatmtkinu/PriRC/Reputation/cosi"
+	"github.com/uchihatmtkinu/PriRC/ed25519"
 )
 
 // RepBlock reputation block
@@ -25,7 +25,7 @@ type RepBlock struct {
 	PrevRepBlockHash  [32]byte
 	Hash              [32]byte
 	Nonce             int
-	Cosig			  cosi.SignaturePart
+	Cosig             cosi.SignaturePart
 }
 
 //NewRepBlock creates and returns Block
@@ -44,9 +44,9 @@ func NewRepBlock(repData *[]int64, startBlock bool, prevSyncRepBlockHash [][32]b
 	var block *RepBlock
 	//generate new block
 	if startBlock {
-		block = &RepBlock{time.Now().Unix(), repTransactions, startBlock, tmpprevSyncRepBlockHash, tmpprevTxBlockHashes, [32]byte{gVar.MagicNumber}, [32]byte{}, 0,[]byte{0}}
+		block = &RepBlock{time.Now().Unix(), repTransactions, startBlock, tmpprevSyncRepBlockHash, tmpprevTxBlockHashes, [32]byte{gVar.MagicNumber}, [32]byte{}, 0, []byte{0}}
 	} else {
-		block = &RepBlock{time.Now().Unix(), repTransactions, startBlock, nil, tmpprevTxBlockHashes, prevRepBlockHash, [32]byte{}, 0,[]byte{0}}
+		block = &RepBlock{time.Now().Unix(), repTransactions, startBlock, nil, tmpprevTxBlockHashes, prevRepBlockHash, [32]byte{}, 0, []byte{0}}
 	}
 	block.Nonce = 0
 	data := block.prepareData()
@@ -113,14 +113,13 @@ func (b *RepBlock) Print() {
 
 }
 
-
 // VerifyCosign verify CoSignature
 func (b *RepBlock) VerifyCoSignature(ms *[]shard.MemShard) bool {
 	//verify signature
 	var pubKeys []ed25519.PublicKey
 	sbMessage := b.PrevRepBlockHash[:]
 	pubKeys = make([]ed25519.PublicKey, int(gVar.ShardSize))
-	for i,it:= range b.RepTransactions{
+	for i, it := range b.RepTransactions {
 		pubKeys[i] = (*ms)[it.GlobalID].CosiPub
 	}
 	valid := cosi.Verify(pubKeys, cosi.ThresholdPolicy(int(gVar.ShardSize)/2), sbMessage, b.Cosig)
@@ -142,8 +141,6 @@ func (b *RepBlock) prepareData() []byte {
 
 	return data
 }
-
-
 
 // DeserializeRepBlock decode Repblock
 func DeserializeRepBlock(d []byte) *RepBlock {

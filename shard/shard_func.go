@@ -8,7 +8,7 @@ import (
 
 	"fmt"
 
-	"github.com/uchihatmtkinu/RC/gVar"
+	"github.com/uchihatmtkinu/PriRC/gVar"
 )
 
 type sortType struct {

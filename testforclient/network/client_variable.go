@@ -3,12 +3,12 @@ package network
 import (
 	"time"
 
-	"github.com/uchihatmtkinu/RC/Reputation"
-	"github.com/uchihatmtkinu/RC/Reputation/cosi"
-	"github.com/uchihatmtkinu/RC/basic"
-	"github.com/uchihatmtkinu/RC/ed25519"
-	"github.com/uchihatmtkinu/RC/gVar"
-	"github.com/uchihatmtkinu/RC/rccache"
+	"github.com/uchihatmtkinu/PriRC/Reputation"
+	"github.com/uchihatmtkinu/PriRC/Reputation/cosi"
+	"github.com/uchihatmtkinu/PriRC/basic"
+	"github.com/uchihatmtkinu/PriRC/ed25519"
+	"github.com/uchihatmtkinu/PriRC/gVar"
+	"github.com/uchihatmtkinu/PriRC/rccache"
 )
 
 const protocol = "tcp"

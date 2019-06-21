@@ -5,9 +5,9 @@ import (
 
 	//"golang.org/x/crypto/ed25519"
 	//"golang.org/x/crypto/ed25519/cosi"
-	"github.com/uchihatmtkinu/RC/ed25519"
-	"github.com/uchihatmtkinu/RC/Reputation/cosi"
 	"bytes"
+	"github.com/uchihatmtkinu/PriRC/Reputation/cosi"
+	"github.com/uchihatmtkinu/PriRC/ed25519"
 )
 
 // This example demonstrates how to generate a
@@ -51,9 +51,9 @@ func Sign(message []byte, pubKeys []ed25519.PublicKey,
 	setMaskBit(0, cosi.Enabled, &cosimask)
 	//setMaskBit(1, cosi.Enabled, &cosimask)
 	//setMaskBit(1, cosi.Enabled, &cosimask)
-	for i:= 0; i<3; i++{
-		if maskBit(i, &cosimask) == cosi.Enabled{
-			fmt.Println(i," is enabled")
+	for i := 0; i < 3; i++ {
+		if maskBit(i, &cosimask) == cosi.Enabled {
+			fmt.Println(i, " is enabled")
 		}
 	}
 	// Each cosigner first needs to produce a per-message commit.
@@ -84,9 +84,8 @@ func Sign(message []byte, pubKeys []ed25519.PublicKey,
 	return sig
 }
 
-
 //intilizeMaskBit set all the mas to disable
-func intilizeMaskBit(mask *[]byte, len int, value cosi.MaskBit){
+func intilizeMaskBit(mask *[]byte, len int, value cosi.MaskBit) {
 	var setValue byte
 	*mask = make([]byte, len)
 	if value == cosi.Disabled {
@@ -122,4 +121,3 @@ func maskBit(signer int, mask *[]byte) (value cosi.MaskBit) {
 	bit := byte(1) << uint(signer&7)
 	return ((*mask)[byt] & bit) != 0
 }
-

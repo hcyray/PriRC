@@ -3,11 +3,9 @@ package Reputation
 import (
 	"bytes"
 	"encoding/binary"
+	"github.com/uchihatmtkinu/PriRC/Reputation/cosi"
 	"log"
-	"github.com/uchihatmtkinu/RC/Reputation/cosi"
 )
-
-
 
 // IntToHex converts an int64 to a byte array
 func IntToHex(num int64) []byte {
@@ -24,9 +22,9 @@ func IntToHex(num int64) []byte {
 func BoolToHex(f bool) []byte {
 	var a []byte
 	if f {
-		a = append(a,1)
+		a = append(a, 1)
 	} else {
-		a = append(a,0)
+		a = append(a, 0)
 	}
 
 	return a

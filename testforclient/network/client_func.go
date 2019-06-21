@@ -1,11 +1,11 @@
 package network
 
 import (
-	"github.com/uchihatmtkinu/RC/Reputation/cosi"
+	"github.com/uchihatmtkinu/PriRC/Reputation/cosi"
 )
 
 //intilizeMaskBit set all the mas to disable
-func intilizeMaskBit(mask *[]byte, len int, value cosi.MaskBit){
+func intilizeMaskBit(mask *[]byte, len int, value cosi.MaskBit) {
 	var setValue byte
 	*mask = make([]byte, len)
 	if value == cosi.Disabled {
@@ -41,4 +41,3 @@ func maskBit(signer int, mask *[]byte) (value cosi.MaskBit) {
 	bit := byte(1) << uint(signer&7)
 	return ((*mask)[byt] & bit) != 0
 }
-

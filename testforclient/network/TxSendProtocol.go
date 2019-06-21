@@ -5,9 +5,9 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/uchihatmtkinu/RC/basic"
-	"github.com/uchihatmtkinu/RC/gVar"
-	"github.com/uchihatmtkinu/RC/shard"
+	"github.com/uchihatmtkinu/PriRC/basic"
+	"github.com/uchihatmtkinu/PriRC/gVar"
+	"github.com/uchihatmtkinu/PriRC/shard"
 )
 
 //SendTx is the protocol for sending

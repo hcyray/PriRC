@@ -4,7 +4,7 @@ import (
 	"math"
 	"sync"
 
-	"github.com/uchihatmtkinu/RC/Reputation/cosi"
+	"github.com/uchihatmtkinu/PriRC/Reputation/cosi"
 )
 
 //maxNonce used in pow

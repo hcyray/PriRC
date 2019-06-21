@@ -12,7 +12,7 @@ import (
 	"encoding/gob"
 	"io/ioutil"
 
-	"github.com/uchihatmtkinu/RC/shard"
+	"github.com/uchihatmtkinu/PriRC/shard"
 )
 
 //address

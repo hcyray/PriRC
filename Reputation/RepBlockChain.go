@@ -7,10 +7,10 @@ import (
 	"strconv"
 
 	"github.com/boltdb/bolt"
-	"github.com/uchihatmtkinu/RC/Reputation/cosi"
-	"github.com/uchihatmtkinu/RC/base58"
-	"github.com/uchihatmtkinu/RC/gVar"
-	"github.com/uchihatmtkinu/RC/shard"
+	"github.com/uchihatmtkinu/PriRC/Reputation/cosi"
+	"github.com/uchihatmtkinu/PriRC/base58"
+	"github.com/uchihatmtkinu/PriRC/gVar"
+	"github.com/uchihatmtkinu/PriRC/shard"
 )
 
 const dbFile = "RepBlockchain"

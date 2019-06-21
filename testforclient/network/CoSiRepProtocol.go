@@ -7,12 +7,12 @@ import (
 	"log"
 	"time"
 
-	"github.com/uchihatmtkinu/RC/Reputation"
-	"github.com/uchihatmtkinu/RC/Reputation/cosi"
-	"github.com/uchihatmtkinu/RC/base58"
-	"github.com/uchihatmtkinu/RC/ed25519"
-	"github.com/uchihatmtkinu/RC/gVar"
-	"github.com/uchihatmtkinu/RC/shard"
+	"github.com/uchihatmtkinu/PriRC/Reputation"
+	"github.com/uchihatmtkinu/PriRC/Reputation/cosi"
+	"github.com/uchihatmtkinu/PriRC/base58"
+	"github.com/uchihatmtkinu/PriRC/ed25519"
+	"github.com/uchihatmtkinu/PriRC/gVar"
+	"github.com/uchihatmtkinu/PriRC/shard"
 )
 
 func LeaderCoSiRepProcess(ms *[]shard.MemShard, res repInfo) (bool, cosi.SignaturePart) {

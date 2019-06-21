@@ -7,8 +7,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/uchihatmtkinu/RC/gVar"
-	"github.com/uchihatmtkinu/RC/testforclient/network"
+	"github.com/uchihatmtkinu/PriRC/gVar"
+	"github.com/uchihatmtkinu/PriRC/testforclient/network"
 )
 
 func main() {

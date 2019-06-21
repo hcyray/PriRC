@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/uchihatmtkinu/RC/gVar"
+	"github.com/uchihatmtkinu/PriRC/gVar"
 )
 
 func TestID(t *testing.T) {

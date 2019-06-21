@@ -5,8 +5,8 @@ import (
 	"crypto/sha256"
 	"fmt"
 
-	"github.com/uchihatmtkinu/RC/base58"
-	"github.com/uchihatmtkinu/RC/gVar"
+	"github.com/uchihatmtkinu/PriRC/base58"
+	"github.com/uchihatmtkinu/PriRC/gVar"
 )
 
 //Set initiates the TxDecision given the TxList and the account

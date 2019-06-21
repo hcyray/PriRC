@@ -4,18 +4,18 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/uchihatmtkinu/RC/Reputation"
-	"github.com/uchihatmtkinu/RC/gVar"
-	"github.com/uchihatmtkinu/RC/shard"
-	"github.com/uchihatmtkinu/RC/testforclient/network"
-	"strconv"
-	"os"
+	"github.com/uchihatmtkinu/PriRC/Reputation"
+	"github.com/uchihatmtkinu/PriRC/gVar"
+	"github.com/uchihatmtkinu/PriRC/shard"
+	"github.com/uchihatmtkinu/PriRC/testforclient/network"
 	"log"
+	"os"
+	"strconv"
 )
 
 func main() {
-	arg,err := strconv.Atoi(os.Args[1])
-	if err != nil{
+	arg, err := strconv.Atoi(os.Args[1])
+	if err != nil {
 		log.Panic(err)
 		os.Exit(1)
 	}
