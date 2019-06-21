@@ -8,12 +8,12 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/uchihatmtkinu/RC/rccache"
+	"github.com/uchihatmtkinu/PriRC/rccache"
 
-	"github.com/uchihatmtkinu/RC/basic"
-	"github.com/uchihatmtkinu/RC/gVar"
-	"github.com/uchihatmtkinu/RC/shard"
-	"github.com/uchihatmtkinu/RC/testforclient/network"
+	"github.com/uchihatmtkinu/PriRC/basic"
+	"github.com/uchihatmtkinu/PriRC/gVar"
+	"github.com/uchihatmtkinu/PriRC/shard"
+	"github.com/uchihatmtkinu/PriRC/testforclient/network"
 )
 
 func main() {

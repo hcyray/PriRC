@@ -116,6 +116,7 @@ typedef void (*paillier_get_rand_t) ( void* buf, int len );
   paillier_get_rand_devrandom and paillier_get_rand_devurandom may be
   passed as the final argument.
 */
+
 void paillier_keygen( int modulusbits,
 			paillier_pubkey_t** pub,
 											paillier_prvkey_t** prv,
