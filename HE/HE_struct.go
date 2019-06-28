@@ -7,6 +7,7 @@ package HE
 import "C"
 import (
 	"fmt"
+	"unsafe"
 	//"unsafe"
 )
 
@@ -14,16 +15,22 @@ type PaillierPrivateKey struct {
 	Lambda C.mpz_t
 	X      C.mpz_t
 }
+
 type PaillierPublicKek struct {
-	Bits      int     /* e.g., 1024 */
+	Bits      int32   /* e.g., 1024 */
 	N         C.mpz_t /* public modulus n = p q */
 	N_squared C.mpz_t /* cached to avoid recomputing */
 	N_plusone C.mpz_t /* cached to avoid recomputing */
 }
+
 type PaillierKeys struct {
 	Pub_key    PaillierPublicKek
 	Prv_key    PaillierPrivateKey
-	Modulubits int
+	Modulubits int32
+}
+type HEScore struct {
+	Stat  byte // HE add or have been HE mul once
+	Score uint32
 }
 
 func (p *PaillierPrivateKey) unpack(c_PaillierPriKey *C.paillier_prvkey_t) {
@@ -31,39 +38,52 @@ func (p *PaillierPrivateKey) unpack(c_PaillierPriKey *C.paillier_prvkey_t) {
 	p.X = (*c_PaillierPriKey).x
 }
 
-func (p *PaillierPrivateKey) pack(c_PaillierPriKey C.paillier_prvkey_t) {
+func (p *PaillierPrivateKey) pack(c_PaillierPriKey *C.paillier_prvkey_t) {
 	c_PaillierPriKey.lambda = p.Lambda
 	c_PaillierPriKey.x = p.X
 }
 
 func (p *PaillierPublicKek) unpack(c_PaillierPubKey *C.paillier_pubkey_t) {
-	p.Bits = int((*c_PaillierPubKey).bits)
+	p.Bits = int32((*c_PaillierPubKey).bits)
 	p.N = (*c_PaillierPubKey).n
 	p.N_squared = (*c_PaillierPubKey).n_squared
 	p.N_plusone = (*c_PaillierPubKey).n_plusone
 }
 
-func (p *PaillierPublicKek) pack(c_PaillierPubKey C.paillier_pubkey_t) {
+func (p *PaillierPublicKek) pack(c_PaillierPubKey *C.paillier_pubkey_t) {
 	c_PaillierPubKey.bits = C.int(p.Bits)
 	c_PaillierPubKey.n = p.N
 	c_PaillierPubKey.n_squared = p.N_squared
 	c_PaillierPubKey.n_plusone = p.N_plusone
 }
 
-func (pk *PaillierKeys) Unpack(c_PaillierKeys *C.paillier_keys) {
+func (pk *PaillierKeys) unpack(c_PaillierKeys *C.paillier_keys) {
 	pk.Pub_key.unpack(c_PaillierKeys.pubkey)
 	pk.Prv_key.unpack(c_PaillierKeys.prvkey)
-	pk.Modulubits = int((*c_PaillierKeys).modulubits)
+	pk.Modulubits = int32((*c_PaillierKeys).modulubits)
 }
 
-func (pk *PaillierKeys) Pack(c_PaillierKeys *C.paillier_keys) {
-	pub_key := C.paillier_pubkey_t{}
-	pri_key := C.paillier_prvkey_t{}
+func (pk *PaillierKeys) pack(c_PaillierKeys *C.paillier_keys) {
+	pub_key := (*C.paillier_pubkey_t)(C.malloc(C.size_t(unsafe.Sizeof(C.paillier_pubkey_t{}))))
+	pri_key := (*C.paillier_prvkey_t)(C.malloc(C.size_t(unsafe.Sizeof(C.paillier_prvkey_t{}))))
 	pk.Pub_key.pack(pub_key)
 	pk.Prv_key.pack(pri_key)
-	c_PaillierKeys.pubkey = &pub_key
-	c_PaillierKeys.prvkey = &pri_key
+	c_PaillierKeys.pubkey = pub_key
+	c_PaillierKeys.prvkey = pri_key
 	c_PaillierKeys.modulubits = C.int(pk.Modulubits)
+}
+
+func (p *PaillierKeys) NewHEKey(role byte) {
+	if role == 0 {
+		keys := (*C.paillier_keys)(C.malloc(C.size_t(unsafe.Sizeof(C.paillier_keys{}))))
+		defer C.free(unsafe.Pointer(keys))
+		C.keygen(keys)
+		p.unpack(keys)
+	}
+}
+
+func (h *HEScore) NewHEScore(s [32]byte) {
+
 }
 
 func HEMessage() {
@@ -83,9 +103,12 @@ func HEMessage() {
 	fmt.Println("Initial mpz_t value:", temp[0])
 	C.mpz_init(&secret.c[0])
 	C.key_gen(keys)
-	new_keys.Unpack(keys)
-	old_keys := &C.paillier_keys{}
-	new_keys.Pack(old_keys)
+
+	new_keys.unpack(keys)
+
+	old_keys := (*C.paillier_keys)(C.malloc(C.size_t(unsafe.Sizeof(C.paillier_keys{}))))
+
+	new_keys.pack(old_keys)
 
 	message1 := C.paillier_plaintext_from_ui(message1_ul)
 	message2 := C.paillier_plaintext_from_ui(message2_ul)
