@@ -1,7 +1,13 @@
+#ifndef _ZSL_H_
+#define _ZSL_H_
 
 #include <stdlib.h>
 #include <inttypes.h>
 #include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 void prc_initialize();
@@ -18,3 +24,9 @@ bool prc_verify_hpc_with_commit(
         char *comm_x,
         char *comm_y
         );
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
