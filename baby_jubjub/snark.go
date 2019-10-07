@@ -1,7 +1,7 @@
 package snark
 
-// #cgo LDFLAGS: -L${SRCDIR} -lzsl -lstdc++ -lgmp -lgomp
-// #include <prc.h>
+// #cgo LDFLAGS: -L${SRCDIR} -lbaby_jubjub_ecc -lm -lstdc++ -lgmp -lgomp -lff -lsnark
+// #include "libsnark/baby_jubjub_ecc/prc.h"
 import "C"
 import (
 	"sync"
@@ -21,11 +21,18 @@ func Init() {
 // proof of Homomorphic Pedersen Commitment
 func ProveHPC(m uint64, r uint64, commX string, lenX int, commY string, lenY int) [312]byte {
 	var proof_buf [312]byte
-	C.prc_prove_hpc(unsafe.Pointer(&proof_buf[0]), C.ulong(m), C.ulong(r), C.CString(commX), unsafe.Pointer(&lenX), C.CString(commY), unsafe.Pointer(&lenY))
+	c_lenX := C.int(lenX)
+	c_lenY := C.int(lenY)
+	C.prc_prove_hpc(unsafe.Pointer(&proof_buf[0]), C.ulong(m), C.ulong(r), C.CString(commX), (*C.int)(&c_lenX), C.CString(commY), (*C.int)(&c_lenY))
 	return proof_buf
 }
 
 // verify proof of Homomorphic Pedersen Commitment
 func VerifyHPC(proof [312]byte, commX string, commY string) bool {
-	return C.prc_verify_hpc_with_commit(unsafe.Pointer(&proof[0]), C.CString(commX), C.CString(commY))
+	ret := C.prc_verify_hpc_with_commit(unsafe.Pointer(&proof[0]), C.CString(commX), C.CString(commY))
+	if ret {
+		return true
+	} else {
+		return false
+	}
 }
