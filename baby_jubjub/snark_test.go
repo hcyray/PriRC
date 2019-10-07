@@ -7,14 +7,14 @@ import (
 
 func TestProveHPC(t *testing.T) {
 	Init()
-	var x string
-	var y string
+	x := make([]byte, 100)
+	y := make([]byte, 100)
 	var lenX int
 	var lenY int
-	x = "123"
-	y = "123"
-	lenX = 78
-	lenY = 78
-	proof_buf := ProveHPC(1, 1, x, lenX, y, lenY)
+	proof_buf := ProveHPC(1, 1, x, &lenX, y, &lenY)
+	fmt.Println(lenX)
+	fmt.Println(lenY)
+	fmt.Println(string(x[0:lenX]))
+	fmt.Println(string(y[0:lenY]))
 	fmt.Print(proof_buf)
 }
