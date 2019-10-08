@@ -21,8 +21,8 @@ func Init() {
 // proof of Homomorphic Pedersen Commitment
 func ProveHPC(m uint64, r uint64, commX []byte, lenX *int, commY []byte, lenY *int) [312]byte {
 	var proof_buf [312]byte
-	c_lenX := C.int(lenX)
-	c_lenY := C.int(lenY)
+	c_lenX := C.int(0)
+	c_lenY := C.int(0)
 	C.prc_prove_hpc(unsafe.Pointer(&proof_buf[0]), C.ulong(m), C.ulong(r), (*C.char)(unsafe.Pointer(&commX[0])), (*C.int)(&c_lenX), (*C.char)(unsafe.Pointer(&commY[0])), (*C.int)(&c_lenY))
 	*lenX = int(c_lenX)
 	*lenY = int(c_lenY)

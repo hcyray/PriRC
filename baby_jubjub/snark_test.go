@@ -17,4 +17,6 @@ func TestProveHPC(t *testing.T) {
 	fmt.Println(string(x[0:lenX]))
 	fmt.Println(string(y[0:lenY]))
 	fmt.Print(proof_buf)
+	res := VerifyHPC(proof_buf, string(x[0:lenX]), string(y[0:lenY]))
+	fmt.Print(res)
 }
