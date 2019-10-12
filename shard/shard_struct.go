@@ -14,8 +14,8 @@ type MemShard struct {
 	Address        string //ip+port
 	PrivateAddress string
 	PublicAddress  string
-	Rep            int64   //rep this epoch
-	TotalRep       []int64 //rep over several epoch
+	Rep            int32   //rep this epoch
+	TotalRep       []int32 //rep over several epoch
 	CosiPub        ed25519.PublicKey
 	Shard          int
 	InShardId      int
@@ -41,12 +41,12 @@ func (ms *MemShard) NewMemShard(acc *account.RcAcc, addr string, band int) {
 
 //NewTotalRep set a new total rep to 0
 func (ms *MemShard) NewTotalRep() {
-	ms.TotalRep = []int64{}
+	ms.TotalRep = []int32{}
 }
 
 //CopyTotalRepFromSB copy total rep from sync bock
-func (ms *MemShard) CopyTotalRepFromSB(value []int64) {
-	ms.TotalRep = make([]int64, len(value))
+func (ms *MemShard) CopyTotalRepFromSB(value []int32) {
+	ms.TotalRep = make([]int32, len(value))
 	copy(ms.TotalRep, value)
 }
 
@@ -58,7 +58,7 @@ func (ms *MemShard) ClearTotalRep() {
 }
 
 //SetTotalRep set totalrep
-func (ms *MemShard) SetTotalRep(value int64) {
+func (ms *MemShard) SetTotalRep(value int32) {
 	if len(ms.TotalRep) == gVar.SlidingWindows {
 		ms.TotalRep = ms.TotalRep[1:]
 	}
@@ -66,13 +66,13 @@ func (ms *MemShard) SetTotalRep(value int64) {
 }
 
 //AddRep add a reputation value
-func (ms *MemShard) AddRep(value int64) {
+func (ms *MemShard) AddRep(value int32) {
 	ms.Rep += value
 }
 
 //CalTotalRep cal total rep over epoches
-func (ms *MemShard) CalTotalRep() int64 {
-	sum := int64(0)
+func (ms *MemShard) CalTotalRep() int32 {
+	sum := int32(0)
 	for i := range ms.TotalRep {
 		sum += ms.TotalRep[i]
 	}

@@ -23,7 +23,7 @@ type RcAcc struct {
 	AddrReal [32]byte //public key -> id
 	//AccType  int
 	ID  string
-	Rep int //total reputation among a period of time
+	Rep int32 //total reputation among a period of time
 }
 
 //New generate a new wallet with different type

@@ -174,7 +174,7 @@ func (d *DbRef) ProcessTL(a *basic.TxList, tmpBatch *[]basic.TransactionBatch) e
 }
 
 //GetTDS and ready to verify txblock
-func (d *DbRef) GetTDS(b *basic.TxDecSet, res *[gVar.ShardSize]int64) error {
+func (d *DbRef) GetTDS(b *basic.TxDecSet, res *[gVar.ShardSize]int32) error {
 	if d.ShardNum == b.ShardIndex {
 		x, ok := d.TLSCacheMiner[b.HashID]
 		if !ok {
@@ -219,10 +219,10 @@ func (d *DbRef) GetTDS(b *basic.TxDecSet, res *[gVar.ShardSize]int64) error {
 				for j := uint32(0); j < gVar.ShardSize; j++ {
 					if tmp.Decision[j] == 1 {
 						//shard.GlobalGroupMems[shard.ShardToGlobal[d.ShardNum][j]].Rep += gVar.RepTN * int64(tmp.Value)
-						(*res)[j] += gVar.RepTN * int64(tmp.Value)
+						(*res)[j] += gVar.RepTN * int32(tmp.Value)
 					} else if tmp.Decision[j] == 2 {
 						//shard.GlobalGroupMems[shard.ShardToGlobal[d.ShardNum][j]].Rep -= gVar.RepFP * int64(tmp.Value)
-						(*res)[j] -= gVar.RepFP * int64(tmp.Value)
+						(*res)[j] -= gVar.RepFP * int32(tmp.Value)
 					}
 				}
 			} else {
@@ -230,10 +230,10 @@ func (d *DbRef) GetTDS(b *basic.TxDecSet, res *[gVar.ShardSize]int64) error {
 				for j := uint32(0); j < gVar.ShardSize; j++ {
 					if tmp.Decision[j] == 1 {
 						//shard.GlobalGroupMems[shard.ShardToGlobal[d.ShardNum][j]].Rep -= gVar.RepFN * int64(tmp.Value)
-						(*res)[j] -= gVar.RepFN * int64(tmp.Value)
+						(*res)[j] -= gVar.RepFN * int32(tmp.Value)
 					} else if tmp.Decision[j] == 2 {
 						//shard.GlobalGroupMems[shard.ShardToGlobal[d.ShardNum][j]].Rep += gVar.RepTP * int64(tmp.Value)
-						(*res)[j] += gVar.RepTP * int64(tmp.Value)
+						(*res)[j] += gVar.RepTP * int32(tmp.Value)
 					}
 				}
 			}

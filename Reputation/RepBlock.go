@@ -29,7 +29,7 @@ type RepBlock struct {
 }
 
 //NewRepBlock creates and returns Block
-func NewRepBlock(repData *[]int64, startBlock bool, prevSyncRepBlockHash [][32]byte, prevTxBlockHashes [][32]byte, prevRepBlockHash [32]byte) *RepBlock {
+func NewRepBlock(repData *[]int32, startBlock bool, prevSyncRepBlockHash [][32]byte, prevTxBlockHashes [][32]byte, prevRepBlockHash [32]byte) *RepBlock {
 	//var item *shard.MemShard
 	var repTransactions []*RepTransaction
 	tmpprevSyncRepBlockHash := make([][32]byte, len(prevSyncRepBlockHash))

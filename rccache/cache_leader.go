@@ -239,7 +239,7 @@ func (d *DbRef) UpdateTXCache(a *basic.TxDecision, index *uint32) error {
 }
 
 //ProcessTDS deal with the TDS
-func (d *DbRef) ProcessTDS(b *basic.TxDecSet, res *[gVar.ShardSize]int64) {
+func (d *DbRef) ProcessTDS(b *basic.TxDecSet, res *[gVar.ShardSize]int32) {
 	if b.ShardIndex == d.ShardNum {
 		tmp1, _ := d.TLIndex[b.HashID]
 		//tmpIndex := tmp - uint32(d.StartIndex)
@@ -268,10 +268,10 @@ func (d *DbRef) ProcessTDS(b *basic.TxDecSet, res *[gVar.ShardSize]int64) {
 				for j := uint32(0); j < gVar.ShardSize; j++ {
 					if tmp.Decision[j] == 1 {
 						//shard.GlobalGroupMems[shard.ShardToGlobal[d.ShardNum][j]].Rep += gVar.RepTN * int64(tmp.Value)
-						(*res)[j] += gVar.RepTN * int64(tmp.Value)
+						(*res)[j] += gVar.RepTN * int32(tmp.Value)
 					} else if tmp.Decision[j] == 2 {
 						//shard.GlobalGroupMems[shard.ShardToGlobal[d.ShardNum][j]].Rep -= gVar.RepFP * int64(tmp.Value)
-						(*res)[j] -= gVar.RepFP * int64(tmp.Value)
+						(*res)[j] -= gVar.RepFP * int32(tmp.Value)
 					}
 				}
 			} else {
@@ -279,10 +279,10 @@ func (d *DbRef) ProcessTDS(b *basic.TxDecSet, res *[gVar.ShardSize]int64) {
 				for j := uint32(0); j < gVar.ShardSize; j++ {
 					if tmp.Decision[j] == 1 {
 						//shard.GlobalGroupMems[shard.ShardToGlobal[d.ShardNum][j]].Rep -= gVar.RepFN * int64(tmp.Value)
-						(*res)[j] -= gVar.RepFN * int64(tmp.Value)
+						(*res)[j] -= gVar.RepFN * int32(tmp.Value)
 					} else if tmp.Decision[j] == 2 {
 						//shard.GlobalGroupMems[shard.ShardToGlobal[d.ShardNum][j]].Rep += gVar.RepTP * int64(tmp.Value)
-						(*res)[j] += gVar.RepTP * int64(tmp.Value)
+						(*res)[j] += gVar.RepTP * int32(tmp.Value)
 					}
 				}
 			}

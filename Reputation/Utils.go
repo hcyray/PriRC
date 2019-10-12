@@ -7,8 +7,8 @@ import (
 	"log"
 )
 
-// IntToHex converts an int64 to a byte array
-func IntToHex(num int64) []byte {
+// IntToHex converts an int64/32 to a byte array
+func IntToHex(num interface{}) []byte {
 	buff := new(bytes.Buffer)
 	err := binary.Write(buff, binary.BigEndian, num)
 	if err != nil {

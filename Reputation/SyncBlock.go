@@ -21,7 +21,7 @@ type SyncBlock struct {
 	PrevSyncBlockHash  [][32]byte
 	PrevFinalBlockHash [32]byte
 	IDlist             []int
-	TotalRep           [][]int64 //Total reputation over epoch, [i][j] i-th user, j-th epoch
+	TotalRep           [][]int32 //Total reputation over epoch, [i][j] i-th user, j-th epoch
 	CoSignature        []byte
 	Hash               [32]byte
 }
@@ -29,7 +29,7 @@ type SyncBlock struct {
 // NewSynBlock new sync block
 func NewSynBlock(ms *[]shard.MemShard, prevSyncBlockHash [][32]byte, prevRepBlockHash [32]byte, prevFBHash [32]byte, coSignature []byte) *SyncBlock {
 	var item *shard.MemShard
-	var repList [][]int64
+	var repList [][]int32
 	var idList []int
 	tmpprevSyncBlockHash := make([][32]byte, len(prevSyncBlockHash))
 	copy(tmpprevSyncBlockHash, prevSyncBlockHash)
