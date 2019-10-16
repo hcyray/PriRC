@@ -1,19 +1,11 @@
 package snark
 
 import (
-	"fmt"
 	"math/big"
 )
 
-func StringToByte(x string) []byte {
+func StringToByte(x string, base int) []byte {
 	temp := new(big.Int)
-	temp.SetString(x, 10)
-	fmt.Println(temp)
+	temp.SetString(x, base)
 	return temp.Bytes()
-}
-
-func PrintComm(x [32]byte) {
-	temp := new(big.Int)
-	temp.SetBytes(x[:])
-	fmt.Println(temp)
 }

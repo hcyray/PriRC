@@ -8,26 +8,39 @@ import (
 
 func TestProveHPC(t *testing.T) {
 	var cur BabyJubJub_Curve
+	var p PedersenCommitment
 	cur.Init()
-	var b_m, b_r big.Int
+	b_m := new(big.Int)
+	b_r := new(big.Int)
 	b_m.SetInt64(1)
 	b_r.SetInt64(1)
-	cur.CalPedersenCommitment(&b_m, &b_r)
+	p.Init()
+	cur.CalPedersenCommitment(b_m, b_r, p)
+	fmt.Println("commitment is:")
+	p.PrintPC()
+	fmt.Println("-------------------------------")
+
+	b_m.SetInt64(1)
+	b_r.SetInt64(1)
+	cur.AddPedersenCommitment(b_m, p)
+	fmt.Println("commitment of 1+1 is:")
+	p.PrintPC()
+	fmt.Println("-------------------------------")
+
+	b_m.SetInt64(2)
+	b_r.SetInt64(1)
+	cur.CalPedersenCommitment(b_m, b_r, p)
+	fmt.Println("commitment of 2 is:")
+	p.PrintPC()
+	fmt.Println("-------------------------------")
 
 	Init()
-	x := make([]byte, 100)
-	y := make([]byte, 100)
-	var lenX int
-	var lenY int
-	proof_buf := ProveHPC(1, 1, x, &lenX, y, &lenY)
-	fmt.Println(lenX)
-	fmt.Println(lenY)
-	fmt.Println(string(x[0:lenX]))
-	var temp [32]byte
-	copy(temp[:], StringToByte(string(x[0:lenX]))[:32])
-	fmt.Println(string(x[0:lenX]))
 
-	fmt.Print(proof_buf)
-	//res := VerifyHPC(proof_buf, string(x[0:lenX]), string(y[0:lenY]))
-	//fmt.Print(res)
+	//proof_buf := ProveHPC(9912321, 412323, p.Comm_x.String(), p.Comm_y.String())
+	//fmt.Print(proof_buf)
+
+	//fmt.Println("verification result:", VerifyHPC(proof_buf,  p.Comm_x.String(), p.Comm_y.String()))
+
+	//fmt.Println(string(x[0:lenX]))
+
 }
