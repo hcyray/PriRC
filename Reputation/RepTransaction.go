@@ -7,15 +7,16 @@ import "github.com/uchihatmtkinu/PriRC/snark"
 type RepTransaction struct {
 	GlobalID int
 	//AddrReal 	[32]byte //public key -> id
-	Rep   int32
-	RepPC snark.PedersenCommitment
+	//Rep   int32
+	RepPCX [32]byte
+	RepPCY [32]byte
 }
 
 //new reputation transaction
-func NewRepTransaction(globalID int, rep int32) *RepTransaction {
-
-	tx := RepTransaction{globalID, rep / 10}
-	return &tx
+func (r *RepTransaction) NewRepTransaction(globalID int, pc snark.PedersenCommitment) {
+	r.GlobalID = globalID
+	copy(r.RepPCX[:], pc.Comm_x.Bytes()[:32])
+	copy(r.RepPCY[:], pc.Comm_y.Bytes()[:32])
 }
 
 // SetID sets ID of a transaction

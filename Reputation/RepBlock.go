@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
+	"github.com/uchihatmtkinu/PriRC/snark"
 	"log"
 	"time"
 
@@ -29,7 +30,7 @@ type RepBlock struct {
 }
 
 //NewRepBlock creates and returns Block
-func NewRepBlock(repData *[]int32, startBlock bool, prevSyncRepBlockHash [][32]byte, prevTxBlockHashes [][32]byte, prevRepBlockHash [32]byte) *RepBlock {
+func NewRepBlock(pc *[]snark.PedersenCommitment, startBlock bool, prevSyncRepBlockHash [][32]byte, prevTxBlockHashes [][32]byte, prevRepBlockHash [32]byte) *RepBlock {
 	//var item *shard.MemShard
 	var repTransactions []*RepTransaction
 	tmpprevSyncRepBlockHash := make([][32]byte, len(prevSyncRepBlockHash))
@@ -39,7 +40,9 @@ func NewRepBlock(repData *[]int32, startBlock bool, prevSyncRepBlockHash [][32]b
 	copy(tmpprevTxBlockHashes, prevTxBlockHashes)
 	for i := uint32(0); i < gVar.ShardSize; i++ {
 		//item = &(*ms)[shard.ShardToGlobal[shard.MyMenShard.Shard][i]]
-		repTransactions = append(repTransactions, NewRepTransaction(shard.ShardToGlobal[shard.MyMenShard.Shard][i], (*repData)[i]))
+		r := new(RepTransaction)
+		r.NewRepTransaction(shard.ShardToGlobal[shard.MyMenShard.Shard][i], (*pc)[i])
+		repTransactions = append(repTransactions, r)
 	}
 	var block *RepBlock
 	//generate new block

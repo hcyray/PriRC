@@ -2,13 +2,13 @@ package Reputation
 
 import (
 	"fmt"
+	"github.com/uchihatmtkinu/PriRC/snark"
 	"log"
 	"os"
 	"strconv"
 
 	"github.com/boltdb/bolt"
 	"github.com/uchihatmtkinu/PriRC/Reputation/cosi"
-	"github.com/uchihatmtkinu/PriRC/base58"
 	"github.com/uchihatmtkinu/PriRC/gVar"
 	"github.com/uchihatmtkinu/PriRC/shard"
 )
@@ -29,7 +29,7 @@ type RepBlockchainIterator struct {
 }
 
 // MineRepBlock mines a new repblock with the provided transactions
-func (bc *RepBlockchain) MineRepBlock(repData *[]int32, cache *[][32]byte, ID int) {
+func (bc *RepBlockchain) MineRepBlock(pc *[]snark.PedersenCommitment, cache *[][32]byte, ID int) {
 	var lastHash [32]byte
 
 	CurrentRepBlock.Mu.RLock()
@@ -40,17 +40,19 @@ func (bc *RepBlockchain) MineRepBlock(repData *[]int32, cache *[][32]byte, ID in
 	//cache.TBCache = &tmp
 	CurrentRepBlock.Mu.Lock()
 	defer CurrentRepBlock.Mu.Unlock()
-	fmt.Println("--------------------")
-	fmt.Println("Rep data, lastHash:", base58.Encode(lastHash[:]), shard.StartFlag)
-	fmt.Print("Rep data:")
-	for i := 0; i < len(*repData); i++ {
-		fmt.Print((*repData)[i], " ")
-	}
-	fmt.Println()
-	fmt.Println(shard.PreviousSyncBlockHash)
-	fmt.Println(*cache)
-	fmt.Println("--------------------")
-	CurrentRepBlock.Block = NewRepBlock(repData, shard.StartFlag, shard.PreviousSyncBlockHash, *cache, lastHash)
+	/*
+		fmt.Println("--------------------")
+		fmt.Println("Rep data, lastHash:", base58.Encode(lastHash[:]), shard.StartFlag)
+		fmt.Print("Rep data:")
+		for i := 0; i < len(*repData); i++ {
+			fmt.Print((*repData)[i], " ")
+		}
+		fmt.Println()
+		fmt.Println(shard.PreviousSyncBlockHash)
+		fmt.Println(*cache)
+		fmt.Println("--------------------")
+	*/
+	CurrentRepBlock.Block = NewRepBlock(pc, shard.StartFlag, shard.PreviousSyncBlockHash, *cache, lastHash)
 	CurrentRepBlock.Round++
 	shard.StartFlag = false
 
