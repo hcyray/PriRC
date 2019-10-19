@@ -16,7 +16,7 @@ func HashCut(x [32]byte) [SHash]byte {
 	return tmp
 }
 
-//Encode is the general function of decoding
+//Encode is the general function of encoding
 func Encode(tmp *[]byte, out interface{}) error {
 	switch out := out.(type) {
 	case *[]byte:

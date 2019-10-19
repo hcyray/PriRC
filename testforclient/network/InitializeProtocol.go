@@ -3,6 +3,7 @@ package network
 import (
 	"crypto/x509"
 	"fmt"
+	"github.com/uchihatmtkinu/PriRC/snark"
 	"os"
 	"strconv"
 
@@ -72,6 +73,9 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 	if initType != 0 {
 		IPCnt /= 2
 	}
+
+	snark.BabyJubJubCurve.Init()
+
 	//tmp, _ := x509.MarshalECPrivateKey(&acc[i].Pri)
 	//TODO need modify
 	for i := 0; i < int(IPCnt); i++ {
@@ -126,6 +130,7 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 	account.MyAccount = acc[*ID]
 
 	shard.MyMenShard = &shard.GlobalGroupMems[*ID]
+
 	shard.NumMems = int(gVar.ShardSize)
 	shard.PreviousSyncBlockHash = [][32]byte{{gVar.MagicNumber}}
 
@@ -133,6 +138,10 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 	Reputation.CurrentSyncBlock = Reputation.SafeSyncBlock{Block: nil, Epoch: -1}
 	Reputation.CurrentRepBlock = Reputation.SafeRepBlock{Block: nil, Round: -1}
 	Reputation.MyRepBlockChain = Reputation.CreateRepBlockchain(strconv.FormatInt(int64(MyGlobalID), 10))
+
+	//snark
+	snark.Init()
+	shard.MyMenShard.NewIDCommitment(MyGlobalID)
 
 	//current epoch = -1
 	CurrentEpoch = -1

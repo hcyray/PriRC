@@ -2,10 +2,12 @@ package shard
 
 import (
 	"fmt"
-
 	"github.com/uchihatmtkinu/PriRC/account"
+	"github.com/uchihatmtkinu/PriRC/basic"
 	"github.com/uchihatmtkinu/PriRC/ed25519"
 	"github.com/uchihatmtkinu/PriRC/gVar"
+	"github.com/uchihatmtkinu/PriRC/snark"
+	"math/big"
 )
 
 //MemShard is the struct of miners for sharding and leader selection
@@ -14,15 +16,23 @@ type MemShard struct {
 	Address        string //ip+port
 	PrivateAddress string
 	PublicAddress  string
-	Rep            int32   //rep this epoch
+	Rep            int32 //rep this epoch
+	RepPC          snark.PedersenCommitment
+	RepProve       [312]byte
 	TotalRep       []int32 //rep over several epoch
 	CosiPub        ed25519.PublicKey
 	Shard          int
 	InShardId      int
+	EpochSNID      snark.PedersenCommitment
+	//EpochSNProve used in generating a new epoch sn
+	EpochSNProve [312]byte
+	//EpochSNIDProve used in using SNID
+	EpochSNIDProve [312]byte
 	Role           byte //1 - member, 0 - leader
 	Legal          byte //0 - legal,  1 - kickout
 	RealAccount    *account.RcAcc
 	PreShard       int
+	IDCommit       snark.PedersenCommitment
 	Bandwidth      int
 }
 
@@ -37,6 +47,64 @@ func (ms *MemShard) NewMemShard(acc *account.RcAcc, addr string, band int) {
 	ms.Role = 1
 	ms.Rep = 0
 	ms.Bandwidth = band
+}
+
+//NewIDCommitment new ID commitment at the initial
+func (ms *MemShard) NewIDCommitment(ID int) {
+	b_m := new(big.Int)
+	b_r := new(big.Int)
+	b_m.SetInt64(int64(ID))
+	b_r.SetInt64(1)
+	ms.IDCommit.Init()
+	ms.RepPC.Init()
+	ms.EpochSNID.Init()
+	snark.BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, ms.IDCommit)
+}
+
+//NewIDCommitmentTree new ID commitment merkle tree at the initial
+func (ms *MemShard) NewIDCommitmentTree(ID int) {
+
+}
+
+//NewIDSN new Epoch ID SN
+func (ms *MemShard) NewIDSN(epoch int, ID []byte) {
+	b_m := new(big.Int)
+	b_r := new(big.Int)
+	tmp := make([]byte, 32)
+	copy(tmp, ID)
+	basic.Encode(&tmp, epoch)
+	b_m.SetBytes(tmp)
+	b_r.SetInt64(1)
+	snark.BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, ms.EpochSNID)
+	ms.EpochSNProve = snark.ProveHPC(b_m.Uint64(), b_r.Uint64(), ms.EpochSNID.Comm_x.String(), ms.EpochSNID.Comm_y.String())
+}
+
+//int32  : -2147483648 to 2147483647
+//uint64 : 0 to 18446744073709551615
+//NewPriRep new private rep
+func (ms *MemShard) SetPriRep(rep int32) {
+	b_m := new(big.Int)
+	b_r := new(big.Int)
+	b_m.SetInt64(int64(rep) + gVar.RepUint64ToInt32)
+	b_r.SetInt64(1)
+	snark.BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, ms.RepPC)
+	ms.RepProve = snark.ProveHPC(b_m.Uint64(), b_r.Uint64(), ms.RepPC.Comm_x.String(), ms.RepPC.Comm_y.String())
+	ms.EpochSNIDProve = snark.ProveHPC(b_m.Uint64(), b_r.Uint64(), ms.RepPC.Comm_x.String(), ms.RepPC.Comm_y.String())
+}
+
+//SetRepPC new private rep
+func (ms *MemShard) SetPriRepPc(repPC snark.PedersenCommitment) {
+	ms.RepPC = repPC
+}
+
+//AddRep add a private reputation value
+func (ms *MemShard) AddPriRep(value int32) {
+	ms.Rep += value
+	b_m := new(big.Int)
+	b_r := new(big.Int)
+	b_m.SetInt64(int64(value))
+	b_r.SetInt64(0)
+	snark.BabyJubJubCurve.AddPedersenCommitment(b_m, ms.RepPC)
 }
 
 //NewTotalRep set a new total rep to 0
@@ -63,11 +131,6 @@ func (ms *MemShard) SetTotalRep(value int32) {
 		ms.TotalRep = ms.TotalRep[1:]
 	}
 	ms.TotalRep = append(ms.TotalRep, value)
-}
-
-//AddRep add a reputation value
-func (ms *MemShard) AddRep(value int32) {
-	ms.Rep += value
 }
 
 //CalTotalRep cal total rep over epoches

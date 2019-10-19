@@ -488,7 +488,7 @@ func (a *TxBRequestInfo) Encode() []byte {
 	return tmp
 }
 
-//Decode is encode
+//Decode is decode
 func (a *TxBRequestInfo) Decode(buf *[]byte) error {
 	var xxx []byte
 	err := basic.Decode(buf, &xxx)
