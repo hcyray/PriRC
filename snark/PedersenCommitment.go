@@ -48,7 +48,7 @@ func (b *BabyJubJub_Curve) Init() {
 }
 
 // Calculate Pedersen Commitment
-func (b *BabyJubJub_Curve) CalPedersenCommitment(m, r *big.Int, pc PedersenCommitment) {
+func (b *BabyJubJub_Curve) CalPedersenCommitment(m, r *big.Int, pc *PedersenCommitment) {
 	var s_m, s_r mod.Int
 	s_m.Init(m, &b.c.P)
 	s_r.Init(r, &b.c.P)
@@ -61,7 +61,8 @@ func (b *BabyJubJub_Curve) CalPedersenCommitment(m, r *big.Int, pc PedersenCommi
 	b.setPedersenCommit(res.String(), pc)
 }
 
-func (b *BabyJubJub_Curve) AddPedersenCommitment(m *big.Int, pc PedersenCommitment) {
+// add m to pedersen commitment pc
+func (b *BabyJubJub_Curve) AddMToPedersenCommitment(m *big.Int, pc *PedersenCommitment) {
 	var s_m mod.Int
 	s_m.Init(m, &b.c.P)
 	lhs := b.h_p.Clone()
@@ -71,8 +72,24 @@ func (b *BabyJubJub_Curve) AddPedersenCommitment(m *big.Int, pc PedersenCommitme
 	b.setPedersenCommit(res.String(), pc)
 }
 
+// pc1 = pc1 + pc2
+func (b *BabyJubJub_Curve) AddTwoPedersenCommitment(pc1 *PedersenCommitment, pc2 *PedersenCommitment) {
+	lhs := b.c.NewPoint(pc1.Comm_x, pc1.Comm_y)
+	res := b.c.NewPoint(pc2.Comm_x, pc2.Comm_y)
+	res.Add(res, lhs)
+	b.setPedersenCommit(res.String(), pc1)
+}
+
+func (b *BabyJubJub_Curve) MulPedersenCommitment(t *big.Int, pc *PedersenCommitment) {
+	var s_t mod.Int
+	s_t.Init(t, &b.c.P)
+	res := b.c.NewPoint(pc.Comm_x, pc.Comm_y)
+	res.Mul(&s_t, res)
+	b.setPedersenCommit(res.String(), pc)
+}
+
 //op is the operation, true for setting a new commit value, false for adding a commit value
-func (b *BabyJubJub_Curve) setPedersenCommit(s string, pc PedersenCommitment) {
+func (b *BabyJubJub_Curve) setPedersenCommit(s string, pc *PedersenCommitment) {
 	sA := strings.Split(s, ",")
 	s_x := sA[0][:]
 	s_y := sA[1][:]

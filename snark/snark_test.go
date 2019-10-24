@@ -1,40 +1,28 @@
 package snark
 
 import (
-	"fmt"
 	"math/big"
 	"testing"
 )
 
 func TestProveHPC(t *testing.T) {
-	var cur BabyJubJub_Curve
-	var p PedersenCommitment
-	cur.Init()
+	BabyJubJubCurve.Init()
+	n := 3
 	b_m := new(big.Int)
 	b_r := new(big.Int)
-	b_m.SetInt64(1)
-	b_r.SetInt64(1)
-	p.Init()
-	cur.CalPedersenCommitment(b_m, b_r, p)
-	fmt.Println("commitment is:")
-	p.PrintPC()
-	fmt.Println("-------------------------------")
-
-	b_m.SetInt64(1)
-	b_r.SetInt64(1)
-	cur.AddPedersenCommitment(b_m, p)
-	fmt.Println("commitment of 1+1 is:")
-	p.PrintPC()
-	fmt.Println("-------------------------------")
-
-	b_m.SetInt64(2)
-	b_r.SetInt64(1)
-	cur.CalPedersenCommitment(b_m, b_r, p)
-	fmt.Println("commitment of 2 is:")
-	p.PrintPC()
-	fmt.Println("-------------------------------")
-
-	Init()
+	pc := make([]PedersenCommitment, n)
+	for i := 0; i < n; i++ {
+		pc[i].Init()
+		b_m.SetInt64(int64(i))
+		b_r.SetInt64(0)
+		BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, &pc[i])
+	}
+	var mt MerkleTree
+	mt.Init(pc)
+	mt.Print()
+	p := mt.Proof(1)
+	p.Print()
+	//Init()
 
 	//proof_buf := ProveHPC(9912321, 412323, p.Comm_x.String(), p.Comm_y.String())
 	//fmt.Print(proof_buf)
