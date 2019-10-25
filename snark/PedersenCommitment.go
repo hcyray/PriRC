@@ -39,6 +39,8 @@ type BabyJubJub_Curve struct {
 }
 
 func (b *BabyJubJub_Curve) Init() {
+	CurveMax = new(big.Int)
+	CurveMax.SetBit(big.NewInt(0), 253, 1)
 	H_x := new(big.Int)
 	H_y := new(big.Int)
 	H_x.SetString("17777552123799933955779906779655732241715742912184938656739573121738514868268", 10)

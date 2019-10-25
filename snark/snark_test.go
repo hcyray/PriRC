@@ -6,6 +6,19 @@ import (
 )
 
 func TestProveHPC(t *testing.T) {
+
+	//Init()
+
+	//proof_buf := ProveHPC(9912321, 412323, p.Comm_x.String(), p.Comm_y.String())
+	//fmt.Print(proof_buf)
+
+	//fmt.Println("verification result:", VerifyHPC(proof_buf,  p.Comm_x.String(), p.Comm_y.String()))
+
+	//fmt.Println(string(x[0:lenX]))
+
+}
+
+func TestMerkleTree(t *testing.T) {
 	BabyJubJubCurve.Init()
 	n := 3
 	b_m := new(big.Int)
@@ -22,13 +35,4 @@ func TestProveHPC(t *testing.T) {
 	mt.Print()
 	p := mt.Proof(1)
 	p.Print()
-	//Init()
-
-	//proof_buf := ProveHPC(9912321, 412323, p.Comm_x.String(), p.Comm_y.String())
-	//fmt.Print(proof_buf)
-
-	//fmt.Println("verification result:", VerifyHPC(proof_buf,  p.Comm_x.String(), p.Comm_y.String()))
-
-	//fmt.Println(string(x[0:lenX]))
-
 }

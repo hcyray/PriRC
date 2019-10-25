@@ -1,6 +1,8 @@
 package snark
 
-import "fmt"
+import (
+	"fmt"
+)
 
 //Merkle Tree
 type MerkleTree struct {
@@ -52,15 +54,29 @@ func (m *MerkleTree) build(ns *[]MerkleNode, d int) {
 	} else {
 		var new_ns []MerkleNode
 		for i := 0; i < n; i = i + 2 {
-			pc1 := &PedersenCommitment{}
+			pc1 := new(PedersenCommitment)
 			pc1.Init()
-			BabyJubJubCurve.CalPedersenCommitment((*ns)[i].PC.Comm_x, (*ns)[i].PC.Comm_y, pc1)
+			pc1.Comm_x.SetString((*ns)[i].PC.Comm_x.String(), 10)
+			pc1.Comm_y.SetString((*ns)[i].PC.Comm_y.String(), 10)
+
 			if i+1 < n {
-				pc2 := &PedersenCommitment{}
+				pc2 := new(PedersenCommitment)
 				pc2.Init()
-				BabyJubJubCurve.CalPedersenCommitment((*ns)[i+1].PC.Comm_x, (*ns)[i+1].PC.Comm_y, pc2)
+				pc2.Comm_x.SetString((*ns)[i+1].PC.Comm_x.String(), 10)
+				pc2.Comm_y.SetString((*ns)[i+1].PC.Comm_y.String(), 10)
 				BabyJubJubCurve.AddTwoPedersenCommitment(pc1, pc2)
+				/*
+					temp_x := new(big.Int)
+					temp_x.Add((*ns)[i].PC.Comm_x, (*ns)[i+1].PC.Comm_x)
+					fmt.Println("x:", temp_x)
+					temp_x.Add((*ns)[i].PC.Comm_y, (*ns)[i+1].PC.Comm_y)
+					fmt.Println("y:", temp_x)*/
 			}
+
+			pc1.Comm_x.Mod(pc1.Comm_x, CurveMax)
+			pc1.Comm_y.Mod(pc1.Comm_y, CurveMax)
+			BabyJubJubCurve.CalPedersenCommitment(pc1.Comm_x, pc1.Comm_y, pc1)
+			//pc1.PrintPC()
 			p := MerkleNode{nil, nil, pc1, false}
 			//(*ns)[i].Parent = &p
 			p.LChild = &((*ns)[i])
@@ -82,13 +98,13 @@ func (m *MerkleTree) Proof(x int) *MerkleProof {
 	mp.Root_y = m.Root.PC.Comm_y.String()
 	mp.AdressBit = make([]bool, m.Depth-1)
 	for i := 0; i < m.Depth-1; i++ {
-		mp.AdressBit[i] = x%2 == 0
+		mp.AdressBit[i] = x%2 == 1
 		x = x / 2
 	}
 	root := m.Root
 	mp.PathVar = make([]string, (m.Depth-1)*2)
 	for i := m.Depth - 2; i >= 0; i-- {
-		if mp.AdressBit[i] {
+		if !mp.AdressBit[i] {
 			mp.PathVar[i*2] = root.RChild.PC.Comm_x.String()
 			mp.PathVar[i*2+1] = root.RChild.PC.Comm_y.String()
 			root = root.LChild
