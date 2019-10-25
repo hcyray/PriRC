@@ -221,7 +221,6 @@ func MemberCosiProcess(ms *[]shard.MemShard) (bool, []byte) {
 	fmt.Println(time.Now(), "Myself SBM:", base58.Encode(announceMessage))
 	if !verifySBMessage(announceMessage, leaderAnnounceMessage.Message) {
 		fmt.Println("Rep Block from leader is wrong!")
-		//TODO send warning
 	}
 	fmt.Println(time.Now(), "received cosi announce")
 

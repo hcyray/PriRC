@@ -37,7 +37,7 @@ func LeaderCoSiRepProcess(ms *[]shard.MemShard, res repInfo) (bool, cosi.Signatu
 	}
 
 	tmp := res.Hash
-	Reputation.MyRepBlockChain.MineRepBlock(res.Rep, &tmp, MyGlobalID)
+	Reputation.MyRepBlockChain.MineRepBlock(res.Rep, &tmp, MyGlobalID, ms)
 
 	Reputation.CurrentRepBlock.Mu.RLock()
 	currentRepRound := Reputation.CurrentRepBlock.Round
@@ -196,7 +196,7 @@ func MemberCoSiRepProcess(ms *[]shard.MemShard, res repInfo) (bool, []byte) {
 	}
 
 	tmp := res.Hash
-	Reputation.MyRepBlockChain.MineRepBlock(res.Rep, &tmp, MyGlobalID)
+	Reputation.MyRepBlockChain.MineRepBlock(res.Rep, &tmp, MyGlobalID, ms)
 	Reputation.CurrentRepBlock.Mu.RLock()
 	currentRepRound := Reputation.CurrentRepBlock.Round
 	Reputation.CurrentRepBlock.Mu.RUnlock()

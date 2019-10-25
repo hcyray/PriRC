@@ -18,7 +18,7 @@ var SentLeaderReadyFlag = true
 
 //ShardProcess is the process of sharding
 func ShardProcess() {
-	var beginShard shard.Instance
+	//var beginShard shard.Instance
 
 	Reputation.CurrentRepBlock.Mu.Lock()
 	Reputation.CurrentRepBlock.Round = -1
@@ -29,15 +29,26 @@ func ShardProcess() {
 	shard.ShardToGlobal = make([][]int, gVar.ShardCnt)
 	if CurrentEpoch != -1 {
 		for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
-			shard.GlobalGroupMems[i].ClearRep()
+			shard.GlobalGroupMems[i].SetRep(0)
+			shard.GlobalGroupMems[i].SetPriRep(0)
+			shard.GlobalGroupMems[i].NewIDSN(CurrentEpoch+2, i)
 		}
 	}
 	for i := uint32(0); i < gVar.ShardCnt; i++ {
 		shard.ShardToGlobal[i] = make([]int, gVar.ShardSize)
-
+		for j := uint32(0); j < gVar.ShardSize; j++ {
+			shard.ShardToGlobal[i][j] = int(j)
+			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Shard = int(i)
+			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].InShardId = int(j)
+			if j == 0 {
+				shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Role = 1
+			} else {
+				shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Role = 0
+			}
+		}
 	}
-	beginShard.GenerateSeed(&shard.PreviousSyncBlockHash)
-	beginShard.Sharding(&shard.GlobalGroupMems, &shard.ShardToGlobal)
+	//beginShard.GenerateSeed(&shard.PreviousSyncBlockHash)
+	//beginShard.Sharding(&shard.GlobalGroupMems, &shard.ShardToGlobal)
 	//shard.MyMenShard = &shard.GlobalGroupMems[MyGlobalID]
 	fmt.Println(time.Now(), CacheDbRef.ID, "Shard Calculated")
 	LeaderAddr = shard.GlobalGroupMems[shard.ShardToGlobal[shard.MyMenShard.Shard][0]].Address
@@ -71,6 +82,7 @@ func ShardProcess() {
 	} else {
 		LeaderReadyProcess(&shard.GlobalGroupMems)
 		if CurrentEpoch != -1 {
+			//warn  be careful when Epoch modified
 			go SendStartBlock(&shard.GlobalGroupMems)
 		}
 	}
@@ -78,7 +90,7 @@ func ShardProcess() {
 	if CacheDbRef.ID == 0 {
 		tmpStr := fmt.Sprint("Epoch", CurrentEpoch, ":")
 		for i := uint32(0); i < gVar.ShardCnt*gVar.ShardSize; i++ {
-			tmpStr = tmpStr + fmt.Sprint(shard.GlobalGroupMems[i].CalTotalRep(), " ")
+			tmpStr = tmpStr + fmt.Sprint(shard.GlobalGroupMems[i].Rep, " ")
 		}
 		sendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 	}
@@ -104,7 +116,7 @@ func LeaderReadyProcess(ms *[]shard.MemShard) {
 		SendShardReadyMessage(it.Address, "readyAnnoun", readyInfo{MyGlobalID, CurrentEpoch})
 	}
 	//fmt.Println("wait for ready")
-	//TODO modify int(gVar.ShardSize)/2
+
 	cnt := 0
 	timeoutflag := true
 	SentLeaderReadyFlag = false
@@ -133,6 +145,7 @@ func LeaderReadyProcess(ms *[]shard.MemShard) {
 			}
 		}
 	}
+	//warn only one shard now, thus the code follos is useless
 	fmt.Println(time.Now(), "Shard is ready, sent to other shards")
 	for i := 0; i < int(gVar.ShardCnt); i++ {
 		if i != shard.MyMenShard.Shard {

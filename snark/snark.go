@@ -35,3 +35,39 @@ func VerifyHPC(proof [312]byte, commX string, commY string) bool {
 		return false
 	}
 }
+
+//TODO
+// prove Identity
+func ProveID(m uint64, r uint64, commX string, commY string) [312]byte {
+	return [312]byte{}
+}
+
+//TODO
+// verify proof of ID
+func VerifyID(proof [312]byte, commX string, commY string) bool {
+	return false
+}
+
+//TODO
+// prove Identity
+func ProveLeader(m uint64, r uint64, commX string, commY string) [312]byte {
+	return [312]byte{}
+}
+
+//TODO
+// verify proof of ID
+func VerifyLeader(proof [312]byte, commX string, commY string) bool {
+	return false
+}
+
+//TODO
+// prove PoW
+func ProvePOW(m uint64, r uint64, commX string, commY string) [312]byte {
+	return [312]byte{}
+}
+
+//TODO
+// verify proof of ID
+func VerifyPOW(proof [312]byte, commX string, commY string) bool {
+	return false
+}

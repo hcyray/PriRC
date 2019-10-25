@@ -21,6 +21,7 @@ import (
 )
 
 //IntilizeProcess is init
+//TODO inital Type??  asuume equal to 0
 func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 
 	// IP + port
@@ -74,7 +75,9 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 		IPCnt /= 2
 	}
 
+	//initialization of snark and the curve
 	snark.BabyJubJubCurve.Init()
+	snark.Init()
 
 	//tmp, _ := x509.MarshalECPrivateKey(&acc[i].Pri)
 	//TODO need modify
@@ -90,7 +93,7 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 			band = gVar.MaxBand
 		}
 		shard.GlobalGroupMems[i].NewMemShard(&acc[i], IPAddr1, band)
-		shard.GlobalGroupMems[i].NewTotalRep()
+		//shard.GlobalGroupMems[i].NewTotalRep()
 		//shard.GlobalGroupMems[i].AddRep(int64(i))
 		if initType != 0 {
 			IPAddr1 := IPAddrPri + ":" + strconv.Itoa(3000+i+IPCnt)
@@ -100,7 +103,7 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 				band = gVar.MaxBand
 			}
 			shard.GlobalGroupMems[i+IPCnt].NewMemShard(&acc[i+IPCnt], IPAddr1, band)
-			shard.GlobalGroupMems[i+IPCnt].NewTotalRep()
+			//shard.GlobalGroupMems[i+IPCnt].NewTotalRep()
 			//shard.GlobalGroupMems[i+IPCnt].AddRep(int64(i + IPCnt))
 		}
 		if IPAddrPri == input {

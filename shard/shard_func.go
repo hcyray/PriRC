@@ -6,8 +6,6 @@ import (
 	"math/rand"
 	"strings"
 
-	"fmt"
-
 	"github.com/uchihatmtkinu/PriRC/gVar"
 )
 
@@ -83,6 +81,7 @@ func (c *Instance) GenerateSeed(a *[][32]byte) error {
 }
 
 //Sharding do the shards given reputations
+/*
 func (c *Instance) Sharding(a *[]MemShard, b *[][]int) {
 	sortData := make([]sortType, len(*a))
 	for i := 0; i < len(*a); i++ {
@@ -134,8 +133,9 @@ func (c *Instance) Sharding(a *[]MemShard, b *[][]int) {
 	}
 	fmt.Println(b)
 }
-
+*/
 //LeaderSort give the priority of being leader in this round
+/*
 func (c *Instance) LeaderSort(a *[]MemShard, b *[][]int, xx uint32) {
 	tmp := make([]float32, len((*b)[xx]))
 	for i := 0; i < len(tmp); i++ {
@@ -159,7 +159,7 @@ func (c *Instance) LeaderSort(a *[]MemShard, b *[][]int, xx uint32) {
 		}
 	}
 }
-
+*/
 //ReturnRepData gets the rep data of a specific shard
 func ReturnRepData(shardID uint32) *[]int32 {
 	tmp := make([]int32, gVar.ShardSize)

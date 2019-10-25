@@ -2,7 +2,6 @@ package Reputation
 
 import (
 	"fmt"
-	"github.com/uchihatmtkinu/PriRC/snark"
 	"log"
 	"os"
 	"strconv"
@@ -29,7 +28,7 @@ type RepBlockchainIterator struct {
 }
 
 // MineRepBlock mines a new repblock with the provided transactions
-func (bc *RepBlockchain) MineRepBlock(pc *[]snark.PedersenCommitment, cache *[][32]byte, ID int) {
+func (bc *RepBlockchain) MineRepBlock(rep *[]int32, cache *[][32]byte, ID int, ms *[]shard.MemShard) {
 	var lastHash [32]byte
 
 	CurrentRepBlock.Mu.RLock()
@@ -52,7 +51,7 @@ func (bc *RepBlockchain) MineRepBlock(pc *[]snark.PedersenCommitment, cache *[][
 		fmt.Println(*cache)
 		fmt.Println("--------------------")
 	*/
-	CurrentRepBlock.Block = NewRepBlock(pc, shard.StartFlag, shard.PreviousSyncBlockHash, *cache, lastHash)
+	CurrentRepBlock.Block = NewRepBlock(ms, rep, shard.StartFlag, shard.PreviousSyncBlockHash, *cache, lastHash)
 	CurrentRepBlock.Round++
 	shard.StartFlag = false
 

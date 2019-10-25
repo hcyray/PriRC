@@ -4,16 +4,12 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
-	"github.com/uchihatmtkinu/PriRC/snark"
-	"log"
-	"time"
-
-	"github.com/uchihatmtkinu/PriRC/gVar"
-	"github.com/uchihatmtkinu/PriRC/shard"
-
 	"fmt"
 	"github.com/uchihatmtkinu/PriRC/Reputation/cosi"
-	"github.com/uchihatmtkinu/PriRC/ed25519"
+	"github.com/uchihatmtkinu/PriRC/gVar"
+	"github.com/uchihatmtkinu/PriRC/shard"
+	"log"
+	"time"
 )
 
 // RepBlock reputation block
@@ -30,7 +26,7 @@ type RepBlock struct {
 }
 
 //NewRepBlock creates and returns Block
-func NewRepBlock(pc *[]snark.PedersenCommitment, startBlock bool, prevSyncRepBlockHash [][32]byte, prevTxBlockHashes [][32]byte, prevRepBlockHash [32]byte) *RepBlock {
+func NewRepBlock(ms *[]shard.MemShard, rep *[]int32, startBlock bool, prevSyncRepBlockHash [][32]byte, prevTxBlockHashes [][32]byte, prevRepBlockHash [32]byte) *RepBlock {
 	//var item *shard.MemShard
 	var repTransactions []*RepTransaction
 	tmpprevSyncRepBlockHash := make([][32]byte, len(prevSyncRepBlockHash))
@@ -41,7 +37,9 @@ func NewRepBlock(pc *[]snark.PedersenCommitment, startBlock bool, prevSyncRepBlo
 	for i := uint32(0); i < gVar.ShardSize; i++ {
 		//item = &(*ms)[shard.ShardToGlobal[shard.MyMenShard.Shard][i]]
 		r := new(RepTransaction)
-		r.NewRepTransaction(shard.ShardToGlobal[shard.MyMenShard.Shard][i], (*pc)[i])
+		l := shard.ShardToGlobal[shard.MyMenShard.Shard][i]
+		(*ms)[l].AddPriRep((*rep)[i])
+		r.NewRepTransaction((*ms)[l].EpochSNID, (*ms)[l].RepPC)
 		repTransactions = append(repTransactions, r)
 	}
 	var block *RepBlock
@@ -70,8 +68,10 @@ func (b *RepBlock) HashRep() []byte {
 	var txHashes []byte
 	var txHash [32]byte
 	for _, item := range b.RepTransactions {
-		txHashes = append(txHashes, IntToHex(item.Rep)[:]...)
-		txHashes = append(txHashes, IntToHex(int64(item.GlobalID))...)
+		txHashes = append(txHashes, item.RepPCX[:]...)
+		txHashes = append(txHashes, item.RepPCY[:]...)
+		txHashes = append(txHashes, item.GlobalIDX[:]...)
+		txHashes = append(txHashes, item.GlobalIDY[:]...)
 	}
 	txHash = sha256.Sum256(txHashes)
 	return txHash[:]
@@ -105,8 +105,10 @@ func (b *RepBlock) Print() {
 	fmt.Println("RepBlock:")
 	fmt.Println("RepTransactions:")
 	for _, item := range b.RepTransactions {
-		fmt.Print("	GlobalID:", item.GlobalID)
-		fmt.Println("		Rep", item.Rep)
+		fmt.Print("	GlobalIDX:", item.GlobalIDX)
+		fmt.Print("	GlobalIDY:", item.GlobalIDY)
+		fmt.Println("		RepX", item.RepPCX)
+		fmt.Println("		RepY", item.RepPCY)
 	}
 	fmt.Println("StartBlock:", b.StartBlock)
 	fmt.Println("PrevTxBlockHashes:", b.PrevTxBlockHashes)
@@ -119,14 +121,17 @@ func (b *RepBlock) Print() {
 // VerifyCosign verify CoSignature
 func (b *RepBlock) VerifyCoSignature(ms *[]shard.MemShard) bool {
 	//verify signature
-	var pubKeys []ed25519.PublicKey
-	sbMessage := b.PrevRepBlockHash[:]
-	pubKeys = make([]ed25519.PublicKey, int(gVar.ShardSize))
-	for i, it := range b.RepTransactions {
-		pubKeys[i] = (*ms)[it.GlobalID].CosiPub
-	}
-	valid := cosi.Verify(pubKeys, cosi.ThresholdPolicy(int(gVar.ShardSize)/2), sbMessage, b.Cosig)
-	return valid
+	return true
+	//TODO currently, the follows are useless
+	/*
+		var pubKeys []ed25519.PublicKey
+		sbMessage := b.PrevRepBlockHash[:]
+		pubKeys = make([]ed25519.PublicKey, int(gVar.ShardSize))
+		for i, it := range b.RepTransactions {
+			pubKeys[i] = (*ms)[it.GlobalID].CosiPub
+		}
+		valid := cosi.Verify(pubKeys, cosi.ThresholdPolicy(int(gVar.ShardSize)/2), sbMessage, b.Cosig)
+		return valid*/
 }
 
 func (b *RepBlock) prepareData() []byte {
