@@ -72,10 +72,8 @@ func (m *MerkleTree) build(ns *[]MerkleNode, d int) {
 					temp_x.Add((*ns)[i].PC.Comm_y, (*ns)[i+1].PC.Comm_y)
 					fmt.Println("y:", temp_x)*/
 			}
+			BabyJubJubCurve.CalPedersenHash(pc1.Comm_x, pc1.Comm_y, pc1)
 
-			pc1.Comm_x.Mod(pc1.Comm_x, CurveMax)
-			pc1.Comm_y.Mod(pc1.Comm_y, CurveMax)
-			BabyJubJubCurve.CalPedersenCommitment(pc1.Comm_x, pc1.Comm_y, pc1)
 			//pc1.PrintPC()
 			p := MerkleNode{nil, nil, pc1, false}
 			//(*ns)[i].Parent = &p

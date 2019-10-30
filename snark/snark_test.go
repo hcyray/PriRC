@@ -18,6 +18,20 @@ func TestProveHPC(t *testing.T) {
 
 }
 
+func TestPedersenHash(t *testing.T) {
+	BabyJubJubCurve.Init()
+	pc1 := new(PedersenCommitment)
+	pc1.Init()
+	pc1.Comm_x.SetString("17777552123799933955779906779655732241715742912184938656739573121738514868268", 10)
+	pc1.Comm_y.SetString("2626589144620713026669568689430873010625803728049924121243784502389097019475", 10)
+	pc2 := new(PedersenCommitment)
+	pc2.Init()
+	pc2.Comm_x.SetString("1", 10)
+	pc2.Comm_y.SetString("1", 10)
+	BabyJubJubCurve.AddTwoPedersenCommitment(pc1, pc2)
+	BabyJubJubCurve.CalPedersenHash(pc1.Comm_x, pc1.Comm_y, pc1)
+	pc1.PrintPC()
+}
 func TestMerkleTree(t *testing.T) {
 	BabyJubJubCurve.Init()
 	n := 3

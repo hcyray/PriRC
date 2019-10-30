@@ -63,6 +63,13 @@ func (b *BabyJubJub_Curve) CalPedersenCommitment(m, r *big.Int, pc *PedersenComm
 	b.setPedersenCommit(res.String(), pc)
 }
 
+// Calculate Pedersen Hash
+func (b *BabyJubJub_Curve) CalPedersenHash(x, y *big.Int, pc *PedersenCommitment) {
+	x.Mod(x, CurveMax)
+	y.Mod(y, CurveMax)
+	b.CalPedersenCommitment(x, y, pc)
+}
+
 // add m to pedersen commitment pc
 func (b *BabyJubJub_Curve) AddMToPedersenCommitment(m *big.Int, pc *PedersenCommitment) {
 	var s_m mod.Int
