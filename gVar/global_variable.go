@@ -43,6 +43,7 @@ var T1 time.Time = time.Now()
 
 const BandDiverse = false
 
+// client for listen the leader
 const MyAddress = "172.18.21.130:9999"
 
 const MaxBand = 38 * 1024

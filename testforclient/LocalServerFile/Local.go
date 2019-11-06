@@ -1,5 +1,6 @@
 package main
 
+//shut  down all the machine
 import (
 	"bufio"
 	"fmt"
