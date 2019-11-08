@@ -17,7 +17,28 @@ func TestProveHPC(t *testing.T) {
 	//fmt.Println(string(x[0:lenX]))
 
 }
-
+func TestPedersenCommitment(t *testing.T) {
+	BabyJubJubCurve.Init()
+	b_m := new(big.Int)
+	b_r := new(big.Int)
+	b_m.SetInt64(1)
+	b_r.SetInt64(0)
+	pc1 := new(PedersenCommitment)
+	pc1.Init()
+	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc1)
+	pc1.PrintPC()
+	pc2 := new(PedersenCommitment)
+	pc2.Init()
+	b_m.SetInt64(1)
+	b_r.SetInt64(0)
+	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc2)
+	BabyJubJubCurve.AddTwoPedersenCommitment(pc1, pc2)
+	pc1.PrintPC()
+	b_m.SetInt64(0)
+	b_r.SetInt64(0)
+	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc2)
+	pc2.PrintPC()
+}
 func TestPedersenHash(t *testing.T) {
 	BabyJubJubCurve.Init()
 	pc1 := new(PedersenCommitment)
