@@ -19,7 +19,6 @@
 
 #include "libff/algebra/curves/alt_bn128/alt_bn128_pp.hpp" //hold key
 using namespace libff;
-typedef bigint<alt_bn128_r_limbs> bigint_r;
 
 using namespace libsnark;
 
@@ -27,14 +26,19 @@ using namespace libsnark;
 template<typename FieldT>
 
 
- pedersen_commitment<FieldT>:: pedersen_commitment(protoboard<FieldT> &pb,
-                   //const pb_linear_combination_array<FieldT> &bits,
-                   const pb_variable<FieldT> &commitment_x, const pb_variable<FieldT> &commitment_y,
-                   const pb_variable_array<FieldT> &m, const pb_variable_array<FieldT> &r
-                   ):
-        gadget<FieldT>(pb, " pedersen_commitment") , commitment_x(commitment_x),commitment_y(commitment_y), m(m), r(r)
+ pedersen_commitment<FieldT>:: pedersen_commitment(protoboard<FieldT> &pb, const std::string &annotation_prefix, const bool &outlayer):
+        gadget<FieldT>(pb, annotation_prefix)
 {
 
+    commitment_x.allocate(pb, FMT(annotation_prefix, "commitment x"));
+    commitment_y.allocate(pb, FMT(annotation_prefix, "commitment y"));
+
+    if (outlayer){
+        pb.set_input_sizes(verifying_field_element_size());
+    }
+
+    m.allocate(pb, 253, FMT(annotation_prefix, " m"));
+    r.allocate(pb, 253, FMT(annotation_prefix, " r"));
     base_x.allocate(pb, "base x");
     base_y.allocate(pb, "base y");
     H_x.allocate(pb, "h_x");
@@ -69,7 +73,7 @@ template<typename FieldT>
 
 
 template<typename FieldT>
-void  pedersen_commitment<FieldT>::generate_r1cs_constraints()
+void  pedersen_commitment<FieldT>::generate_r1cs_constraints(const bool commitment_check)
 {
     // not sure if we need to check pub key and r 
     // are on the curve. But doing it here for defense
@@ -80,17 +84,25 @@ void  pedersen_commitment<FieldT>::generate_r1cs_constraints()
     jubjub_pointMultiplication_lhs->generate_r1cs_constraints();
     jubjub_pointMultiplication_rhs->generate_r1cs_constraints();
     jubjub_pointAddition->generate_r1cs_constraints();
+    if (commitment_check){
+        this->pb.add_r1cs_constraint(r1cs_constraint<FieldT>({res_x} , {1}, {commitment_x}),
+                                     FMT("find y1*x2 == y1x2", " pedersen_commitment"));
+        this->pb.add_r1cs_constraint(r1cs_constraint<FieldT>({res_y} , {1}, {commitment_y}),
+                                     FMT("find y1*x2 == y1x2", " pedersen_commitment"));
+    }
 
-    this->pb.add_r1cs_constraint(r1cs_constraint<FieldT>({res_x} , {1}, {commitment_x}),
-                           FMT("find y1*x2 == y1x2", " pedersen_commitment"));
-    this->pb.add_r1cs_constraint(r1cs_constraint<FieldT>({res_y} , {1}, {commitment_y}),
-                           FMT("find y1*x2 == y1x2", " pedersen_commitment"));
 }
 
 
 template<typename FieldT>
-void  pedersen_commitment<FieldT>::generate_r1cs_witness()
+void  pedersen_commitment<FieldT>::generate_r1cs_witness(
+        const pb_variable<FieldT> &commitment_x, const pb_variable<FieldT> &commitment_y,
+        const pb_variable_array<FieldT> &in_m, const pb_variable_array<FieldT> &in_r)
 {
+    m.fill_with_field_elements(this->pb, in_m.get_vals(this->pb));
+    r.fill_with_field_elements(this->pb, in_r.get_vals(this->pb));
+    this->pb.val(this->commitment_x) = this-> pb.val(commitment_x);
+    this->pb.val(this->commitment_y) = this-> pb.val(commitment_y);
     this->pb.val(base_x) = FieldT("17777552123799933955779906779655732241715742912184938656739573121738514868268");
     this->pb.val(base_y) = FieldT("2626589144620713026669568689430873010625803728049924121243784502389097019475");
 
@@ -105,23 +117,36 @@ void  pedersen_commitment<FieldT>::generate_r1cs_witness()
     jubjub_pointMultiplication_lhs->generate_r1cs_witness();
     jubjub_pointMultiplication_rhs->generate_r1cs_witness();
     jubjub_pointAddition->generate_r1cs_witness();
-
-
-    //debug
-    /*
-    std::cout <<  this->pb.lc_val(lhs_x[252]) << " " <<  this->pb.lc_val(rhs_x) << " "<< std::endl; // <<  this->pb.lc_val(S) << " " <<  this->pb.lc_val(H) ;
-    for (uint i = 0 ; i < 253; i++) { 
-        std::cout << i << " i  " << this->pb.lc_val(S[i]) << std::endl;
-    }*/
 }
-    template<typename FieldT>
-    pb_variable<FieldT>  pedersen_commitment<FieldT>::get_res_x(){
-        return this->res_x;
 
-    }
-    template<typename FieldT>
-    pb_variable<FieldT>  pedersen_commitment<FieldT>::get_res_y(){
-        return this->res_y;
 
-    }
+template<typename FieldT>
+pb_variable<FieldT>  pedersen_commitment<FieldT>::get_res_x(){
+    return this->res_x;
 
+}
+template<typename FieldT>
+pb_variable<FieldT>  pedersen_commitment<FieldT>::get_res_y(){
+    return this->res_y;
+
+}
+
+template<typename FieldT>
+out_pedersen_commitment<FieldT>::out_pedersen_commitment(
+        protoboard<FieldT> &in_pb,
+        const std::string &in_annotation_prefix
+): pedersen_commitment<FieldT>::pedersen_commitment(in_pb, in_annotation_prefix, true){
+}
+
+template<typename FieldT>
+void out_pedersen_commitment<FieldT>::generate_r1cs_witness(const FieldT &comm_x, const FieldT &comm_y, const FieldT &in_m,
+                                                      const FieldT &in_r)
+{
+    this->pb.val(this->commitment_x) = comm_x;
+    this->pb.val(this->commitment_y) = comm_y;
+
+    fill_with_bits_of_field_element_baby_jubjub<FieldT>(this->pb, this->m, in_m);
+    fill_with_bits_of_field_element_baby_jubjub<FieldT>(this->pb, this->r, in_r);
+
+    pedersen_commitment<FieldT>::generate_r1cs_witness(this->commitment_x, this->commitment_y, this-> m, this-> r);
+}

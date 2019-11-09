@@ -17,15 +17,15 @@
     along with baby_jubjub_ecc.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#ifndef PEDSEN_COMMITMENT_HPP_
+#define PEDSEN_COMMITMENT_HPP_
 
 #include <cassert>
 #include <memory>
-
+#include <baby_jubjub.hpp>
 #include <libsnark/gadgetlib1/gadget.hpp>
+#include "baby_jubjub_ecc.hpp"
 
-#ifndef BABY_JUBJUB_CPP
-#define BABY_JUBJUB_CPP
-#endif
 
 using namespace libsnark;
 
@@ -43,12 +43,8 @@ private:
     pb_variable_array<FieldT> A;
     pb_variable<FieldT> H_x;
     pb_variable<FieldT> H_y;
-    pb_variable_array<FieldT> m;
-    pb_variable_array<FieldT> r;
-    pb_variable<FieldT> r_x;
-    pb_variable<FieldT> r_y;
-    pb_variable<FieldT> s_x;
-    pb_variable<FieldT> s_y;
+
+
 
 
     //intermeidate variables
@@ -75,18 +71,48 @@ public:
 
     pb_variable<FieldT> commitment_x;
     pb_variable<FieldT> commitment_y;
+    pb_variable_array<FieldT> m;
+    pb_variable_array<FieldT> r;
 
-     pedersen_commitment(protoboard<FieldT> &pb,
-                   //const pb_linear_combination_array<FieldT> &bits,
-                   const pb_variable<FieldT> &commitment_x, const pb_variable<FieldT> &commitment_y,
-                   const pb_variable_array<FieldT> &m, const pb_variable_array<FieldT> &r
-                   );
+    pedersen_commitment(protoboard<FieldT> &pb, const std::string &annotation_prefix, const bool &outlayer=false);
 
-    void generate_r1cs_constraints();
-    void generate_r1cs_witness();
+    void generate_r1cs_constraints(const bool commitment_check=true);
+    void generate_r1cs_witness(const pb_variable<FieldT> &commitment_x, const pb_variable<FieldT> &commitment_y,
+                               const pb_variable_array<FieldT> &in_m, const pb_variable_array<FieldT> &in_r);
     pb_variable<FieldT> get_res_x();
     pb_variable<FieldT> get_res_y();
+
+    static size_t verifying_field_element_size() {
+        return libff::div_ceil(verifying_input_bit_size(), FieldT::capacity());
+    }
+
+    static size_t verifying_input_bit_size() {
+        size_t acc = 0;
+        acc += 253; // commitment x
+        acc += 253; // commitment y
+        return acc;
+    }
+
 };
+
+
+template<typename FieldT>
+class out_pedersen_commitment:public pedersen_commitment<FieldT> {
+public:
+    out_pedersen_commitment(
+            protoboard<FieldT> &in_pb,
+            const std::string &in_annotation_prefix
+    );
+    void generate_r1cs_witness(
+            const FieldT &comm_x,
+            const FieldT &comm_y,
+            const FieldT &in_m,
+            const FieldT &in_r
+    );
+};
+
 
 #include <pedersen_commitment.cpp>
 
+
+#endif

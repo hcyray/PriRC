@@ -17,7 +17,8 @@
     along with baby_jubjub_ecc.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-
+#ifndef BABY_JUBJUB_HPP_
+#define BABY_JUBJUB_HPP_
 #include <cassert>
 #include <memory>
 
@@ -190,3 +191,4 @@ public:
 
 
 #include <baby_jubjub.cpp>
+#endif

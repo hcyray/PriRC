@@ -1,22 +1,47 @@
 package snark
 
 import (
+	"fmt"
 	"math/big"
 	"testing"
 )
 
-func TestProveHPC(t *testing.T) {
-
-	//Init()
-
-	//proof_buf := ProveHPC(9912321, 412323, p.Comm_x.String(), p.Comm_y.String())
-	//fmt.Print(proof_buf)
-
-	//fmt.Println("verification result:", VerifyHPC(proof_buf,  p.Comm_x.String(), p.Comm_y.String()))
-
-	//fmt.Println(string(x[0:lenX]))
-
+func TestPC(t *testing.T) {
+	b_m := new(big.Int)
+	b_r := new(big.Int)
+	b_m.SetInt64(1)
+	b_r.SetInt64(1)
+	pc := new(PedersenCommitment)
+	pc.Init()
+	BabyJubJubCurve.Init()
+	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc)
+	Init()
+	ParamGenHPC()
+	proof_buf := ProveHPC(1, 1, pc.Comm_x.String(), pc.Comm_y.String())
+	fmt.Println("verification result:", VerifyHPC(proof_buf, pc.Comm_x.String(), pc.Comm_y.String()))
 }
+
+func TestLP(t *testing.T) {
+	b_m := new(big.Int)
+	b_r := new(big.Int)
+	b_m.SetInt64(2)
+	b_r.SetInt64(2)
+	pc := new(PedersenCommitment)
+	pc.Init()
+	BabyJubJubCurve.Init()
+	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc)
+	Init()
+	ParamGenLP()
+	var T string
+	var blockHash string
+	T = "12845949072827470624709637419912138308739243446882777103948483823386985213512"
+	blockHash = "1234"
+	proof_buf := ProveLP(2, 2, pc.Comm_x.String(), pc.Comm_y.String(), T,
+		2, 2, pc.Comm_x.String(), pc.Comm_y.String(), blockHash, 1)
+	fmt.Println("verification result:", VerifyLP(proof_buf, pc.Comm_x.String(), pc.Comm_y.String(),
+		T, pc.Comm_x.String(), pc.Comm_y.String(), blockHash, 1))
+}
+
 func TestPedersenCommitment(t *testing.T) {
 	BabyJubJubCurve.Init()
 	b_m := new(big.Int)

@@ -18,6 +18,11 @@ func Init() {
 	})
 }
 
+//HPC param gen
+func ParamGenHPC() {
+	C.prc_paramgen_hpc()
+}
+
 // proof of Homomorphic Pedersen Commitment
 func ProveHPC(m uint64, r uint64, commX string, commY string) [312]byte {
 	var proof_buf [312]byte
@@ -28,7 +33,7 @@ func ProveHPC(m uint64, r uint64, commX string, commY string) [312]byte {
 
 // verify proof of Homomorphic Pedersen Commitment
 func VerifyHPC(proof [312]byte, commX string, commY string) bool {
-	ret := C.prc_verify_hpc_with_commit(unsafe.Pointer(&proof[0]), C.CString(commX), C.CString(commY))
+	ret := C.prc_verify_hpc(unsafe.Pointer(&proof[0]), C.CString(commX), C.CString(commY))
 	if ret {
 		return true
 	} else {
@@ -36,28 +41,57 @@ func VerifyHPC(proof [312]byte, commX string, commY string) bool {
 	}
 }
 
-//TODO
-// prove Identity
-func ProveID(m uint64, r uint64, commX string, commY string) [312]byte {
-	return [312]byte{}
+//Leader Proof param gen
+func ParamGenLP() {
+	C.prc_paramgen_lp()
 }
 
 //TODO
-// verify proof of ID
-func VerifyID(proof [312]byte, commX string, commY string) bool {
-	return false
+// prove leader proof
+func ProveLP(snM uint64, snR uint64, snX string, snY string, T string,
+	repM uint64, repR uint64, repX string, repY string, blockHash string, sl int) [312]byte {
+	var proof_buf [312]byte
+	C.prc_prove_lp(unsafe.Pointer(&proof_buf[0]), C.ulong(snM), C.ulong(snR), C.CString(snX), C.CString(snY),
+		C.CString(T), C.ulong(repM), C.ulong(repR), C.CString(repX), C.CString(repY), C.CString(blockHash), C.int(sl))
+	return proof_buf
 }
 
 //TODO
-// prove Identity
-func ProveLeader(m uint64, r uint64, commX string, commY string) [312]byte {
-	return [312]byte{}
+// verify leader proof
+func VerifyLP(proof [312]byte, snX string, snY string, T string, repX string, repY string, blockHash string, sl int) bool {
+	ret := C.prc_verify_lp(unsafe.Pointer(&proof[0]), C.CString(snX), C.CString(snY), C.CString(T),
+		C.CString(repX), C.CString(repY), C.CString(blockHash), C.int(sl))
+	if ret {
+		return true
+	} else {
+		return false
+	}
+}
+
+//Identity update Proof param gen
+func ParamGenIUP(d int) {
+	C.prc_paramgen_iup(C.int(d))
 }
 
 //TODO
-// verify proof of ID
-func VerifyLeader(proof [312]byte, commX string, commY string) bool {
-	return false
+// prove identity update
+func ProveIUP(m uint64, r uint64, commX string, commY string) [312]byte {
+	var proof_buf [312]byte
+	C.prc_prove_lp(unsafe.Pointer(&proof_buf[0]), C.ulong(snM), C.ulong(snR), C.CString(snX), C.CString(snY),
+		C.CString(T), C.ulong(repM), C.ulong(repR), C.CString(repX), C.CString(repY), C.CString(blockHash), C.int(sl))
+	return proof_buf
+}
+
+//TODO
+// verify identity update
+func VerifyIUP(proof [312]byte, commX string, commY string) bool {
+	ret := C.prc_verify_lp(unsafe.Pointer(&proof[0]), C.CString(snX), C.CString(snY), C.CString(T),
+		C.CString(repX), C.CString(repY), C.CString(blockHash), C.int(sl))
+	if ret {
+		return true
+	} else {
+		return false
+	}
 }
 
 //TODO

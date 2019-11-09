@@ -2,7 +2,8 @@
 // Created by hcy_ray on 10/11/19.
 //
 
-
+#ifndef BABY_JUBJUB_MUL_CMP_HPP
+#define BABY_JUBJUB_MUL_CMP_HPP
 
 
 #include <cassert>
@@ -47,3 +48,5 @@ public:
 
 
 #include "mul_cmp.cpp"
+
+#endif
