@@ -161,6 +161,26 @@ func (p *MerkleProof) Print() {
 	fmt.Println(p.Root_x)
 	fmt.Println(p.Root_y)
 }
+
+func (p *MerkleProof) PrintToTxT() {
+	fmt.Println(p.Depth)
+	for i := 0; i < p.Depth; i++ {
+		if p.AdressBit[i] {
+			fmt.Println(1)
+		} else {
+			fmt.Println(0)
+		}
+	}
+	for i := 0; i < p.Depth; i++ {
+		fmt.Println(p.PathVar[i*2])
+		fmt.Println(p.PathVar[i*2+1])
+	}
+	fmt.Println(p.Leaf_x)
+	fmt.Println(p.Leaf_y)
+	fmt.Println(p.Root_x)
+	fmt.Println(p.Root_y)
+}
+
 func (m *MerkleNode) InitLeaf(pc *PedersenCommitment) {
 	m.PC = pc
 	m.IsLeaf = true

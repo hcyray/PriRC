@@ -55,7 +55,7 @@ func TestPedersenHash(t *testing.T) {
 }
 func TestMerkleTree(t *testing.T) {
 	BabyJubJubCurve.Init()
-	n := 3
+	n := 100
 	b_m := new(big.Int)
 	b_r := new(big.Int)
 	pc := make([]PedersenCommitment, n)
@@ -67,7 +67,7 @@ func TestMerkleTree(t *testing.T) {
 	}
 	var mt MerkleTree
 	mt.Init(pc)
-	mt.Print()
+	//mt.Print()
 	p := mt.Proof(1)
-	p.Print()
+	p.PrintToTxT()
 }
