@@ -62,22 +62,23 @@ libff::Fr<ppT> get_field_element_from_bits(pb_variable_array<libff::Fr<ppT>> *x,
     return result;
 }
 */
-libff::bit_vector setbits(ulong x){
-    libff::bit_vector bits(253,0);
-    int i = 252;
+void setbits(ulong x, bool a[], int d){
+    int i = d - 1;
     while (x > 0) {
-        bits[i] = x & 1;
+        if ((x & 1) == 1){
+            a[i] = true;
+        } else {
+            a[i] =false;
+        }
         x = x >> 1;
         i--;
     }
-    return bits;
 }
 
 void prc_initialize(){
     libff::alt_bn128_pp::init_public_params();
     libff::inhibit_profiling_info = true;
     libff::inhibit_profiling_counters = true;
-
 }
 
 bool prc_verify_hpc(void *proof_ptr, char *comm_x, char *comm_y) {
@@ -239,14 +240,18 @@ bool prc_verify_iup(void *proof_ptr, char* old_id_root_x, char* old_id_root_y, c
 }
 
 
-void prc_prove_iup(void *output_proof_ptr, int depth, bool in_id_address_bits[], char* id_leaf_x, char* id_leaf_y,
-        char* id_root_x, char* id_root_y, char* in_id_path[], bool in_rep_address_bits[], char* rep_leaf_x, char * rep_leaf_y,
+void prc_prove_iup(void *output_proof_ptr, int depth, ulong in_id_address, char* id_leaf_x, char* id_leaf_y,
+        char* id_root_x, char* id_root_y, char* in_id_path[], ulong in_rep_address, char* rep_leaf_x, char * rep_leaf_y,
         char* rep_root_x, char* rep_root_y, char* in_rep_path[], ulong id_m, ulong id_r, char* id_x, char* id_y,
         ulong rep_m, ulong rep_r, char* rep_x, char* rep_y){
     unsigned char *output_proof = reinterpret_cast<unsigned char *>(output_proof_ptr);
     protoboard<FieldT> pb;
     identity_update_proof g(pb, depth," identity update");
     vector<FieldT> id_address_bits, rep_address_bits, id_path, rep_path;
+    bool in_id_address_bits[depth];
+    bool in_rep_address_bits[depth];
+    setbits(in_id_address, in_id_address_bits, depth);
+    setbits(in_rep_address, in_rep_address_bits, depth);
     for(int i = 0; i < depth; i++) {
         if (in_id_address_bits[i]){
             id_address_bits.emplace_back(FieldT("1"));
@@ -298,4 +303,21 @@ void prc_paramgen_iup(int depth) {
     saveToFile<r1cs_ppzksnark_proving_key<ppT>>("iup.pk", crs.pk);
     saveToFile<r1cs_ppzksnark_verification_key<ppT>>("iup.vk", crs.vk);
 
+}
+
+void prc_test(void *output_proof_ptr1, void *output_proof_ptr2,bool a[], char* b[], int d) {
+    unsigned char *output_proof1 = reinterpret_cast<unsigned char *>(output_proof_ptr1);
+    unsigned char *output_proof2 = reinterpret_cast<unsigned char *>(output_proof_ptr2);
+    for (int i = 0; i < d; i++) {
+        if (a[i]) {
+            output_proof1[i] = '1';
+        } else {
+            output_proof1[i] = '2';
+        }
+        if (b[i] == "123") {
+            output_proof2[i] = '1';
+        }else {
+            output_proof2[i] = '2';
+        }
+    }
 }

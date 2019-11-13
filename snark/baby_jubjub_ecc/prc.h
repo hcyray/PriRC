@@ -58,9 +58,9 @@ void prc_paramgen_lp();
 //merkle proof
 void prc_prove_iup(
         void *output_proof_ptr, int depth,
-        bool in_id_address_bits[], char* id_leaft_x, char* id_leaf_y,
+        ulong in_id_address, char* id_leaft_x, char* id_leaf_y,
         char* id_root_x, char* id_root_y, char* in_id_path[],
-        bool in_rep_address_bits[], char* rep_leaf_x, char * rep_leaf_y,
+        ulong in_rep_address, char* rep_leaf_x, char * rep_leaf_y,
         char* rep_root_x, char* root_rep_y, char* in_rep_path[],
         ulong id_m, ulong id_r, char* id_x, char* id_y,
         ulong rep_m, ulong rep_r, char* rep_x, char* rep_y
@@ -73,6 +73,8 @@ bool prc_verify_iup(
         char* new_rep_x, char* new_rep_y
 );
 void prc_paramgen_iup(int depth);
+
+void prc_test(void *output_proof_ptr1, void *output_proof_ptr2,bool a[], char* b[], int d);
 
 
 #ifdef __cplusplus

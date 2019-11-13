@@ -60,11 +60,11 @@ public:
     static size_t verifying_input_bit_size() {
         size_t acc = 0;
         acc += 253; // block_hash
-        acc += 253; //slot
+        acc += 253; // slot
         acc += 253; // threshold T
         acc += 253; // sn commitment x
         acc += 253; // sn commitment y
-        acc += 253; //rep x
+        acc += 253; // rep x
         acc += 253; // rep y
 
         return acc;
