@@ -74,7 +74,7 @@ bool prc_verify_iup(
 );
 void prc_paramgen_iup(int depth);
 
-void prc_test(void *output_proof_ptr1, void *output_proof_ptr2,bool a[], char* b[], int d);
+void prc_test(void *output_proof_ptr1, char* b[], int d);
 
 
 #ifdef __cplusplus

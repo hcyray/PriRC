@@ -6,7 +6,6 @@ import (
 	"testing"
 )
 
-func TestIUP()
 func TestPC(t *testing.T) {
 	b_m := new(big.Int)
 	b_r := new(big.Int)
@@ -46,17 +45,13 @@ func TestLP(t *testing.T) {
 func TestPrc(t *testing.T) {
 	var d int
 	d = 3
-	a := make([]bool, 3)
 	b := make([]string, 3)
-	a[0] = true
-	a[1] = false
-	a[2] = true
 	b[0] = "123"
 	b[1] = "123"
 	b[2] = "1234"
 	var proof1 [312]byte
-	var proof2 [312]byte
-	prc_test(proof1, proof2, a, b, d)
+	prc_test(proof1, b, d)
+	fmt.Println(proof1)
 }
 func TestPedersenCommitment(t *testing.T) {
 	BabyJubJubCurve.Init()

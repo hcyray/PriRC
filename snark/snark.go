@@ -4,6 +4,7 @@ package snark
 // #include "baby_jubjub_ecc/prc.h"
 import "C"
 import (
+	"fmt"
 	"sync"
 	"unsafe"
 )
@@ -106,15 +107,15 @@ func ParamGenIUP(d int) {
 	C.prc_paramgen_iup(C.int(d))
 }
 
-func prc_test(proof1 [312]byte, proof2 [312]byte, a []bool, b []string, d int) {
-
-	ca := make([]C.bool, d)
-	cb := C.CString(b[0])
+func prc_test(proof1 [312]byte, b []string, d int) {
+	cb := make([]*C.char, d)
 	for i := 0; i < d; i++ {
-		ca[i] = C.bool(a[i])
-		cb = append(cb, C.CString(b[i]))
+		cs := C.CString(b[i])
+		defer C.free(unsafe.Pointer(cs))
+		cb[i] = cs
 	}
-	C.prc_test(unsafe.Pointer(&proof1[0]), unsafe.Pointer(&proof2[0]), ca, cb, C.int(d))
+	C.prc_test(unsafe.Pointer(&proof1[0]), &cb[0], C.int(d))
+	fmt.Println(proof1)
 
 }
 

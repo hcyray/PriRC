@@ -305,19 +305,13 @@ void prc_paramgen_iup(int depth) {
 
 }
 
-void prc_test(void *output_proof_ptr1, void *output_proof_ptr2,bool a[], char* b[], int d) {
+void prc_test(void *output_proof_ptr1, char* b[], int d) {
     unsigned char *output_proof1 = reinterpret_cast<unsigned char *>(output_proof_ptr1);
-    unsigned char *output_proof2 = reinterpret_cast<unsigned char *>(output_proof_ptr2);
     for (int i = 0; i < d; i++) {
-        if (a[i]) {
-            output_proof1[i] = '1';
-        } else {
-            output_proof1[i] = '2';
-        }
         if (b[i] == "123") {
-            output_proof2[i] = '1';
+            output_proof1[i] = '1';
         }else {
-            output_proof2[i] = '2';
+            output_proof1[i] = '2';
         }
     }
 }
