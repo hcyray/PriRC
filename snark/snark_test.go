@@ -6,6 +6,7 @@ import (
 	"testing"
 )
 
+func TestIUP()
 func TestPC(t *testing.T) {
 	b_m := new(big.Int)
 	b_r := new(big.Int)
