@@ -1,8 +1,11 @@
 package snark
 
 import (
+	"bufio"
 	"fmt"
 	"math/big"
+	"os"
+	"strconv"
 	"testing"
 )
 
@@ -42,6 +45,70 @@ func TestLP(t *testing.T) {
 		T, pc.Comm_x.String(), pc.Comm_y.String(), blockHash, 1))
 }
 
+func TestIUP(t *testing.T) {
+	file, _ := os.Open("merkle.txt")
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanWords)
+	var d int
+	var idAdd uint64
+	var repAdd uint64
+	scanner.Scan()
+	d, _ = strconv.Atoi(scanner.Text())
+	idAddBit := make([]bool, d)
+	for i := 0; i < d; i++ {
+		scanner.Scan()
+		temp, _ := strconv.Atoi(scanner.Text())
+		if temp == 1 {
+			idAddBit[i] = true
+		} else {
+			idAddBit[i] = false
+		}
+	}
+	BoolArrayToDec(&idAdd, idAddBit, d)
+	repAdd = idAdd
+	idPath := make([]string, d*2)
+	repPath := make([]string, d*2)
+	for i := 0; i < d*2; i++ {
+		scanner.Scan()
+		idPath[i] = scanner.Text()
+		repPath[i] = idPath[i]
+	}
+	scanner.Scan()
+	idLeafX := scanner.Text()
+	repLeafX := idLeafX
+	scanner.Scan()
+	idLeafY := scanner.Text()
+	repLeafY := idLeafY
+	scanner.Scan()
+	idRootX := scanner.Text()
+	repRootX := idRootX
+	scanner.Scan()
+	idRootY := scanner.Text()
+	repRootY := idRootY
+
+	b_m := new(big.Int)
+	b_r := new(big.Int)
+	b_m.SetInt64(2)
+	b_r.SetInt64(2)
+	pc1 := new(PedersenCommitment)
+	pc1.Init()
+	BabyJubJubCurve.Init()
+	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc1)
+	pc2 := new(PedersenCommitment)
+	pc2.Init()
+	BabyJubJubCurve.Init()
+	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc2)
+	Init()
+	ParamGenIUP(d)
+	proof_buf := ProveIUP(d, idAdd, idLeafX, idLeafY, idRootX, idRootY, idPath,
+		repAdd, repLeafX, repLeafY, repRootX, repRootY, repPath, 2, 2, pc1.Comm_x.String(), pc1.Comm_y.String(),
+		2, 2, pc2.Comm_x.String(), pc2.Comm_y.String())
+	fmt.Println("Ok")
+	fmt.Println("verification result:", VerifyIUP(proof_buf, idRootX, idRootY, repRootX, repRootY,
+		pc1.Comm_x.String(), pc1.Comm_y.String(), pc2.Comm_x.String(), pc2.Comm_y.String()))
+}
+
 func TestPrc(t *testing.T) {
 	var d int
 	d = 3
@@ -51,7 +118,6 @@ func TestPrc(t *testing.T) {
 	b[2] = "1234"
 	var proof1 [312]byte
 	prc_test(proof1, b, d)
-	fmt.Println(proof1)
 }
 func TestPedersenCommitment(t *testing.T) {
 	BabyJubJubCurve.Init()
@@ -91,7 +157,7 @@ func TestPedersenHash(t *testing.T) {
 }
 func TestMerkleTree(t *testing.T) {
 	BabyJubJubCurve.Init()
-	n := 100
+	n := 7
 	b_m := new(big.Int)
 	b_r := new(big.Int)
 	pc := make([]PedersenCommitment, n)

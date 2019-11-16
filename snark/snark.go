@@ -111,31 +111,84 @@ func prc_test(proof1 [312]byte, b []string, d int) {
 	cb := make([]*C.char, d)
 	for i := 0; i < d; i++ {
 		cs := C.CString(b[i])
-		defer C.free(unsafe.Pointer(cs))
 		cb[i] = cs
 	}
+
 	C.prc_test(unsafe.Pointer(&proof1[0]), &cb[0], C.int(d))
 	fmt.Println(proof1)
+	for i := 0; i < d; i++ {
+		defer C.free(unsafe.Pointer(cb[i]))
+	}
 
 }
 
-/*
-//TODO
 // prove identity update
-func ProveIUP( d int,
-
-	m uint64, r uint64, commX string, commY string) [312]byte {
+func ProveIUP(d int, idAddress uint64, idLeafX string, idLeafY string, idRootX string, idRootY string, idPath []string,
+	repAddress uint64, repLeafX string, repLeafY string, repRootX string, repRootY string, repPath []string,
+	idM uint64, idR uint64, idCommX string, idCommY string, repM uint64, repR uint64, repCommX string, repCommY string) [312]byte {
 	var proof_buf [312]byte
-	C.prc_prove_lp(unsafe.Pointer(&proof_buf[0]), C.ulong(snM), C.ulong(snR), C.CString(snX), C.CString(snY),
-		C.CString(T), C.ulong(repM), C.ulong(repR), C.CString(repX), C.CString(repY), C.CString(blockHash), C.int(sl))
+	cIdLeafX := C.CString(idLeafX)
+	cIdLeafY := C.CString(idLeafY)
+	cRepLeafX := C.CString(repLeafX)
+	cRepLeafY := C.CString(repLeafY)
+	cIdRootX := C.CString(idRootX)
+	cIdRootY := C.CString(idRootY)
+	cRepRootX := C.CString(repRootX)
+	cRepRootY := C.CString(repRootY)
+	cIdCommX := C.CString(idCommX)
+	cIdCommY := C.CString(idCommY)
+	cRepCommX := C.CString(repCommX)
+	cRepCommY := C.CString(repCommY)
+	defer C.free(unsafe.Pointer(cIdLeafX))
+	defer C.free(unsafe.Pointer(cIdLeafY))
+	defer C.free(unsafe.Pointer(cRepLeafX))
+	defer C.free(unsafe.Pointer(cRepLeafY))
+	defer C.free(unsafe.Pointer(cIdRootX))
+	defer C.free(unsafe.Pointer(cIdRootY))
+	defer C.free(unsafe.Pointer(cRepRootX))
+	defer C.free(unsafe.Pointer(cRepRootY))
+	defer C.free(unsafe.Pointer(cIdCommX))
+	defer C.free(unsafe.Pointer(cIdCommY))
+	defer C.free(unsafe.Pointer(cRepCommX))
+	defer C.free(unsafe.Pointer(cRepCommY))
+
+	cIdPath := make([]*C.char, d*2)
+	cRepPath := make([]*C.char, d*2)
+	for i := 0; i < d*2; i++ {
+		cIdPath[i] = C.CString(idPath[i])
+		defer C.free(unsafe.Pointer(cIdPath[i]))
+		cRepPath[i] = C.CString(repPath[i])
+		defer C.free(unsafe.Pointer(cRepPath[i]))
+	}
+
+	C.prc_prove_iup(unsafe.Pointer(&proof_buf[0]), C.int(d),
+		C.ulong(idAddress), cIdLeafX, cIdLeafY, cIdRootX, cIdRootY, &cIdPath[0],
+		C.ulong(repAddress), cRepLeafX, cRepLeafY, cRepRootX, cRepRootY, &cRepPath[0],
+		C.ulong(idM), C.ulong(idR), cIdCommX, cIdCommY, C.ulong(repM), C.ulong(repR), cRepCommX, cRepCommY)
 	return proof_buf
 }
 
-//TODO
 // verify identity update
-func VerifyIUP(proof [312]byte, commX string, commY string) bool {
-	ret := C.prc_verify_lp(unsafe.Pointer(&proof[0]), C.CString(snX), C.CString(snY), C.CString(T),
-		C.CString(repX), C.CString(repY), C.CString(blockHash), C.int(sl))
+func VerifyIUP(proof [312]byte, oldIdRootX string, oldIdRootY string, oldRepRootX string, oldRepRootY string,
+	newIdX string, newIdY string, newRepX string, newRepY string) bool {
+	cOldIdRootX := C.CString(oldIdRootX)
+	cOldIdRootY := C.CString(oldIdRootY)
+	cOldRepRootX := C.CString(oldRepRootX)
+	cOldRepRootY := C.CString(oldRepRootY)
+	cNewIdX := C.CString(newIdX)
+	cNewIdY := C.CString(newIdY)
+	cNewRepX := C.CString(newRepX)
+	cNewRepY := C.CString(newRepY)
+	defer C.free(unsafe.Pointer(cOldIdRootX))
+	defer C.free(unsafe.Pointer(cOldIdRootY))
+	defer C.free(unsafe.Pointer(cOldRepRootX))
+	defer C.free(unsafe.Pointer(cOldRepRootY))
+	defer C.free(unsafe.Pointer(cNewIdX))
+	defer C.free(unsafe.Pointer(cNewIdY))
+	defer C.free(unsafe.Pointer(cNewRepX))
+	defer C.free(unsafe.Pointer(cNewRepY))
+	ret := C.prc_verify_iup(unsafe.Pointer(&proof[0]), cOldIdRootX, cOldIdRootY, cOldRepRootX, cOldRepRootY,
+		cNewIdX, cNewIdY, cNewRepX, cNewRepY)
 	if ret {
 		return true
 	} else {
@@ -143,6 +196,7 @@ func VerifyIUP(proof [312]byte, commX string, commY string) bool {
 	}
 }
 
+/*
 //TODO
 // prove PoW
 func ProvePOW(m uint64, r uint64, commX string, commY string) [312]byte {

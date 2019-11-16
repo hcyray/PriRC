@@ -133,7 +133,7 @@ void prc_paramgen_hpc() {
     g.generate_r1cs_constraints();
 
     const r1cs_constraint_system<FieldT> constraint_system = pb.get_constraint_system();
-    cout << "Number of R1CS constraints: " << constraint_system.num_constraints() << endl;
+    //cout << "Number of R1CS constraints: " << constraint_system.num_constraints() << endl;
     auto crs = r1cs_ppzksnark_generator<ppT>(constraint_system);
 
     saveToFile<r1cs_ppzksnark_proving_key<ppT>>("hpc.pk", crs.pk);
@@ -201,7 +201,7 @@ void prc_paramgen_lp() {
     g.generate_r1cs_constraints();
 
     const r1cs_constraint_system<FieldT> constraint_system = pb.get_constraint_system();
-    cout << "Number of R1CS constraints: " << constraint_system.num_constraints() << endl;
+    //cout << "Number of R1CS constraints: " << constraint_system.num_constraints() << endl;
     auto crs = r1cs_ppzksnark_generator<ppT>(constraint_system);
 
     saveToFile<r1cs_ppzksnark_proving_key<ppT>>("lp.pk", crs.pk);
@@ -267,7 +267,6 @@ void prc_prove_iup(void *output_proof_ptr, int depth, ulong in_id_address, char*
         id_path.emplace_back(FieldT(in_id_path[i*2+1]));
         rep_path.emplace_back(FieldT(in_rep_path[i*2]));
         rep_path.emplace_back(FieldT(in_rep_path[i*2+1]));
-
     }
 
     g.generate_r1cs_constraints();
@@ -297,21 +296,10 @@ void prc_paramgen_iup(int depth) {
     g.generate_r1cs_constraints();
 
     const r1cs_constraint_system<FieldT> constraint_system = pb.get_constraint_system();
-    cout << "Number of R1CS constraints: " << constraint_system.num_constraints() << endl;
+    //cout << "Number of R1CS constraints: " << constraint_system.num_constraints() << endl;
     auto crs = r1cs_ppzksnark_generator<ppT>(constraint_system);
 
     saveToFile<r1cs_ppzksnark_proving_key<ppT>>("iup.pk", crs.pk);
     saveToFile<r1cs_ppzksnark_verification_key<ppT>>("iup.vk", crs.vk);
 
-}
-
-void prc_test(void *output_proof_ptr1, char* b[], int d) {
-    unsigned char *output_proof1 = reinterpret_cast<unsigned char *>(output_proof_ptr1);
-    for (int i = 0; i < d; i++) {
-        if (b[i] == "123") {
-            output_proof1[i] = '1';
-        }else {
-            output_proof1[i] = '2';
-        }
-    }
 }
