@@ -7,7 +7,7 @@
 #include <memory>
 #include "pedersen_commitment.hpp"
 #include <libsnark/gadgetlib1/gadget.hpp>
-
+#include <libsnark/gadgetlib1/gadgets/basic_gadgets.hpp>
 
 
 
@@ -17,15 +17,20 @@ template<typename FieldT>
 class  pedersen_hash : public gadget<FieldT> {
 
 private:
+    size_t n;
     pb_variable_array<FieldT> m;
     pb_variable_array<FieldT> r;
-
+    pb_variable_array<FieldT> m_reverse;
+    pb_variable_array<FieldT> r_reverse;
     pb_variable<FieldT> m_var;
     pb_variable<FieldT> r_var;
     pb_variable<FieldT> a;
     pb_variable<FieldT> d;
     std::shared_ptr<pedersen_commitment<FieldT>> commit;
     std::shared_ptr<pointAddition<FieldT>> hash_pointAddition;
+    std::shared_ptr<packing_gadget<FieldT> > pack_m;
+    std::shared_ptr<packing_gadget<FieldT> > pack_r;
+
     //pb_variable<FieldT> res_x;
     //pb_variable<FieldT> res_y;
 public:

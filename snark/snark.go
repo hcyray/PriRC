@@ -4,7 +4,6 @@ package snark
 // #include "baby_jubjub_ecc/prc.h"
 import "C"
 import (
-	"fmt"
 	"sync"
 	"unsafe"
 )
@@ -52,49 +51,49 @@ func VerifyHPC(proof [312]byte, commX string, commY string) bool {
 }
 
 //Leader Proof param gen
-func ParamGenLP() {
-	C.prc_paramgen_lp()
+func ParamGenLP(d int, n int) {
+	C.prc_paramgen_lp(C.int(d), C.int(n))
 }
 
 // prove leader proof
-func ProveLP(snM uint64, snR uint64, snX string, snY string, T string,
-	repM uint64, repR uint64, repX string, repY string, blockHash string, sl int) [312]byte {
+func ProveLP(snM uint64, snR uint64, snX string, snY string, totalRep string, repM uint64, repR uint64,
+	repX string, repY string, blockHash string, sl int, d int, n int) [312]byte {
 	var proof_buf [312]byte
 
 	cSnX := C.CString(snX)
 	cSnY := C.CString(snY)
 	cRepX := C.CString(repX)
 	cRepY := C.CString(repY)
-	cT := C.CString(T)
+	cTotalRep := C.CString(totalRep)
 	cBlockHash := C.CString(blockHash)
 	defer C.free(unsafe.Pointer(cSnX))
 	defer C.free(unsafe.Pointer(cSnY))
 	defer C.free(unsafe.Pointer(cRepX))
 	defer C.free(unsafe.Pointer(cRepY))
-	defer C.free(unsafe.Pointer(cT))
+	defer C.free(unsafe.Pointer(cTotalRep))
 	defer C.free(unsafe.Pointer(cBlockHash))
 
-	C.prc_prove_lp(unsafe.Pointer(&proof_buf[0]), C.ulong(snM), C.ulong(snR), cSnX, cSnY,
-		cT, C.ulong(repM), C.ulong(repR), cRepX, cRepY, cBlockHash, C.int(sl))
+	C.prc_prove_lp(unsafe.Pointer(&proof_buf[0]), C.ulong(snM), C.ulong(snR), cSnX, cSnY, cTotalRep,
+		C.ulong(repM), C.ulong(repR), cRepX, cRepY, cBlockHash, C.int(sl), C.int(d), C.int(n))
 	return proof_buf
 }
 
 // verify leader proof
-func VerifyLP(proof [312]byte, snX string, snY string, T string, repX string, repY string, blockHash string, sl int) bool {
+func VerifyLP(proof [312]byte, snX string, snY string, totalRep string, repX string, repY string, blockHash string, sl int) bool {
 	cSnX := C.CString(snX)
 	cSnY := C.CString(snY)
 	cRepX := C.CString(repX)
 	cRepY := C.CString(repY)
-	cT := C.CString(T)
+	cTotalRep := C.CString(totalRep)
 	cBlockHash := C.CString(blockHash)
 	defer C.free(unsafe.Pointer(cSnX))
 	defer C.free(unsafe.Pointer(cSnY))
 	defer C.free(unsafe.Pointer(cRepX))
 	defer C.free(unsafe.Pointer(cRepY))
-	defer C.free(unsafe.Pointer(cT))
+	defer C.free(unsafe.Pointer(cTotalRep))
 	defer C.free(unsafe.Pointer(cBlockHash))
 
-	ret := C.prc_verify_lp(unsafe.Pointer(&proof[0]), cSnX, cSnY, cT, cRepX, cRepY, cBlockHash, C.int(sl))
+	ret := C.prc_verify_lp(unsafe.Pointer(&proof[0]), cSnX, cSnY, cTotalRep, cRepX, cRepY, cBlockHash, C.int(sl))
 	if ret {
 		return true
 	} else {
@@ -105,21 +104,6 @@ func VerifyLP(proof [312]byte, snX string, snY string, T string, repX string, re
 //Identity update Proof param gen
 func ParamGenIUP(d int) {
 	C.prc_paramgen_iup(C.int(d))
-}
-
-func prc_test(proof1 [312]byte, b []string, d int) {
-	cb := make([]*C.char, d)
-	for i := 0; i < d; i++ {
-		cs := C.CString(b[i])
-		cb[i] = cs
-	}
-
-	C.prc_test(unsafe.Pointer(&proof1[0]), &cb[0], C.int(d))
-	fmt.Println(proof1)
-	for i := 0; i < d; i++ {
-		defer C.free(unsafe.Pointer(cb[i]))
-	}
-
 }
 
 // prove identity update

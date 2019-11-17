@@ -34,15 +34,15 @@ func TestLP(t *testing.T) {
 	BabyJubJubCurve.Init()
 	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc)
 	Init()
-	ParamGenLP()
-	var T string
+	ParamGenLP(1, 4)
+	var totalRep string
 	var blockHash string
-	T = "12845949072827470624709637419912138308739243446882777103948483823386985213512"
+	totalRep = "10"
 	blockHash = "1234"
-	proof_buf := ProveLP(2, 2, pc.Comm_x.String(), pc.Comm_y.String(), T,
-		2, 2, pc.Comm_x.String(), pc.Comm_y.String(), blockHash, 1)
+	proof_buf := ProveLP(2, 2, pc.Comm_x.String(), pc.Comm_y.String(), totalRep,
+		2, 2, pc.Comm_x.String(), pc.Comm_y.String(), blockHash, 1, 1, 4)
 	fmt.Println("verification result:", VerifyLP(proof_buf, pc.Comm_x.String(), pc.Comm_y.String(),
-		T, pc.Comm_x.String(), pc.Comm_y.String(), blockHash, 1))
+		totalRep, pc.Comm_x.String(), pc.Comm_y.String(), blockHash, 1))
 }
 
 func TestIUP(t *testing.T) {
@@ -109,16 +109,6 @@ func TestIUP(t *testing.T) {
 		pc1.Comm_x.String(), pc1.Comm_y.String(), pc2.Comm_x.String(), pc2.Comm_y.String()))
 }
 
-func TestPrc(t *testing.T) {
-	var d int
-	d = 3
-	b := make([]string, 3)
-	b[0] = "123"
-	b[1] = "123"
-	b[2] = "1234"
-	var proof1 [312]byte
-	prc_test(proof1, b, d)
-}
 func TestPedersenCommitment(t *testing.T) {
 	BabyJubJubCurve.Init()
 	b_m := new(big.Int)
@@ -145,19 +135,20 @@ func TestPedersenHash(t *testing.T) {
 	BabyJubJubCurve.Init()
 	pc1 := new(PedersenCommitment)
 	pc1.Init()
-	pc1.Comm_x.SetString("17777552123799933955779906779655732241715742912184938656739573121738514868268", 10)
-	pc1.Comm_y.SetString("2626589144620713026669568689430873010625803728049924121243784502389097019475", 10)
+	pc1.Comm_x.SetString("0", 10)
+	pc1.Comm_y.SetString("1", 10)
 	pc2 := new(PedersenCommitment)
 	pc2.Init()
-	pc2.Comm_x.SetString("1", 10)
-	pc2.Comm_y.SetString("1", 10)
+	pc2.Comm_x.SetString("17777552123799933955779906779655732241715742912184938656739573121738514868268", 10)
+	pc2.Comm_y.SetString("2626589144620713026669568689430873010625803728049924121243784502389097019475", 10)
 	BabyJubJubCurve.AddTwoPedersenCommitment(pc1, pc2)
+	pc1.PrintPC()
 	BabyJubJubCurve.CalPedersenHash(pc1.Comm_x, pc1.Comm_y, pc1)
 	pc1.PrintPC()
 }
 func TestMerkleTree(t *testing.T) {
 	BabyJubJubCurve.Init()
-	n := 7
+	n := 3
 	b_m := new(big.Int)
 	b_r := new(big.Int)
 	pc := make([]PedersenCommitment, n)

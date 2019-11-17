@@ -3,8 +3,6 @@
 
 #include <libff/algebra/curves/alt_bn128/alt_bn128_pp.hpp>
 #include <libsnark/gadgetlib1/protoboard.hpp>
-#include <libsnark/gadgetlib1/gadget.hpp>
-
 
 
 
@@ -16,7 +14,6 @@ typedef libsnark::pb_variable<libff::Fr<ppT>> VariableT;
 typedef libsnark::pb_variable_array<FieldT> VariableArrayT;
 typedef libsnark::gadget<libff::Fr<ppT>> GadgetT;
 
-
 template<typename FieldT>
 void fill_with_bits_of_field_element_baby_jubjub(libsnark::protoboard<FieldT> &pb, libsnark::pb_variable_array<FieldT> &x, const FieldT &r)
 {
@@ -26,7 +23,6 @@ void fill_with_bits_of_field_element_baby_jubjub(libsnark::protoboard<FieldT> &p
         pb.val((x)[x.size()- i - 1]) = rint.test_bit(i) ? FieldT::one() : FieldT::zero();
     }
 }
-
 
 
 #endif

@@ -141,7 +141,7 @@ void prc_paramgen_hpc() {
 
 }
 
-bool prc_verify_lp(void *proof_ptr, char* sn_comm_x, char* sn_comm_y, char* T,
+bool prc_verify_lp(void *proof_ptr, char* sn_comm_x, char* sn_comm_y, char* total_rep,
                    char* rep_comm_x, char* rep_comm_y, char* block_hash, int sl) {
     unsigned char *proof = reinterpret_cast<unsigned char *>(proof_ptr);
     //input proof
@@ -159,11 +159,11 @@ bool prc_verify_lp(void *proof_ptr, char* sn_comm_x, char* sn_comm_y, char* T,
     r1cs_primary_input<FieldT> witness_map;
     witness_map.insert(witness_map.end(), FieldT(block_hash));
     witness_map.insert(witness_map.end(), FieldT(sl));
-    witness_map.insert(witness_map.end(), FieldT(T));
     witness_map.insert(witness_map.end(), FieldT(sn_comm_x));
     witness_map.insert(witness_map.end(), FieldT(sn_comm_y));
     witness_map.insert(witness_map.end(), FieldT(rep_comm_x));
     witness_map.insert(witness_map.end(), FieldT(rep_comm_y));
+    witness_map.insert(witness_map.end(), FieldT(total_rep));
 
     r1cs_ppzksnark_verification_key<libff::alt_bn128_pp> verification_key;
     loadFromFile<r1cs_ppzksnark_verification_key<ppT>>("lp.vk", verification_key);
@@ -172,10 +172,10 @@ bool prc_verify_lp(void *proof_ptr, char* sn_comm_x, char* sn_comm_y, char* T,
 
 
 void prc_prove_lp(void *output_proof_ptr, ulong sn_m, ulong sn_r, char* sn_comm_x, char* sn_comm_y, char* T,
-        ulong rep_m, ulong rep_r, char* rep_comm_x, char* rep_comm_y, char* block_hash, int sl){
+        ulong rep_m, ulong rep_r, char* rep_comm_x, char* rep_comm_y, char* block_hash, int sl, int d, int n){
     unsigned char *output_proof = reinterpret_cast<unsigned char *>(output_proof_ptr);
     protoboard<FieldT> pb;
-    leader_proof<FieldT> g(pb," leader_proof");
+    leader_proof<FieldT> g(pb, size_t(d), size_t(n), " leader_proof");
     g.generate_r1cs_constraints();
     g.generate_r1cs_witness(FieldT(sn_m), FieldT(sn_r), FieldT(sn_comm_x), FieldT(sn_comm_y), FieldT(T),
             FieldT(rep_m), FieldT(rep_r), FieldT(rep_comm_x), FieldT(rep_comm_y),FieldT(block_hash),FieldT(sl));
@@ -195,9 +195,9 @@ void prc_prove_lp(void *output_proof_ptr, ulong sn_m, ulong sn_r, char* sn_comm_
     }
 }
 
-void prc_paramgen_lp() {
+void prc_paramgen_lp(int d, int n) {
     protoboard<FieldT> pb;
-    leader_proof<FieldT> g(pb," leader proof");
+    leader_proof<FieldT> g(pb, size_t(d), size_t(n), " leader proof");
     g.generate_r1cs_constraints();
 
     const r1cs_constraint_system<FieldT> constraint_system = pb.get_constraint_system();

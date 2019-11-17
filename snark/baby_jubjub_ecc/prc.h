@@ -40,7 +40,9 @@ void prc_prove_lp(
         char* rep_comm_x,
         char* rep_comm_y,
         char* block_hash,
-        int sl
+        int sl,
+        int d,
+        int n
 );
 bool prc_verify_lp(
         void *output_proof_ptr,
@@ -52,7 +54,7 @@ bool prc_verify_lp(
         char* block_hash,
         int sl
 );
-void prc_paramgen_lp();
+void prc_paramgen_lp(int d, int n);
 
 
 //merkle proof
