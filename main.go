@@ -17,12 +17,6 @@ import (
 )
 
 func main() {
-	//network.SendTxMessage(gVar.MyAddress, "LogInfo", []byte("Test"))
-	//arg, err := strconv.Atoi(os.Args[1])
-	/*if err != nil {
-		log.Panic(err)
-		os.Exit(1)
-	}*/
 	fmt.Println("Get the local ip from", os.Args[1])
 	file, err := os.Open(os.Args[1])
 	initType, initErr := strconv.Atoi(os.Args[3])
@@ -53,7 +47,7 @@ func main() {
 	ID := 0
 	totalepoch := 1
 	network.IntilizeProcess(string(buffer), &ID, os.Args[2], initType)
-
+	//network.IntilizeProcess("192.168.108.37", &ID, os.Args[2], initType)
 	go network.StartServer(ID)
 	<-network.IntialReadyCh
 	close(network.IntialReadyCh)

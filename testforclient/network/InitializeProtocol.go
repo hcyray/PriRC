@@ -21,7 +21,8 @@ import (
 )
 
 //IntilizeProcess is init
-//TODO inital Type??  asuume equal to 0
+//inital Type is the No. of the client within one PC, 0 - only launch one client per PC, 1 - launch two client per PC
+// and this is the first one, 2 - the second client.
 func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 
 	// IP + port
@@ -78,7 +79,9 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 	//initialization of snark and the curve
 	snark.BabyJubJubCurve.Init()
 	snark.Init()
-
+	snark.ParamGenHPC()
+	snark.ParamGenIUP(2)
+	snark.ParamGenLP(1, 4)
 	//tmp, _ := x509.MarshalECPrivateKey(&acc[i].Pri)
 	//TODO need modify
 	for i := 0; i < int(IPCnt); i++ {
@@ -93,6 +96,7 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 			band = gVar.MaxBand
 		}
 		shard.GlobalGroupMems[i].NewMemShard(&acc[i], IPAddr1, band)
+		shard.GlobalGroupMems[i].InitialPedersenCommitment()
 		//shard.GlobalGroupMems[i].NewTotalRep()
 		//shard.GlobalGroupMems[i].AddRep(int64(i))
 		if initType != 0 {
@@ -103,6 +107,7 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 				band = gVar.MaxBand
 			}
 			shard.GlobalGroupMems[i+IPCnt].NewMemShard(&acc[i+IPCnt], IPAddr1, band)
+			shard.GlobalGroupMems[i+IPCnt].InitialPedersenCommitment()
 			//shard.GlobalGroupMems[i+IPCnt].NewTotalRep()
 			//shard.GlobalGroupMems[i+IPCnt].AddRep(int64(i + IPCnt))
 		}
@@ -143,7 +148,6 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 	Reputation.MyRepBlockChain = Reputation.CreateRepBlockchain(strconv.FormatInt(int64(MyGlobalID), 10))
 
 	//snark
-	snark.Init()
 	shard.MyMenShard.NewIDCommitment(MyGlobalID)
 
 	//current epoch = -1

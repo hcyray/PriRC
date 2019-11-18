@@ -51,7 +51,7 @@ func RollingProcess(send bool, FirstLeader bool, TBData *basic.TxBlock) {
 		}
 		fmt.Println(time.Now(), "Round", LeaderIndex, "New Leader:", shard.ShardToGlobal[CacheDbRef.ShardNum][LeaderIndex+1])
 
-		shard.GlobalGroupMems[CacheDbRef.Leader].ClearTotalRep()
+		//shard.GlobalGroupMems[CacheDbRef.Leader].ClearTotalRep()
 		shard.GlobalGroupMems[CacheDbRef.Leader].ClearRep()
 		for i := 0; i < len(CacheDbRef.RepCache); i++ {
 			CacheDbRef.RepCache[i][LeaderIndex] = 0

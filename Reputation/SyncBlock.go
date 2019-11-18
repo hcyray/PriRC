@@ -21,7 +21,7 @@ type SyncBlock struct {
 	PrevSyncBlockHash  [][32]byte
 	PrevFinalBlockHash [32]byte
 	IDlist             []int
-	TotalRep           [][]int32 //Total reputation over epoch, [i][j] i-th user, j-th epoch
+	TotalRep           []int32 //Total reputation over epoch, [i][j] i-th user, j-th epoch
 	CoSignature        []byte
 	Hash               [32]byte
 }
@@ -29,7 +29,7 @@ type SyncBlock struct {
 // NewSynBlock new sync block
 func NewSynBlock(ms *[]shard.MemShard, prevSyncBlockHash [][32]byte, prevRepBlockHash [32]byte, prevFBHash [32]byte, coSignature []byte) *SyncBlock {
 	var item *shard.MemShard
-	var repList [][]int32
+	var repList []int32
 	var idList []int
 	tmpprevSyncBlockHash := make([][32]byte, len(prevSyncBlockHash))
 	copy(tmpprevSyncBlockHash, prevSyncBlockHash)
@@ -50,9 +50,9 @@ func NewSynBlock(ms *[]shard.MemShard, prevSyncBlockHash [][32]byte, prevRepBloc
 				item.Rep += 10000
 			}
 		}
-		item.SetTotalRep(item.Rep)
+		item.SetRep(item.Rep)
 		idList = append(idList, shard.ShardToGlobal[shard.MyMenShard.Shard][i])
-		repList = append(repList, item.TotalRep)
+		repList = append(repList, item.Rep)
 	}
 
 	block := &SyncBlock{time.Now().Unix(), prevRepBlockHash, tmpprevSyncBlockHash, prevFBHash, idList, repList, tmpcoSignature, [32]byte{}}
@@ -81,10 +81,10 @@ func (b *SyncBlock) prepareData() []byte {
 func (b *SyncBlock) HashTotalRep() []byte {
 	var txHashes []byte
 	var txHash [32]byte
-	for i := range b.TotalRep {
-		for _, item := range b.TotalRep[i] {
-			txHashes = append(txHashes, IntToHex(item)[:]...)
-		}
+	for _, item := range b.TotalRep {
+		//for _, item := range b.TotalRep[i] {
+		txHashes = append(txHashes, IntToHex(item)[:]...)
+		//}
 
 	}
 	txHash = sha256.Sum256(txHashes)
@@ -133,7 +133,7 @@ func (b *SyncBlock) UpdateTotalRepInMS(ms *[]shard.MemShard) {
 	var item *shard.MemShard
 	for i, id := range b.IDlist {
 		item = &(*ms)[id]
-		item.CopyTotalRepFromSB(b.TotalRep[i])
+		item.SetRep(b.TotalRep[i])
 	}
 }
 

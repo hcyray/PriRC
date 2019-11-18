@@ -3,6 +3,7 @@ package snark
 import (
 	"bufio"
 	"fmt"
+	"github.com/uchihatmtkinu/PriRC/gVar"
 	"math/big"
 	"os"
 	"strconv"
@@ -12,7 +13,7 @@ import (
 func TestPC(t *testing.T) {
 	b_m := new(big.Int)
 	b_r := new(big.Int)
-	b_m.SetInt64(1)
+	b_m.SetInt64(gVar.RepUint64ToInt32)
 	b_r.SetInt64(1)
 	pc := new(PedersenCommitment)
 	pc.Init()
@@ -20,7 +21,7 @@ func TestPC(t *testing.T) {
 	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc)
 	Init()
 	ParamGenHPC()
-	proof_buf := ProveHPC(1, 1, pc.Comm_x.String(), pc.Comm_y.String())
+	proof_buf := ProveHPC(b_m.Uint64(), b_r.Uint64(), pc.Comm_x.String(), pc.Comm_y.String())
 	fmt.Println("verification result:", VerifyHPC(proof_buf, pc.Comm_x.String(), pc.Comm_y.String()))
 }
 
@@ -114,7 +115,7 @@ func TestPedersenCommitment(t *testing.T) {
 	b_m := new(big.Int)
 	b_r := new(big.Int)
 	b_m.SetInt64(1)
-	b_r.SetInt64(0)
+	b_r.SetInt64(0 + gVar.RepUint64ToInt32)
 	pc1 := new(PedersenCommitment)
 	pc1.Init()
 	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc1)

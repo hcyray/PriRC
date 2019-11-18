@@ -43,7 +43,7 @@ func RepProcess(ms *[]shard.MemShard) bool {
 	Reputation.RepPowTxCh = make(chan Reputation.RepPowInfo)
 	Reputation.RepPowRxValidate = make(chan Reputation.RepPowInfo)
 	tmp := res.Hash
-	go Reputation.MyRepBlockChain.MineRepBlock(res.Rep, &tmp, MyGlobalID)
+	go Reputation.MyRepBlockChain.MineRepBlock(res.Rep, &tmp, MyGlobalID, ms)
 	for flag {
 		select {
 		case item = <-Reputation.RepPowTxCh:
@@ -117,9 +117,10 @@ func RepProcess(ms *[]shard.MemShard) bool {
 				{
 					if receiveRepBlock.Nonce == correctNonce {
 						Reputation.MyRepBlockChain.AddRepBlockFromOthers(receiveRepBlock)
-						for _, txs := range receiveRepBlock.RepTransactions {
-							(*ms)[txs.GlobalID].Rep = txs.Rep
-						}
+						//TODO
+						//for _, txs := range receiveRepBlock.RepTransactions {
+						//	(*ms)[txs.GlobalID].Rep = txs.Rep
+						//}
 						receiveflag = false
 					}
 				}

@@ -2,52 +2,104 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"math/rand"
+	"os"
 	"time"
 
-	"github.com/uchihatmtkinu/PriRC/Reputation"
+	"github.com/uchihatmtkinu/PriRC/rccache"
+
+	"github.com/uchihatmtkinu/PriRC/basic"
 	"github.com/uchihatmtkinu/PriRC/gVar"
 	"github.com/uchihatmtkinu/PriRC/shard"
 	"github.com/uchihatmtkinu/PriRC/testforclient/network"
-	"log"
-	"os"
-	"strconv"
 )
 
 func main() {
-	arg, err := strconv.Atoi(os.Args[1])
+	fmt.Println("Get the local ip from", os.Args[1])
+	file, err := os.Open(os.Args[1])
+	//initType, initErr := strconv.Atoi(os.Args[3])
+	//if initErr != nil {
+	//	log.Panic(initErr)
+	//	os.Exit(1)
+	//}
+	initType := 2
 	if err != nil {
-		log.Panic(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
-	ID := arg
-	totalepoch := 2
-	network.IntilizeProcess(ID)
-	fmt.Println("test begin")
+
+	defer file.Close()
+	fileinfo, err := file.Stat()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fileSize := fileinfo.Size()
+	buffer := make([]byte, fileSize)
+
+	_, err = file.Read(buffer)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Local Address:", string(buffer))
+
+	ID := 0
+	totalepoch := 1
+	network.IntilizeProcess(string(buffer), &ID, os.Args[2], initType)
+	//network.IntilizeProcess("192.168.108.37", &ID, os.Args[2], initType)
 	go network.StartServer(ID)
 	<-network.IntialReadyCh
 	close(network.IntialReadyCh)
 
 	fmt.Println("MyGloablID: ", network.MyGlobalID)
+	numCnt := int(gVar.ShardCnt * gVar.ShardSize)
+	tmptx := make([]basic.Transaction, gVar.NumOfTxForTest*gVar.NumTxListPerEpoch)
+	//cnt := 0
+
+	time.Sleep(time.Second * 20)
+	timestart := time.Now()
+	fmt.Println(time.Now(), "test begin")
+	//network.StopChan = make(chan os.Signal, 1)
 	for k := 1; k <= totalepoch; k++ {
 		//test shard
+		fmt.Println("Current time: ", time.Now())
 		network.ShardProcess()
 
-		if k == 1 {
+		rand.Seed(int64(network.CacheDbRef.ID*3000) + time.Now().Unix()%3000)
+		for l := 0; l < len(tmptx); l++ {
+			i := rand.Int() % numCnt
+			for true {
+				if basic.ShardIndex(shard.GlobalGroupMems[i].RealAccount.AddrReal) == network.CacheDbRef.ShardNum {
+					break
+				}
+				i = rand.Int() % numCnt
+			}
+			j := rand.Int() % numCnt
+			k := uint32(1)
+			tmptx[l] = *rccache.GenerateTx(i, j, k, rand.Int63(), network.CacheDbRef.ID+uint32(l*2000))
+			//fmt.Println(base58.Encode(tmptx[l].Hash[:]))
+		}
+
+		gVar.T1 = time.Now()
+		fmt.Println("This time", time.Now())
+
+		if shard.MyMenShard.Role == shard.RoleLeader {
+			fmt.Println("This is a Leader")
 			go network.TxGeneralLoop()
+			go network.SendLoopLeader(&tmptx)
+			go network.HandleTxLeader()
+		} else {
+			//if shard.MyMenShard.InShardId < 50 {
+			go network.SendLoopMiner(&tmptx)
+			//}
+			go network.HandleTx()
 		}
 		//test rep
-		network.RepProcess(&shard.GlobalGroupMems)
-		Reputation.CurrentRepBlock.Mu.RLock()
-		Reputation.CurrentRepBlock.Block.Print()
-		Reputation.CurrentRepBlock.Mu.RUnlock()
-		/*for i := 0; i < int(gVar.ShardSize); i++ {
-			shard.GlobalGroupMems[shard.ShardToGlobal[shard.MyMenShard.Shard][i]].AddRep(int64(shard.ShardToGlobal[shard.MyMenShard.Shard][i]))
-		}*/
-
-		time.Sleep(10 * time.Second)
-
+		//go network.RepProcessLoop(&shard.GlobalGroupMems)
+		<-network.RepFinishChan[gVar.NumberRepPerEpoch-1]
 		//test cosi
-		if shard.MyMenShard.Role == shard.RoleLeader {
+		if network.CacheDbRef.Leader == network.CacheDbRef.ID {
 			network.LeaderCosiProcess(&shard.GlobalGroupMems)
 		} else {
 			network.MemberCosiProcess(&shard.GlobalGroupMems)
@@ -55,24 +107,14 @@ func main() {
 
 		//test sync
 		network.SyncProcess(&shard.GlobalGroupMems)
-		time.Sleep(10 * time.Second)
-
-		Reputation.CurrentSyncBlock.Mu.RLock()
-		Reputation.CurrentSyncBlock.Block.Print()
-		Reputation.CurrentSyncBlock.Mu.RUnlock()
-		network.CacheDbRef.Mu.Lock()
-		fmt.Println("FB from", network.CacheDbRef.ID)
-		for i := uint32(0); i < gVar.ShardCnt; i++ {
-			network.CacheDbRef.FB[i].Print()
-		}
-		network.CacheDbRef.Mu.Unlock()
-
-		for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
-			shard.GlobalGroupMems[i].Print()
-		}
+		fmt.Println(time.Now(), "Epoch", k, "finished")
 	}
+	fmt.Println("Time: ", time.Since(timestart), "TPS:", float64(uint32(totalepoch)*(1+gVar.NumTxListPerEpoch*(gVar.ShardSize-1))*gVar.NumOfTxForTest)/time.Since(timestart).Seconds())
+	fmt.Println(network.CacheDbRef.ID, ": All finished")
+	if network.CacheDbRef.ID == 0 {
+		tmpStr := fmt.Sprint("All finished")
+		network.SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
+	}
+	time.Sleep(20 * time.Second)
 
-	fmt.Println("All finished")
-
-	time.Sleep(600 * time.Second)
 }

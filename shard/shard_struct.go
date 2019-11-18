@@ -52,15 +52,19 @@ func (ms *MemShard) NewMemShard(acc *account.RcAcc, addr string, band int) {
 }
 
 //NewIDCommitment new ID commitment at the initial
+func (ms *MemShard) InitialPedersenCommitment() {
+	ms.IDCommit.Init()
+	ms.RepPC.Init()
+	ms.EpochSNID.Init()
+}
+
+//NewIDCommitment new ID commitment at the initial
 func (ms *MemShard) NewIDCommitment(ID int) {
 	b_m := new(big.Int)
 	b_r := new(big.Int)
 	b_m.SetInt64(int64(ID))
 	b_r.SetInt64(1)
-	ms.IDCommit.Init()
 	snark.BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, &ms.IDCommit)
-	ms.RepPC.Init()
-	ms.EpochSNID.Init()
 }
 
 //NewIDCommitmentTree new ID commitment merkle tree at the initial

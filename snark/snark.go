@@ -30,7 +30,6 @@ func ProveHPC(m uint64, r uint64, commX string, commY string) [312]byte {
 	cCommY := C.CString(commY)
 	defer C.free(unsafe.Pointer(cCommX))
 	defer C.free(unsafe.Pointer(cCommY))
-
 	C.prc_prove_hpc(unsafe.Pointer(&proof_buf[0]), C.ulong(m), C.ulong(r), cCommX, cCommY)
 	return proof_buf
 }

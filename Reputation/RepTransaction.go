@@ -1,6 +1,8 @@
 package Reputation
 
-import "github.com/uchihatmtkinu/PriRC/snark"
+import (
+	"github.com/uchihatmtkinu/PriRC/snark"
+)
 
 //uint64: 0 to 18,446,744,073,709,551,615 (2^64-1)
 //int64: -9,223,372,036,854,775,808 to +9,223,372,036,854,775,807 (-2^63 and 2^63-1).
@@ -15,10 +17,11 @@ type RepTransaction struct {
 
 //new reputation transaction
 func (r *RepTransaction) NewRepTransaction(globalID snark.PedersenCommitment, pc snark.PedersenCommitment) {
-	copy(r.GlobalIDX[:], globalID.Comm_x.Bytes()[:32])
-	copy(r.GlobalIDY[:], globalID.Comm_y.Bytes()[:32])
-	copy(r.RepPCX[:], pc.Comm_x.Bytes()[:32])
-	copy(r.RepPCY[:], pc.Comm_y.Bytes()[:32])
+
+	copy(r.GlobalIDX[:], globalID.Comm_x.Bytes()[:])
+	copy(r.GlobalIDY[:], globalID.Comm_y.Bytes()[:])
+	copy(r.RepPCX[:], pc.Comm_x.Bytes()[:])
+	copy(r.RepPCY[:], pc.Comm_y.Bytes()[:])
 }
 
 // SetID sets ID of a transaction

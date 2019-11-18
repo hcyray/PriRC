@@ -27,23 +27,27 @@ func ShardProcess() {
 
 	shard.StartFlag = true
 	shard.ShardToGlobal = make([][]int, gVar.ShardCnt)
-	if CurrentEpoch != -1 {
-		for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
-			shard.GlobalGroupMems[i].SetRep(0)
-			shard.GlobalGroupMems[i].SetPriRep(0)
-			shard.GlobalGroupMems[i].NewIDSN(CurrentEpoch+2, i)
-		}
-	}
+	//if CurrentEpoch != -1 {
+	//	for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
+	//		shard.GlobalGroupMems[i].SetRep(0)
+	//		//TODO should be generated individually
+	//		shard.GlobalGroupMems[i].SetPriRep(0)
+	//		shard.GlobalGroupMems[i].NewIDSN(CurrentEpoch+2, i)
+	//	}
+	//}
 	for i := uint32(0); i < gVar.ShardCnt; i++ {
 		shard.ShardToGlobal[i] = make([]int, gVar.ShardSize)
 		for j := uint32(0); j < gVar.ShardSize; j++ {
 			shard.ShardToGlobal[i][j] = int(j)
+			shard.GlobalGroupMems[i].SetRep(0)
+			shard.GlobalGroupMems[i].SetPriRep(0)
+			shard.GlobalGroupMems[i].NewIDSN(CurrentEpoch+2, int(i))
 			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Shard = int(i)
 			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].InShardId = int(j)
 			if j == 0 {
-				shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Role = 1
-			} else {
 				shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Role = 0
+			} else {
+				shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Role = 1
 			}
 		}
 	}
