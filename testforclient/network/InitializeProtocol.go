@@ -80,7 +80,6 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 	snark.BabyJubJubCurve.Init()
 	snark.Init()
 	snark.ParamGenHPC()
-	snark.ParamGenIUP(2)
 	snark.ParamGenLP(1, 4)
 	//tmp, _ := x509.MarshalECPrivateKey(&acc[i].Pri)
 	//TODO need modify
@@ -138,6 +137,9 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 	account.MyAccount = acc[*ID]
 
 	shard.MyMenShard = &shard.GlobalGroupMems[*ID]
+	//snark
+	shard.MyIDCommProof = shard.MyMenShard.NewIDCommitment(MyGlobalID)
+	shard.MyRepCommProof = shard.MyMenShard.NewPriRep(shard.MyMenShard.Rep, MyGlobalID)
 
 	shard.NumMems = int(gVar.ShardSize)
 	shard.PreviousSyncBlockHash = [][32]byte{{gVar.MagicNumber}}
@@ -147,18 +149,14 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 	Reputation.CurrentRepBlock = Reputation.SafeRepBlock{Block: nil, Round: -1}
 	Reputation.MyRepBlockChain = Reputation.CreateRepBlockchain(strconv.FormatInt(int64(MyGlobalID), 10))
 
-	//snark
-	shard.MyMenShard.NewIDCommitment(MyGlobalID)
-
 	//current epoch = -1
 	CurrentEpoch = -1
 	startDone = true
 
 	//make channel
 	IntialReadyCh = make(chan bool)
-	ShardReadyCh = make(chan bool)
-	CoSiReadyCh = make(chan bool)
-	SyncReadyCh = make(chan bool)
+	IDCommCh = make(chan IDCommInfo, 300)
+	IDUpdateCh = make(chan IDUpdateInfo, 300)
 
 	FinalTxReadyCh = make(chan bool, 1)
 	waitForFB = make(chan bool, 1)

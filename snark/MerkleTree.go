@@ -89,7 +89,7 @@ func (m *MerkleTree) build(ns *[]MerkleNode, d int) {
 }
 
 //return merkle proof
-func (m *MerkleTree) Proof(x int) *MerkleProof {
+func (m *MerkleTree) Proof(x int) MerkleProof {
 	mp := MerkleProof{}
 	mp.Depth = m.Depth - 1
 	mp.Root_x = m.Root.PC.Comm_x.String()
@@ -114,7 +114,7 @@ func (m *MerkleTree) Proof(x int) *MerkleProof {
 	}
 	mp.Leaf_x = root.PC.Comm_x.String()
 	mp.Leaf_y = root.PC.Comm_y.String()
-	return &mp
+	return mp
 }
 
 // Print the Merkle Tree in
@@ -143,6 +143,18 @@ func (m *MerkleTree) printLayer(p *MerkleNode, a *[][]*MerkleNode, d int) {
 	if p.RChild != nil {
 		m.printLayer(p.RChild, a, d-1)
 	}
+}
+
+// print proof
+func (p *MerkleProof) AddressBitToAdd() uint64 {
+	x := uint64(0)
+	for _, b := range p.AdressBit {
+		x = x << 1
+		if b {
+			x++
+		}
+	}
+	return x
 }
 
 // print proof

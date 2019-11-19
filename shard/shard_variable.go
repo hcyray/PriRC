@@ -1,5 +1,7 @@
 package shard
 
+import "github.com/uchihatmtkinu/PriRC/snark"
+
 //RoleLeader  role is leader
 const RoleLeader = 0
 
@@ -17,6 +19,20 @@ var NumMems int
 
 //MyMenShard my
 var MyMenShard *MemShard
+
+//used in ID and Rep Merkle tree
+var IDMerkleTree snark.MerkleTree
+var RepMerkleTree snark.MerkleTree
+var MyIDMTProof snark.MerkleProof
+var MyRepMTProof snark.MerkleProof
+
+// used for snark proof
+var MyIDCommProof [312]byte
+var MySNIDCommProof [312]byte
+var MyRepCommProof [312]byte
+
+//used for identity update
+var MyIDUpdateProof [312]byte
 
 //PreviousSyncBlockHash the hash array of previous sync block from all the shards
 var PreviousSyncBlockHash [][32]byte

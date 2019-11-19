@@ -3,7 +3,6 @@ package snark
 import (
 	"bufio"
 	"fmt"
-	"github.com/uchihatmtkinu/PriRC/gVar"
 	"math/big"
 	"os"
 	"strconv"
@@ -13,8 +12,8 @@ import (
 func TestPC(t *testing.T) {
 	b_m := new(big.Int)
 	b_r := new(big.Int)
-	b_m.SetInt64(gVar.RepUint64ToInt32)
-	b_r.SetInt64(1)
+	b_m.SetInt64(1)
+	b_r.SetInt64(0)
 	pc := new(PedersenCommitment)
 	pc.Init()
 	BabyJubJubCurve.Init()
@@ -115,7 +114,7 @@ func TestPedersenCommitment(t *testing.T) {
 	b_m := new(big.Int)
 	b_r := new(big.Int)
 	b_m.SetInt64(1)
-	b_r.SetInt64(0 + gVar.RepUint64ToInt32)
+	b_r.SetInt64(0)
 	pc1 := new(PedersenCommitment)
 	pc1.Init()
 	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc1)

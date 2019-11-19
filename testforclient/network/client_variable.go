@@ -1,6 +1,7 @@
 package network
 
 import (
+	"github.com/uchihatmtkinu/PriRC/snark"
 	"time"
 
 	"github.com/uchihatmtkinu/PriRC/Reputation"
@@ -41,6 +42,29 @@ var MyGlobalID int
 
 //CacheDbRef local database
 var CacheDbRef rccache.DbRef
+
+//------------------- IDMerkleTree process ----------------
+type IDCommInfo struct {
+	ID       int
+	IDComm   snark.PedersenCommitment
+	IDProof  [312]byte
+	RepComm  snark.PedersenCommitment
+	RepProof [312]byte
+}
+
+//channel used in ID commitment
+var IDCommCh chan IDCommInfo
+
+//------------------- IDUpdate process -------------------
+type IDUpdateInfo struct {
+	ID            int
+	IDComm        snark.PedersenCommitment
+	RepComm       snark.PedersenCommitment
+	IDUpdateProof [312]byte
+}
+
+//channel used in IDUpdate
+var IDUpdateCh chan IDUpdateInfo
 
 //------------------- shard process ----------------------
 //readyInfo
@@ -198,7 +222,7 @@ var syncTBCh [gVar.ShardCnt]chan syncTBInfo
 var syncNotReadyCh [gVar.ShardCnt]chan bool
 
 //ShardDone flag determine whether the shard process is done
-var ShardDone bool
+//var ShardDone bool
 
 //CoSiFlag flag determine the CoSi process has began
 var CoSiFlag bool
@@ -206,11 +230,9 @@ var CoSiFlag bool
 //SyncFlag flag determine the Sync process has began
 var SyncFlag bool
 
-//IntialReadyCh channel used to indicate the process start
+//ReadyCh channel used to indicate the process start
 var IntialReadyCh chan bool
-var ShardReadyCh chan bool
-var CoSiReadyCh chan bool
-var SyncReadyCh chan bool
+var IDCommReadyCh chan bool
 
 var waitForFB chan bool
 

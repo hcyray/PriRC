@@ -35,13 +35,14 @@ func ShardProcess() {
 	//		shard.GlobalGroupMems[i].NewIDSN(CurrentEpoch+2, i)
 	//	}
 	//}
+
 	for i := uint32(0); i < gVar.ShardCnt; i++ {
 		shard.ShardToGlobal[i] = make([]int, gVar.ShardSize)
 		for j := uint32(0); j < gVar.ShardSize; j++ {
 			shard.ShardToGlobal[i][j] = int(j)
-			shard.GlobalGroupMems[i].SetRep(0)
-			shard.GlobalGroupMems[i].SetPriRep(0)
-			shard.GlobalGroupMems[i].NewIDSN(CurrentEpoch+2, int(i))
+			//shard.GlobalGroupMems[i].SetRep(0)
+			//shard.GlobalGroupMems[i].SetPriRep(0)
+			//shard.GlobalGroupMems[i].NewIDSN(CurrentEpoch+2, int(i))
 			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Shard = int(i)
 			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].InShardId = int(j)
 			if j == 0 {

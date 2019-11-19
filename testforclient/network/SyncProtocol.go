@@ -72,10 +72,10 @@ func ReceiveSyncProcess(k int, wg *sync.WaitGroup, ms *[]shard.MemShard) {
 	//syncblock flag
 	sbrxflag := true
 	//txblock flag
-	//TODO test
+
 	tbrxflag := true
 	//txBlock Transaction block
-	//TODO test
+
 	var txBlockMessage syncTBInfo
 	//syncBlock SyncBlock
 	var syncBlockMessage syncSBInfo
@@ -95,7 +95,7 @@ func ReceiveSyncProcess(k int, wg *sync.WaitGroup, ms *[]shard.MemShard) {
 					//go SendSyncMessage((*ms)[shard.ShardToGlobal[k][aski[k]]].Address, "requestSync", syncRequestInfo{MyGlobalID, CurrentEpoch})
 				}
 			}
-		//TODO test
+
 		case txBlockMessage = <-syncTBCh[k]:
 			tmpIndex := 0
 			if gVar.ExperimentBadLevel != 0 {

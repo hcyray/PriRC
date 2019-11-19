@@ -15,7 +15,7 @@ func TestNewRepBock(t *testing.T) {
 	for i := 0; i < n; i++ {
 		//ms[i].NewMemShard("123", 1)
 		ms[i].SetRep(0)
-		ms[i].SetPriRep(0)
+		ms[i].SetPriRep(0, 0)
 	}
 }
 

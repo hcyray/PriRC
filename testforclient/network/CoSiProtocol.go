@@ -96,7 +96,7 @@ func LeaderCosiProcess(ms *[]shard.MemShard) cosi.SignaturePart {
 			}
 		}
 	}
-	fmt.Println(time.Now(), "Recived CoSi comit")
+	fmt.Println(time.Now(), "Received CoSi commit")
 
 	//fmt.Println((*ms)[GlobalAddrMapToInd[shard.MyMenShard.Address]].InShardId)
 

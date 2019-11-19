@@ -157,6 +157,11 @@ func StartServer(ID int) {
 			go HandleFinalTxBlock(request)
 		case "StartTxB":
 			go HandleStartTxBlock(request)
+		//ID Merkle Tree
+		case "IDMT":
+			go HandleIDMerkleTree(request)
+		case "reqIDMT":
+			go HandleRequestIDMerkleTree(request)
 		//shard
 		case "shardReady":
 			go HandleShardReady(request)
