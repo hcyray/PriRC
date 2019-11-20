@@ -64,8 +64,8 @@ func (ms *MemShard) NewIDCommitment(ID int) [312]byte {
 	return buff
 }
 
-//NewIDSN new Epoch ID SN
-func (ms *MemShard) NewIDSN(epoch int, ID int) [312]byte {
+//NewIDSN new Epoch SN ID
+func (ms *MemShard) NewSNID(epoch int, ID int) [312]byte {
 	var buff [312]byte
 	b_m := new(big.Int)
 	b_r := new(big.Int)

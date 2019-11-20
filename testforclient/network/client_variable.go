@@ -2,6 +2,7 @@ package network
 
 import (
 	"github.com/uchihatmtkinu/PriRC/snark"
+	"sync"
 	"time"
 
 	"github.com/uchihatmtkinu/PriRC/Reputation"
@@ -232,8 +233,13 @@ var SyncFlag bool
 
 //ReadyCh channel used to indicate the process start
 var IntialReadyCh chan bool
-var IDCommReadyCh chan bool
 
+type SafeIDUpdateReady struct {
+	f   bool
+	mux sync.Mutex
+}
+
+var IDUpdateReady SafeIDUpdateReady
 var waitForFB chan bool
 
 //FinalTxReadyCh whether the FB is done

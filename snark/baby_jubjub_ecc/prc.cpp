@@ -171,13 +171,13 @@ bool prc_verify_lp(void *proof_ptr, char* sn_comm_x, char* sn_comm_y, char* tota
 }
 
 
-void prc_prove_lp(void *output_proof_ptr, ulong sn_m, ulong sn_r, char* sn_comm_x, char* sn_comm_y, char* T,
+void prc_prove_lp(void *output_proof_ptr, ulong sn_m, ulong sn_r, char* sn_comm_x, char* sn_comm_y, char* total_rep,
         ulong rep_m, ulong rep_r, char* rep_comm_x, char* rep_comm_y, char* block_hash, int sl, int d, int n){
     unsigned char *output_proof = reinterpret_cast<unsigned char *>(output_proof_ptr);
     protoboard<FieldT> pb;
     leader_proof<FieldT> g(pb, size_t(d), size_t(n), " leader_proof");
     g.generate_r1cs_constraints();
-    g.generate_r1cs_witness(FieldT(sn_m), FieldT(sn_r), FieldT(sn_comm_x), FieldT(sn_comm_y), FieldT(T),
+    g.generate_r1cs_witness(FieldT(sn_m), FieldT(sn_r), FieldT(sn_comm_x), FieldT(sn_comm_y), FieldT(total_rep),
             FieldT(rep_m), FieldT(rep_r), FieldT(rep_comm_x), FieldT(rep_comm_y),FieldT(block_hash),FieldT(sl));
 
     assert(pb.is_satisfied());

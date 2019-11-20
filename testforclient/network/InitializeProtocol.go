@@ -79,8 +79,11 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 	//initialization of snark and the curve
 	snark.BabyJubJubCurve.Init()
 	snark.Init()
-	snark.ParamGenHPC()
-	snark.ParamGenLP(1, 4)
+	//fmt.Println("HPC parameter generation:")
+	//snark.ParamGenHPC()
+	//fmt.Println("Leader Proof parameter generation:")
+	//snark.ParamGenLP(1, 4)
+	//snark.ParamGenIUP(shard.MyIDMTProof.Depth)
 	//tmp, _ := x509.MarshalECPrivateKey(&acc[i].Pri)
 	//TODO need modify
 	for i := 0; i < int(IPCnt); i++ {
@@ -138,8 +141,14 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 
 	shard.MyMenShard = &shard.GlobalGroupMems[*ID]
 	//snark
+	fmt.Println("Generate New Root ID")
 	shard.MyIDCommProof = shard.MyMenShard.NewIDCommitment(MyGlobalID)
+
+	fmt.Println("Generate New Root Rep")
 	shard.MyRepCommProof = shard.MyMenShard.NewPriRep(shard.MyMenShard.Rep, MyGlobalID)
+	IDUpdateReady.mux.Lock()
+	IDUpdateReady.f = false
+	IDUpdateReady.mux.Unlock()
 
 	shard.NumMems = int(gVar.ShardSize)
 	shard.PreviousSyncBlockHash = [][32]byte{{gVar.MagicNumber}}

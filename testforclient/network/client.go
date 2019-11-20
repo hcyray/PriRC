@@ -162,6 +162,11 @@ func StartServer(ID int) {
 			go HandleIDMerkleTree(request)
 		case "reqIDMT":
 			go HandleRequestIDMerkleTree(request)
+		// ID update
+		case "IDU":
+			go HandleIDUpdate(request)
+		case "reqIDU":
+			go HandleRequestIDUpdate(request)
 		//shard
 		case "shardReady":
 			go HandleShardReady(request)

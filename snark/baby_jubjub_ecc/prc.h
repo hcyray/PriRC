@@ -34,7 +34,7 @@ void prc_prove_lp(
         ulong sn_r,
         char* sn_comm_x,
         char* sn_comm_y,
-        char* T,
+        char* total_rep,
         ulong rep_m,
         ulong rep_r,
         char* rep_comm_x,

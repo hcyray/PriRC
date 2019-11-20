@@ -20,7 +20,6 @@ func IDMerkleTreeProcess() {
 	receivei := make([]bool, int(gVar.ShardSize*gVar.ShardCnt))
 	fmt.Println("start sending ID comm")
 	for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
-		receivei[sendi[i]] = false
 		if sendi[i] != MyGlobalID {
 			receivei[sendi[i]] = false
 			SendIDComm(shard.GlobalGroupMems[sendi[i]].Address, "IDMT",
@@ -28,33 +27,37 @@ func IDMerkleTreeProcess() {
 					shard.MyMenShard.RepComm, shard.MyRepCommProof})
 		}
 	}
+	receivei[MyGlobalID] = true
 	receiveCount := 1
-	for receiveCount <= int(gVar.ShardSize*gVar.ShardCnt) {
+	for receiveCount < int(gVar.ShardSize*gVar.ShardCnt) {
 		select {
 		case IDCommitMessage := <-IDCommCh:
-			if !receivei[IDCommitMessage.ID] &&
-				snark.VerifyHPC(IDCommitMessage.IDProof, IDCommitMessage.IDComm.Comm_x.String(), IDCommitMessage.IDComm.Comm_y.String()) &&
-				snark.VerifyHPC(IDCommitMessage.RepProof, IDCommitMessage.RepComm.Comm_x.String(), IDCommitMessage.RepComm.Comm_y.String()) {
-				shard.GlobalGroupMems[IDCommitMessage.ID].SetIDPC(IDCommitMessage.IDComm)
-				shard.GlobalGroupMems[IDCommitMessage.ID].SetPriRepPC(IDCommitMessage.RepComm)
-				receivei[IDCommitMessage.ID] = true
-				receiveCount++
-				//fmt.Println(time.Now(), "Received commit from Global ID: ", commitMessage.ID, ", commits count:", signCount, "/", int(gVar.ShardSize))
+			if !receivei[IDCommitMessage.ID] {
+				if snark.VerifyHPC(IDCommitMessage.IDProof, IDCommitMessage.IDComm.Comm_x.String(), IDCommitMessage.IDComm.Comm_y.String()) &&
+					snark.VerifyHPC(IDCommitMessage.RepProof, IDCommitMessage.RepComm.Comm_x.String(), IDCommitMessage.RepComm.Comm_y.String()) {
+					shard.GlobalGroupMems[IDCommitMessage.ID].SetIDPC(IDCommitMessage.IDComm)
+					shard.GlobalGroupMems[IDCommitMessage.ID].SetPriRepPC(IDCommitMessage.RepComm)
+					receivei[IDCommitMessage.ID] = true
+					receiveCount++
+					//fmt.Println(time.Now(), "Received commit from Global ID: ", commitMessage.ID, ", commits count:", signCount, "/", int(gVar.ShardSize))
+				} else {
+					fmt.Println("Verify HPC failed from client: ", IDCommitMessage.ID)
+				}
 			}
-		case <-time.After(timeoutCosi):
-			//resend after 15 seconds
-			for i := 0; i < int(gVar.ShardSize*gVar.ShardSize); i++ {
+		case <-time.After(timeoutSync):
+			//resend after 10 seconds
+			for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
 				if !receivei[sendi[i]] {
-					fmt.Println(time.Now(), "Request ID Comm Message to global client:", sendi[i])
+					fmt.Println(time.Now(), "Request ID Comm Message from global client:", sendi[i])
 					SendIDComm(shard.GlobalGroupMems[sendi[i]].Address, "reqIDMT", MyGlobalID)
 				}
 			}
 		}
 	}
 	fmt.Println(time.Now(), "Received all the ID commit")
-	idpcs := make([]snark.PedersenCommitment, int(gVar.ShardSize*gVar.ShardSize))
-	reppcs := make([]snark.PedersenCommitment, int(gVar.ShardSize*gVar.ShardSize))
-	for i := 0; i < int(gVar.ShardSize*gVar.ShardSize); i++ {
+	idpcs := make([]snark.PedersenCommitment, int(gVar.ShardSize*gVar.ShardCnt))
+	reppcs := make([]snark.PedersenCommitment, int(gVar.ShardSize*gVar.ShardCnt))
+	for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
 		idpcs[i] = shard.GlobalGroupMems[i].IDComm
 		reppcs[i] = shard.GlobalGroupMems[i].RepComm
 	}
@@ -62,8 +65,8 @@ func IDMerkleTreeProcess() {
 	shard.MyIDMTProof = shard.IDMerkleTree.Proof(MyGlobalID)
 	shard.RepMerkleTree.Init(reppcs)
 	shard.MyRepMTProof = shard.RepMerkleTree.Proof(MyGlobalID)
-	// Parameter generation for identity update
-	snark.ParamGenIUP(shard.MyIDMTProof.Depth)
+	fmt.Println("ID merkle tree built done")
+	time.Sleep(timeoutCosi)
 }
 
 func HandleIDMerkleTree(request []byte) {
@@ -73,9 +76,9 @@ func HandleIDMerkleTree(request []byte) {
 	buff.Write(request)
 	dec := gob.NewDecoder(&buff)
 	err := dec.Decode(&payload)
-	fmt.Print("ID:", payload.ID, " ")
+	fmt.Print("Client:", payload.ID, " ID: ")
 	payload.IDComm.PrintPC()
-	fmt.Print("Rep:", payload.ID, " ")
+	fmt.Print("Rep:")
 	payload.RepComm.PrintPC()
 	if err != nil {
 		log.Panic(err)
