@@ -2,7 +2,6 @@ package snark
 
 import (
 	"bufio"
-	"crypto/sha256"
 	"fmt"
 	"math/big"
 	"os"
@@ -35,15 +34,19 @@ func TestLP(t *testing.T) {
 	BabyJubJubCurve.Init()
 	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc)
 	Init()
-	ParamGenLP(1, 4)
+	ParamGenLP(3, 10)
 	var totalRep string
 	var blockHash string
 	totalRep = "10"
 	blockHash = "1234"
+	rnPC := new(PedersenCommitment)
+	rnPC.Init()
+	rnPC.Comm_x.SetString("17340275048943653547614489228527344381464164653252141404090367775488601412428", 10)
+	rnPC.Comm_y.SetString("933123352423928023129012374387605308470368372720613198607919169954889220173", 10)
 	proof_buf := ProveLP(2, 2, pc.Comm_x.String(), pc.Comm_y.String(), totalRep,
-		2, 2, pc.Comm_x.String(), pc.Comm_y.String(), blockHash, 1, 1, 4)
+		2, 2, pc.Comm_x.String(), pc.Comm_y.String(), blockHash, 1, rnPC.Comm_x.String(), rnPC.Comm_y.String(), 3, 10)
 	fmt.Println("verification result:", VerifyLP(proof_buf, pc.Comm_x.String(), pc.Comm_y.String(),
-		totalRep, pc.Comm_x.String(), pc.Comm_y.String(), blockHash, 1))
+		totalRep, pc.Comm_x.String(), pc.Comm_y.String(), blockHash, 1, rnPC.Comm_x.String(), rnPC.Comm_y.String()))
 }
 
 func TestIUP(t *testing.T) {
@@ -136,21 +139,14 @@ func TestPedersenHash(t *testing.T) {
 	BabyJubJubCurve.Init()
 	pc1 := new(PedersenCommitment)
 	pc1.Init()
-	s := "123"
-	h := sha256.New()
-	h.Write([]byte(s))
-	hash := h.Sum(nil)
-	fmt.Println(hash)
-	b_m := new(big.Int)
-	b_m.SetBytes(hash)
-	fmt.Println(b_m.String())
-	pc1.Comm_x.SetBytes(hash)
+
+	pc1.Comm_x.SetString("1234", 10)
 	pc1.Comm_y.SetString("1", 10)
 	pc1.PrintPC()
 	pc2 := new(PedersenCommitment)
 	pc2.Init()
-	pc2.Comm_x.SetString("17777552123799933955779906779655732241715742912184938656739573121738514868268", 10)
-	pc2.Comm_y.SetString("2626589144620713026669568689430873010625803728049924121243784502389097019475", 10)
+	pc2.Comm_x.SetString("18517123153863469553573384572371536953407444696640934598826194274645946323334", 10)
+	pc2.Comm_y.SetString("16366639365004517936716040800897479058579589069997927276858356063876961184474", 10)
 	BabyJubJubCurve.AddTwoPedersenCommitment(pc1, pc2)
 	pc1.PrintPC()
 	BabyJubJubCurve.CalPedersenHash(pc1.Comm_x, pc1.Comm_y, pc1)
@@ -173,4 +169,17 @@ func TestMerkleTree(t *testing.T) {
 	//mt.Print()
 	p := mt.Proof(1)
 	p.PrintToTxT()
+}
+
+func TestLeaderCandidate(t *testing.T) {
+	BabyJubJubCurve.Init()
+	pc := new(PedersenCommitment)
+	pc.Init()
+	pc.SetPedersenCommmitment("18517123153863469553573384572371536953407444696640934598826194274645946323334", "16366639365004517936716040800897479058579589069997927276858356063876961184474", 10)
+	block_hash := new(big.Int)
+	block_hash.SetString("1234", 10)
+	var lc LeaderCalInfo
+	lc.LeaderCal(pc, pc, block_hash.Bytes(), 1, 10, 2)
+	fmt.Println(lc.leader)
+	lc.RNComm.PrintPC()
 }

@@ -58,5 +58,5 @@ const RepUint64ToInt32 = int64(3e10)
 
 //Leader Proof
 // bit size for random number
-const LeaderBitSize = 4
-const LeaderDifficulty = 2
+const LeaderBitSize = 10
+const LeaderDifficulty = 3

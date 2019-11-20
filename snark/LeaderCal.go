@@ -1,13 +1,22 @@
 package snark
 
 import (
+	"fmt"
 	"github.com/uchihatmtkinu/PriRC/gVar"
 	"math/big"
 )
 
-func LeaderCandidate(SNID PedersenCommitment, BlockHash [32]byte, sl int, totalrep int32, rep int32) bool {
+type LeaderCalInfo struct {
+	leader bool
+	RNComm PedersenCommitment
+}
+
+func (lc *LeaderCalInfo) LeaderCal(SNID *PedersenCommitment, Rep *PedersenCommitment, BlockHash []byte, sl int, totalrep int32, rep int32) {
+	lc.RNComm.Init()
 	l := new(PedersenCommitment)
 	r := new(PedersenCommitment)
+	l.Init()
+	r.Init()
 	l.SetPedersenCommmitment(SNID.Comm_x.String(), SNID.Comm_y.String(), 10)
 	r.Comm_x.SetBytes(BlockHash[:])
 	r.Comm_y.SetInt64(int64(sl))
@@ -20,5 +29,10 @@ func LeaderCandidate(SNID PedersenCommitment, BlockHash [32]byte, sl int, totalr
 	ln := new(big.Int)
 	ln.Exp(big.NewInt(2), big.NewInt(gVar.LeaderBitSize+gVar.LeaderDifficulty), nil)
 	ln.Mul(big.NewInt(int64(rep)), ln)
-	return ln.Cmp(rn) > 0
+	fmt.Println(ln.String())
+	fmt.Println(rn.String())
+	lc.leader = ln.Cmp(rn) > 0
+	r.SetPedersenCommmitment(Rep.Comm_x.String(), Rep.Comm_y.String(), 10)
+	BabyJubJubCurve.AddTwoPedersenCommitment(l, r)
+	BabyJubJubCurve.CalPedersenHash(l.Comm_x, l.Comm_y, &lc.RNComm)
 }

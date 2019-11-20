@@ -98,7 +98,6 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 			band = gVar.MaxBand
 		}
 		shard.GlobalGroupMems[i].NewMemShard(&acc[i], IPAddr1, band)
-		shard.GlobalGroupMems[i].InitialPedersenCommitment()
 		//shard.GlobalGroupMems[i].NewTotalRep()
 		//shard.GlobalGroupMems[i].AddRep(int64(i))
 		if initType != 0 {
@@ -109,7 +108,6 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 				band = gVar.MaxBand
 			}
 			shard.GlobalGroupMems[i+IPCnt].NewMemShard(&acc[i+IPCnt], IPAddr1, band)
-			shard.GlobalGroupMems[i+IPCnt].InitialPedersenCommitment()
 			//shard.GlobalGroupMems[i+IPCnt].NewTotalRep()
 			//shard.GlobalGroupMems[i+IPCnt].AddRep(int64(i + IPCnt))
 		}

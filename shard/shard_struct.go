@@ -43,6 +43,7 @@ func (ms *MemShard) NewMemShard(acc *account.RcAcc, addr string, band int) {
 	ms.Role = 1
 	ms.Rep = 1000
 	ms.Bandwidth = band
+	ms.InitialPedersenCommitment()
 }
 
 //NewIDCommitment new ID commitment at the initial

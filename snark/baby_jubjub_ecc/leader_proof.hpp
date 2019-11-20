@@ -24,6 +24,10 @@ private:
     pb_variable<FieldT> rep; // rep score
     pb_variable<FieldT> full_rn_pack; // a random number
     pb_variable<FieldT> rn; // a random number with length of difficulty;
+    pb_variable<FieldT> rnc_x; // randomCommit x
+    pb_variable<FieldT> rnc_y; // randomCommit y
+    pb_variable<FieldT> rn_commitment_x; // random hash commitment x
+    pb_variable<FieldT> rn_commitment_y; // random hash commitment y
     pb_variable<FieldT> repDiff; // rep times 2^(n-difficulty)
     pb_variable_array<FieldT> sn_m;
     pb_variable_array<FieldT> sn_r;
@@ -38,6 +42,7 @@ private:
     std::shared_ptr<comparison_gadget<FieldT>> rangeProof;
     std::shared_ptr<packing_gadget<FieldT> > pack_full_rn;
     std::shared_ptr<packing_gadget<FieldT> > pack_rn;
+    std::shared_ptr<pedersen_hash<FieldT>> outRNCommit;
 public:
     pb_variable<FieldT> block_hash;
     pb_variable<FieldT> sl;
@@ -46,6 +51,8 @@ public:
     pb_variable<FieldT> rep_x;
     pb_variable<FieldT> rep_y;
     pb_variable<FieldT> total_rep;
+    pb_variable<FieldT> rn_x;
+    pb_variable<FieldT> rn_y;
 
     leader_proof(protoboard<FieldT> &pb, const size_t &in_difficulty,
             const size_t &in_n, const std::string &annotation_prefix);
@@ -55,7 +62,8 @@ public:
                                const FieldT &sn_commit_x, const FieldT &sn_commit_y,
                                const FieldT &in_total_rep, const FieldT &in_rep_m, const FieldT &in_rep_r,
                                const FieldT &rep_commit_x, const FieldT &rep_commit_y,
-                               const FieldT &in_block_hash, const FieldT &in_sl);
+                               const FieldT &in_block_hash, const FieldT &in_sl,
+                               const FieldT &in_rn_x, const FieldT &in_rn_y);
 
     static size_t verifying_field_element_size() {
         return libff::div_ceil(verifying_input_bit_size(), FieldT::capacity());
@@ -70,6 +78,8 @@ public:
         acc += 253; // sn commitment y
         acc += 253; // rep x
         acc += 253; // rep y
+        acc += 253; // rn x
+        acc += 253; // rn y
         return acc;
     }
 };

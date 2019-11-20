@@ -41,6 +41,8 @@ void prc_prove_lp(
         char* rep_comm_y,
         char* block_hash,
         int sl,
+        char* rn_x,
+        char* rn_y,
         int d,
         int n
 );
@@ -52,7 +54,9 @@ bool prc_verify_lp(
         char* rep_comm_x,
         char* rep_comm_y,
         char* block_hash,
-        int sl
+        int sl,
+        char* rn_x,
+        char* rn_y
 );
 void prc_paramgen_lp(int d, int n);
 

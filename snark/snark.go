@@ -56,7 +56,7 @@ func ParamGenLP(d int, n int) {
 
 // prove leader proof
 func ProveLP(snM uint64, snR uint64, snX string, snY string, totalRep string, repM uint64, repR uint64,
-	repX string, repY string, blockHash string, sl int, d int, n int) [312]byte {
+	repX string, repY string, blockHash string, sl int, rnX string, rnY string, d int, n int) [312]byte {
 	var proof_buf [312]byte
 
 	cSnX := C.CString(snX)
@@ -65,34 +65,41 @@ func ProveLP(snM uint64, snR uint64, snX string, snY string, totalRep string, re
 	cRepY := C.CString(repY)
 	cTotalRep := C.CString(totalRep)
 	cBlockHash := C.CString(blockHash)
+	cRNX := C.CString(rnX)
+	cRNY := C.CString(rnY)
 	defer C.free(unsafe.Pointer(cSnX))
 	defer C.free(unsafe.Pointer(cSnY))
 	defer C.free(unsafe.Pointer(cRepX))
 	defer C.free(unsafe.Pointer(cRepY))
 	defer C.free(unsafe.Pointer(cTotalRep))
 	defer C.free(unsafe.Pointer(cBlockHash))
+	defer C.free(unsafe.Pointer(cRNX))
+	defer C.free(unsafe.Pointer(cRNY))
 
 	C.prc_prove_lp(unsafe.Pointer(&proof_buf[0]), C.ulong(snM), C.ulong(snR), cSnX, cSnY, cTotalRep,
-		C.ulong(repM), C.ulong(repR), cRepX, cRepY, cBlockHash, C.int(sl), C.int(d), C.int(n))
+		C.ulong(repM), C.ulong(repR), cRepX, cRepY, cBlockHash, C.int(sl), cRNX, cRNY, C.int(d), C.int(n))
 	return proof_buf
 }
 
 // verify leader proof
-func VerifyLP(proof [312]byte, snX string, snY string, totalRep string, repX string, repY string, blockHash string, sl int) bool {
+func VerifyLP(proof [312]byte, snX string, snY string, totalRep string, repX string, repY string, blockHash string, sl int, rnX string, rnY string) bool {
 	cSnX := C.CString(snX)
 	cSnY := C.CString(snY)
 	cRepX := C.CString(repX)
 	cRepY := C.CString(repY)
 	cTotalRep := C.CString(totalRep)
 	cBlockHash := C.CString(blockHash)
+	cRNX := C.CString(rnX)
+	cRNY := C.CString(rnY)
 	defer C.free(unsafe.Pointer(cSnX))
 	defer C.free(unsafe.Pointer(cSnY))
 	defer C.free(unsafe.Pointer(cRepX))
 	defer C.free(unsafe.Pointer(cRepY))
 	defer C.free(unsafe.Pointer(cTotalRep))
 	defer C.free(unsafe.Pointer(cBlockHash))
-
-	ret := C.prc_verify_lp(unsafe.Pointer(&proof[0]), cSnX, cSnY, cTotalRep, cRepX, cRepY, cBlockHash, C.int(sl))
+	defer C.free(unsafe.Pointer(cRNX))
+	defer C.free(unsafe.Pointer(cRNY))
+	ret := C.prc_verify_lp(unsafe.Pointer(&proof[0]), cSnX, cSnY, cTotalRep, cRepX, cRepY, cBlockHash, C.int(sl), cRNX, cRNY)
 	if ret {
 		return true
 	} else {
