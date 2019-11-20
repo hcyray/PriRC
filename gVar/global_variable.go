@@ -55,3 +55,8 @@ const ExperimentBadLevel = 0
 //int32  : -2147483648 to 2147483647
 //uint64 : 0 to 18446744073709551615
 const RepUint64ToInt32 = int64(3e10)
+
+//Leader Proof
+// bit size for random number
+const LeaderBitSize = 4
+const LeaderDifficulty = 2

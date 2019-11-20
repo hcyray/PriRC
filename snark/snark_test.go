@@ -2,6 +2,7 @@ package snark
 
 import (
 	"bufio"
+	"crypto/sha256"
 	"fmt"
 	"math/big"
 	"os"
@@ -135,8 +136,17 @@ func TestPedersenHash(t *testing.T) {
 	BabyJubJubCurve.Init()
 	pc1 := new(PedersenCommitment)
 	pc1.Init()
-	pc1.Comm_x.SetString("0", 10)
+	s := "123"
+	h := sha256.New()
+	h.Write([]byte(s))
+	hash := h.Sum(nil)
+	fmt.Println(hash)
+	b_m := new(big.Int)
+	b_m.SetBytes(hash)
+	fmt.Println(b_m.String())
+	pc1.Comm_x.SetBytes(hash)
 	pc1.Comm_y.SetString("1", 10)
+	pc1.PrintPC()
 	pc2 := new(PedersenCommitment)
 	pc2.Init()
 	pc2.Comm_x.SetString("17777552123799933955779906779655732241715742912184938656739573121738514868268", 10)

@@ -21,6 +21,7 @@ func IDUpdateProcess() {
 	IDUpdateReady.mux.Lock()
 	IDUpdateReady.f = true
 	IDUpdateReady.mux.Unlock()
+	time.Sleep(timeoutSync)
 	rand.Seed(int64(shard.MyMenShard.Shard*3000+shard.MyMenShard.InShardId) + time.Now().UTC().UnixNano())
 	sendi := rand.Perm(int(gVar.ShardSize * gVar.ShardCnt))
 	receivei := make([]bool, int(gVar.ShardSize*gVar.ShardCnt))
@@ -57,7 +58,6 @@ func IDUpdateProcess() {
 		}
 	}
 	fmt.Println(time.Now(), "Received all Identity Update")
-	time.Sleep(timeoutCosi)
 
 }
 

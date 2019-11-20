@@ -29,7 +29,7 @@ func (p *PedersenCommitment) SetPedersenCommmitment(x string, y string, base int
 // Print Pedersen Commitment
 func (p *PedersenCommitment) PrintPC() {
 	fmt.Print("commit x:", p.Comm_x)
-	fmt.Println("commit y:", p.Comm_y)
+	fmt.Println(" commit y:", p.Comm_y)
 }
 
 // BaybJubJub curve

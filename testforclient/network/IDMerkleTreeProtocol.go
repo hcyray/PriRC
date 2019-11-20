@@ -14,7 +14,7 @@ import (
 
 // generate MerkleTree for ID
 func IDMerkleTreeProcess() {
-
+	time.Sleep(timeoutSync)
 	rand.Seed(int64(shard.MyMenShard.Shard*3000+shard.MyMenShard.InShardId) + time.Now().UTC().UnixNano())
 	sendi := rand.Perm(int(gVar.ShardSize * gVar.ShardCnt))
 	receivei := make([]bool, int(gVar.ShardSize*gVar.ShardCnt))
@@ -66,7 +66,7 @@ func IDMerkleTreeProcess() {
 	shard.RepMerkleTree.Init(reppcs)
 	shard.MyRepMTProof = shard.RepMerkleTree.Proof(MyGlobalID)
 	fmt.Println("ID merkle tree built done")
-	time.Sleep(timeoutCosi)
+
 }
 
 func HandleIDMerkleTree(request []byte) {
