@@ -148,6 +148,7 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 	IDUpdateReady.f = false
 	IDUpdateReady.mux.Unlock()
 
+	shard.TotalRep = int32(gVar.ShardCnt*gVar.ShardSize) * 1000
 	shard.NumMems = int(gVar.ShardSize)
 	shard.PreviousSyncBlockHash = [][32]byte{{gVar.MagicNumber}}
 
@@ -159,6 +160,7 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 	//current epoch = -1
 	CurrentEpoch = -1
 	startDone = true
+	CurrentSlot = 0
 
 	//make channel
 	IntialReadyCh = make(chan bool)

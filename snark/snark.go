@@ -55,7 +55,7 @@ func ParamGenLP(d int, n int) {
 }
 
 // prove leader proof
-func ProveLP(snM uint64, snR uint64, snX string, snY string, totalRep string, repM uint64, repR uint64,
+func ProveLP(snM uint64, snR uint64, snX string, snY string, totalRep uint64, repM uint64, repR uint64,
 	repX string, repY string, blockHash string, sl int, rnX string, rnY string, d int, n int) [312]byte {
 	var proof_buf [312]byte
 
@@ -63,7 +63,6 @@ func ProveLP(snM uint64, snR uint64, snX string, snY string, totalRep string, re
 	cSnY := C.CString(snY)
 	cRepX := C.CString(repX)
 	cRepY := C.CString(repY)
-	cTotalRep := C.CString(totalRep)
 	cBlockHash := C.CString(blockHash)
 	cRNX := C.CString(rnX)
 	cRNY := C.CString(rnY)
@@ -71,23 +70,21 @@ func ProveLP(snM uint64, snR uint64, snX string, snY string, totalRep string, re
 	defer C.free(unsafe.Pointer(cSnY))
 	defer C.free(unsafe.Pointer(cRepX))
 	defer C.free(unsafe.Pointer(cRepY))
-	defer C.free(unsafe.Pointer(cTotalRep))
 	defer C.free(unsafe.Pointer(cBlockHash))
 	defer C.free(unsafe.Pointer(cRNX))
 	defer C.free(unsafe.Pointer(cRNY))
 
-	C.prc_prove_lp(unsafe.Pointer(&proof_buf[0]), C.ulong(snM), C.ulong(snR), cSnX, cSnY, cTotalRep,
+	C.prc_prove_lp(unsafe.Pointer(&proof_buf[0]), C.ulong(snM), C.ulong(snR), cSnX, cSnY, C.ulong(totalRep),
 		C.ulong(repM), C.ulong(repR), cRepX, cRepY, cBlockHash, C.int(sl), cRNX, cRNY, C.int(d), C.int(n))
 	return proof_buf
 }
 
 // verify leader proof
-func VerifyLP(proof [312]byte, snX string, snY string, totalRep string, repX string, repY string, blockHash string, sl int, rnX string, rnY string) bool {
+func VerifyLP(proof [312]byte, snX string, snY string, totalRep uint64, repX string, repY string, blockHash string, sl int, rnX string, rnY string) bool {
 	cSnX := C.CString(snX)
 	cSnY := C.CString(snY)
 	cRepX := C.CString(repX)
 	cRepY := C.CString(repY)
-	cTotalRep := C.CString(totalRep)
 	cBlockHash := C.CString(blockHash)
 	cRNX := C.CString(rnX)
 	cRNY := C.CString(rnY)
@@ -95,11 +92,10 @@ func VerifyLP(proof [312]byte, snX string, snY string, totalRep string, repX str
 	defer C.free(unsafe.Pointer(cSnY))
 	defer C.free(unsafe.Pointer(cRepX))
 	defer C.free(unsafe.Pointer(cRepY))
-	defer C.free(unsafe.Pointer(cTotalRep))
 	defer C.free(unsafe.Pointer(cBlockHash))
 	defer C.free(unsafe.Pointer(cRNX))
 	defer C.free(unsafe.Pointer(cRNY))
-	ret := C.prc_verify_lp(unsafe.Pointer(&proof[0]), cSnX, cSnY, cTotalRep, cRepX, cRepY, cBlockHash, C.int(sl), cRNX, cRNY)
+	ret := C.prc_verify_lp(unsafe.Pointer(&proof[0]), cSnX, cSnY, C.ulong(totalRep), cRepX, cRepY, cBlockHash, C.int(sl), cRNX, cRNY)
 	if ret {
 		return true
 	} else {

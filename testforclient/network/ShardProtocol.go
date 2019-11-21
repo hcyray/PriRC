@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/gob"
 	"fmt"
+	"github.com/uchihatmtkinu/PriRC/snark"
 	"log"
+	"math/rand"
 	"time"
 
 	"github.com/uchihatmtkinu/PriRC/Reputation"
@@ -27,7 +29,6 @@ func ShardProcess() {
 
 	shard.StartFlag = true
 	shard.ShardToGlobal = make([][]int, gVar.ShardCnt)
-	//Generating Leader Proof
 
 	for i := uint32(0); i < gVar.ShardCnt; i++ {
 		shard.ShardToGlobal[i] = make([]int, gVar.ShardSize)
@@ -35,13 +36,69 @@ func ShardProcess() {
 			shard.ShardToGlobal[i][j] = int(j)
 			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Shard = int(i)
 			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].InShardId = int(j)
-			if j == 0 {
-				shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Role = 0
-			} else {
-				shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Role = 1
+			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Role = 1
+		}
+	}
+
+	//Generating Leader Proof
+	var MyLeader snark.LeaderCalInfo
+	leaderflag := false
+	blockHash := shard.PreviousSyncBlockHash[0][:]
+	rand.Seed(int64(shard.MyMenShard.Shard*3000+shard.MyMenShard.InShardId) + time.Now().UTC().UnixNano())
+	sendi := rand.Perm(int(gVar.ShardSize * gVar.ShardCnt))
+	receivei := make([]bool, int(gVar.ShardSize*gVar.ShardCnt))
+	//TODO calculate totalrep
+	for !leaderflag {
+		CurrentSlot++
+		MyLeader.LeaderCal(&shard.MyMenShard.EpochSNID, &shard.MyMenShard.RepComm,
+			blockHash, CurrentSlot, shard.MyMenShard.Rep, shard.TotalRep)
+		if MyLeader.Leader {
+			shard.MyLeaderProof = GenerateLeaderProof(shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm,
+				shard.MyMenShard.Rep, shard.TotalRep, CurrentSlot, MyLeader)
+			for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
+				if sendi[i] != MyGlobalID {
+					receivei[sendi[i]] = false
+					SendIDComm(shard.GlobalGroupMems[sendi[i]].Address, "LYes",
+						LeaderInfo{true, MyGlobalID, CurrentSlot, shard.MyMenShard.EpochSNID,
+							MyLeader.RNComm, shard.MyLeaderProof})
+				}
+			}
+		} else {
+			for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
+				if sendi[i] != MyGlobalID {
+					receivei[sendi[i]] = false
+					SendIDComm(shard.GlobalGroupMems[sendi[i]].Address, "LNot",
+						LeaderInfo{false, MyGlobalID, CurrentSlot, shard.MyMenShard.EpochSNID, nil, nil})
+
+				}
+			}
+		}
+		receivei[MyGlobalID] = true
+		receiveCount := 1
+		for receiveCount < int(gVar.ShardSize*gVar.ShardCnt) {
+			select {
+			case IDUpdateMessage := <-IDUpdateCh:
+				if !receivei[IDUpdateMessage.ID] {
+					if VerifyIDUpdate(IDUpdateMessage.ID, IDUpdateMessage.IDComm, IDUpdateMessage.RepComm, IDUpdateMessage.IDUpdateProof) {
+						shard.GlobalGroupMems[IDUpdateMessage.ID].SetIDPC(IDUpdateMessage.IDComm)
+						shard.GlobalGroupMems[IDUpdateMessage.ID].SetPriRepPC(IDUpdateMessage.RepComm)
+						receivei[IDUpdateMessage.ID] = true
+						receiveCount++
+						//fmt.Println(time.Now(), "Received commit from Global ID: ", commitMessage.ID, ", commits count:", signCount, "/", int(gVar.ShardSize))
+					}
+				}
+			case <-time.After(timeoutCosi):
+				//resend after 15 seconds
+				for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
+					if !receivei[sendi[i]] {
+						fmt.Println(time.Now(), "Request ID Update Message from global client:", sendi[i])
+						SendIDComm(shard.GlobalGroupMems[sendi[i]].Address, "reqIDU", MyGlobalID)
+					}
+				}
 			}
 		}
 	}
+
 	//beginShard.GenerateSeed(&shard.PreviousSyncBlockHash)
 	//beginShard.Sharding(&shard.GlobalGroupMems, &shard.ShardToGlobal)
 	//shard.MyMenShard = &shard.GlobalGroupMems[MyGlobalID]
@@ -93,6 +150,13 @@ func ShardProcess() {
 		FinalTxReadyCh <- true
 	}
 
+}
+
+func GenerateLeaderProof(SNID snark.PedersenCommitment, RepComm snark.PedersenCommitment, rep int32, TotalRep int32,
+	sl int, LC snark.LeaderCalInfo) [312]byte {
+	return snark.ProveLP(uint64(CurrentEpoch+2), uint64(MyGlobalID), SNID.Comm_x.String(), SNID.Comm_y.String(), uint64(TotalRep),
+		uint64(int64(rep)+gVar.RepUint64ToInt32), uint64(CurrentEpoch+2+MyGlobalID), RepComm.Comm_x.String(), RepComm.Comm_y.String(),
+		LC.BlockHash, sl, LC.RNComm.Comm_x.String(), LC.RNComm.Comm_y.String(), gVar.LeaderBitSize, gVar.LeaderDifficulty)
 }
 
 //LeaderReadyProcess leader use this

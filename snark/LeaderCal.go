@@ -7,8 +7,9 @@ import (
 )
 
 type LeaderCalInfo struct {
-	leader bool
-	RNComm PedersenCommitment
+	Leader    bool
+	RNComm    PedersenCommitment
+	BlockHash string
 }
 
 func (lc *LeaderCalInfo) LeaderCal(SNID *PedersenCommitment, Rep *PedersenCommitment, BlockHash []byte, sl int, totalrep int32, rep int32) {
@@ -19,6 +20,7 @@ func (lc *LeaderCalInfo) LeaderCal(SNID *PedersenCommitment, Rep *PedersenCommit
 	r.Init()
 	l.SetPedersenCommmitment(SNID.Comm_x.String(), SNID.Comm_y.String(), 10)
 	r.Comm_x.SetBytes(BlockHash[:])
+	lc.BlockHash = r.Comm_x.String()
 	r.Comm_y.SetInt64(int64(sl))
 	BabyJubJubCurve.AddTwoPedersenCommitment(l, r)
 	BabyJubJubCurve.CalPedersenHash(l.Comm_x, l.Comm_y, l)
@@ -31,7 +33,7 @@ func (lc *LeaderCalInfo) LeaderCal(SNID *PedersenCommitment, Rep *PedersenCommit
 	ln.Mul(big.NewInt(int64(rep)), ln)
 	fmt.Println(ln.String())
 	fmt.Println(rn.String())
-	lc.leader = ln.Cmp(rn) > 0
+	lc.Leader = ln.Cmp(rn) > 0
 	r.SetPedersenCommmitment(Rep.Comm_x.String(), Rep.Comm_y.String(), 10)
 	BabyJubJubCurve.AddTwoPedersenCommitment(l, r)
 	BabyJubJubCurve.CalPedersenHash(l.Comm_x, l.Comm_y, &lc.RNComm)

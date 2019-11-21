@@ -141,7 +141,7 @@ void prc_paramgen_hpc() {
 
 }
 
-bool prc_verify_lp(void *proof_ptr, char* sn_comm_x, char* sn_comm_y, char* total_rep,
+bool prc_verify_lp(void *proof_ptr, char* sn_comm_x, char* sn_comm_y, ulong total_rep,
                    char* rep_comm_x, char* rep_comm_y, char* block_hash, int sl, char* rn_x, char* rn_y) {
     unsigned char *proof = reinterpret_cast<unsigned char *>(proof_ptr);
     //input proof
@@ -173,7 +173,7 @@ bool prc_verify_lp(void *proof_ptr, char* sn_comm_x, char* sn_comm_y, char* tota
 }
 
 
-void prc_prove_lp(void *output_proof_ptr, ulong sn_m, ulong sn_r, char* sn_comm_x, char* sn_comm_y, char* total_rep,
+void prc_prove_lp(void *output_proof_ptr, ulong sn_m, ulong sn_r, char* sn_comm_x, char* sn_comm_y, ulong total_rep,
         ulong rep_m, ulong rep_r, char* rep_comm_x, char* rep_comm_y, char* block_hash, int sl, char* rn_x, char* rn_y,
         int d, int n){
     unsigned char *output_proof = reinterpret_cast<unsigned char *>(output_proof_ptr);

@@ -35,9 +35,8 @@ func TestLP(t *testing.T) {
 	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc)
 	Init()
 	ParamGenLP(3, 10)
-	var totalRep string
 	var blockHash string
-	totalRep = "10"
+	totalRep := uint64(10)
 	blockHash = "1234"
 	rnPC := new(PedersenCommitment)
 	rnPC.Init()
@@ -180,6 +179,6 @@ func TestLeaderCandidate(t *testing.T) {
 	block_hash.SetString("1234", 10)
 	var lc LeaderCalInfo
 	lc.LeaderCal(pc, pc, block_hash.Bytes(), 1, 10, 2)
-	fmt.Println(lc.leader)
+	fmt.Println(lc.Leader)
 	lc.RNComm.PrintPC()
 }

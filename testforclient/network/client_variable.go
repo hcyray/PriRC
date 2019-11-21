@@ -29,6 +29,7 @@ const timeoutGetTx = time.Microsecond * 100
 //CurrentEpoch epoch now
 var CurrentEpoch int
 var CurrentRepRound int
+var CurrentSlot int
 
 //LeaderAddr leader address
 var LeaderAddr string
@@ -55,6 +56,19 @@ type IDCommInfo struct {
 
 //channel used in ID commitment
 var IDCommCh chan IDCommInfo
+
+//Epoch SNID commitment
+type LeaderInfo struct {
+	Leader      bool
+	ID          int
+	Slot        int
+	IDComm      snark.PedersenCommitment
+	RNComm      snark.PedersenCommitment
+	LeaderProof [312]byte
+}
+
+//channel used in ID commitment
+var LeaderInfoCh chan LeaderInfo
 
 //------------------- IDUpdate process -------------------
 type IDUpdateInfo struct {
