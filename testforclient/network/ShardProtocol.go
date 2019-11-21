@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/uchihatmtkinu/PriRC/snark"
 	"log"
+	"math/big"
 	"math/rand"
 	"time"
 
@@ -28,48 +29,42 @@ func ShardProcess() {
 	Reputation.CurrentRepBlock.Mu.Unlock()
 
 	shard.StartFlag = true
-	shard.ShardToGlobal = make([][]int, gVar.ShardCnt)
-
-	for i := uint32(0); i < gVar.ShardCnt; i++ {
-		shard.ShardToGlobal[i] = make([]int, gVar.ShardSize)
-		for j := uint32(0); j < gVar.ShardSize; j++ {
-			shard.ShardToGlobal[i][j] = int(j)
-			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Shard = int(i)
-			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].InShardId = int(j)
-			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Role = 1
-		}
-	}
 
 	//Generating Leader Proof
-	var MyLeader snark.LeaderCalInfo
 	leaderflag := false
 	blockHash := shard.PreviousSyncBlockHash[0][:]
 	rand.Seed(int64(shard.MyMenShard.Shard*3000+shard.MyMenShard.InShardId) + time.Now().UTC().UnixNano())
 	sendi := rand.Perm(int(gVar.ShardSize * gVar.ShardCnt))
 	receivei := make([]bool, int(gVar.ShardSize*gVar.ShardCnt))
+	var LeaderCandidate []LeaderInfo
 	//TODO calculate totalrep
 	for !leaderflag {
+		MyLeader.mux.Lock()
 		CurrentSlot++
-		MyLeader.LeaderCal(&shard.MyMenShard.EpochSNID, &shard.MyMenShard.RepComm,
+		MyLeader.slot = CurrentSlot
+		fmt.Println("Leader Election, slot: ", CurrentSlot)
+
+		MyLeader.lc.LeaderCal(&shard.MyMenShard.EpochSNID, &shard.MyMenShard.RepComm,
 			blockHash, CurrentSlot, shard.MyMenShard.Rep, shard.TotalRep)
-		if MyLeader.Leader {
+		MyLeader.mux.Unlock()
+		if MyLeader.lc.Leader {
 			shard.MyLeaderProof = GenerateLeaderProof(shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm,
-				shard.MyMenShard.Rep, shard.TotalRep, CurrentSlot, MyLeader)
+				shard.MyMenShard.Rep, shard.TotalRep, CurrentSlot, MyLeader.lc)
 			for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
 				if sendi[i] != MyGlobalID {
 					receivei[sendi[i]] = false
-					SendIDComm(shard.GlobalGroupMems[sendi[i]].Address, "LYes",
+					SendIDComm(shard.GlobalGroupMems[sendi[i]].Address, "LI",
 						LeaderInfo{true, MyGlobalID, CurrentSlot, shard.MyMenShard.EpochSNID,
-							MyLeader.RNComm, shard.MyLeaderProof})
+							MyLeader.lc.RNComm, shard.MyLeaderProof})
 				}
 			}
 		} else {
+			fmt.Println("I am leader")
 			for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
 				if sendi[i] != MyGlobalID {
 					receivei[sendi[i]] = false
-					SendIDComm(shard.GlobalGroupMems[sendi[i]].Address, "LNot",
+					SendIDComm(shard.GlobalGroupMems[sendi[i]].Address, "LI",
 						LeaderInfo{false, MyGlobalID, CurrentSlot, shard.MyMenShard.EpochSNID, nil, nil})
-
 				}
 			}
 		}
@@ -77,28 +72,66 @@ func ShardProcess() {
 		receiveCount := 1
 		for receiveCount < int(gVar.ShardSize*gVar.ShardCnt) {
 			select {
-			case IDUpdateMessage := <-IDUpdateCh:
-				if !receivei[IDUpdateMessage.ID] {
-					if VerifyIDUpdate(IDUpdateMessage.ID, IDUpdateMessage.IDComm, IDUpdateMessage.RepComm, IDUpdateMessage.IDUpdateProof) {
-						shard.GlobalGroupMems[IDUpdateMessage.ID].SetIDPC(IDUpdateMessage.IDComm)
-						shard.GlobalGroupMems[IDUpdateMessage.ID].SetPriRepPC(IDUpdateMessage.RepComm)
-						receivei[IDUpdateMessage.ID] = true
+			case LeaderMessage := <-LeaderInfoCh:
+				if LeaderMessage.Slot == CurrentSlot && !receivei[LeaderMessage.ID] {
+					if !LeaderMessage.Leader {
+						receivei[LeaderMessage.ID] = true
 						receiveCount++
-						//fmt.Println(time.Now(), "Received commit from Global ID: ", commitMessage.ID, ", commits count:", signCount, "/", int(gVar.ShardSize))
+					} else {
+						MyLeader
+						if VerifyLeaderProof(LeaderMessage.LeaderProof, LeaderMessage.IDComm, shard.GlobalGroupMems[LeaderMessage.ID].RepComm,
+							shard.TotalRep, LeaderMessage.Slot, MyLeader.BlockHash, LeaderMessage.RNComm) {
+							fmt.Println("Leader Candidate:", LeaderMessage.ID)
+							LeaderCandidate = append(LeaderCandidate, LeaderMessage)
+							receivei[LeaderMessage.ID] = true
+							receiveCount++
+						}
+						leaderflag = true
 					}
 				}
-			case <-time.After(timeoutCosi):
-				//resend after 15 seconds
+			case <-time.After(timeoutSync * 2):
+				//resend after 20 seconds
 				for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
 					if !receivei[sendi[i]] {
-						fmt.Println(time.Now(), "Request ID Update Message from global client:", sendi[i])
-						SendIDComm(shard.GlobalGroupMems[sendi[i]].Address, "reqIDU", MyGlobalID)
+						fmt.Println(time.Now(), "Request Leader Info from global client:", sendi[i])
+						SendIDComm(shard.GlobalGroupMems[sendi[i]].Address, "reqLI", ReqLeaderInfo{MyGlobalID, shard.MyMenShard.EpochSNID, CurrentSlot})
 					}
 				}
 			}
 		}
 	}
+	//Select leader from leader candidate
+	maxRN := big.NewInt(0)
+	lcRN := new(big.Int)
+	currentLeader := 0
+	for _, l := range LeaderCandidate {
+		lcRN.Add(l.RNComm.Comm_x, l.RNComm.Comm_y)
+		if maxRN.Cmp(lcRN) > 0 {
+			maxRN = lcRN
+			currentLeader = l.ID
+		}
+	}
+	shard.ShardToGlobal[0][currentLeader] = 0
+	shard.ShardToGlobal = make([][]int, gVar.ShardCnt)
 
+	for i := uint32(0); i < gVar.ShardCnt; i++ {
+		shard.ShardToGlobal[i] = make([]int, gVar.ShardSize)
+		for j := uint32(0); j < gVar.ShardSize; j++ {
+			if j == 0 {
+				shard.ShardToGlobal[i][j] = currentLeader
+				shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Role = 0
+			} else {
+				if j == uint32(currentLeader) {
+					shard.ShardToGlobal[i][j] = 0
+				} else {
+					shard.ShardToGlobal[i][j] = int(j)
+				}
+				shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Role = 1
+			}
+			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Shard = int(i)
+			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].InShardId = int(j)
+		}
+	}
 	//beginShard.GenerateSeed(&shard.PreviousSyncBlockHash)
 	//beginShard.Sharding(&shard.GlobalGroupMems, &shard.ShardToGlobal)
 	//shard.MyMenShard = &shard.GlobalGroupMems[MyGlobalID]
@@ -152,11 +185,17 @@ func ShardProcess() {
 
 }
 
-func GenerateLeaderProof(SNID snark.PedersenCommitment, RepComm snark.PedersenCommitment, rep int32, TotalRep int32,
+func GenerateLeaderProof(SNID snark.PedersenCommitment, RepComm snark.PedersenCommitment, rep int32, totalRep int32,
 	sl int, LC snark.LeaderCalInfo) [312]byte {
-	return snark.ProveLP(uint64(CurrentEpoch+2), uint64(MyGlobalID), SNID.Comm_x.String(), SNID.Comm_y.String(), uint64(TotalRep),
+	return snark.ProveLP(uint64(CurrentEpoch+2), uint64(MyGlobalID), SNID.Comm_x.String(), SNID.Comm_y.String(), uint64(totalRep),
 		uint64(int64(rep)+gVar.RepUint64ToInt32), uint64(CurrentEpoch+2+MyGlobalID), RepComm.Comm_x.String(), RepComm.Comm_y.String(),
 		LC.BlockHash, sl, LC.RNComm.Comm_x.String(), LC.RNComm.Comm_y.String(), gVar.LeaderBitSize, gVar.LeaderDifficulty)
+}
+
+func VerifyLeaderProof(proof [312]byte, SNID snark.PedersenCommitment, RepComm snark.PedersenCommitment, rotalRep int32,
+	sl int, blockHash string, RNComm snark.PedersenCommitment) bool {
+	return snark.VerifyLP(proof, SNID.Comm_x.String(), SNID.Comm_y.String(), uint64(rotalRep), RepComm.Comm_x.String(), RepComm.Comm_y.String(),
+		blockHash, sl, RNComm.Comm_x.String(), RNComm.Comm_y.String())
 }
 
 //LeaderReadyProcess leader use this
@@ -305,4 +344,28 @@ func HandleLeaderReady(request []byte) {
 		log.Panic(err)
 	}
 	readyLeaderCh <- payload
+}
+
+func HandLeaderInfo(request []byte) {
+	var buff bytes.Buffer
+	var payload LeaderInfo
+	buff.Write(request)
+	dec := gob.NewDecoder(&buff)
+	err := dec.Decode(&payload)
+	if err != nil {
+		log.Panic(err)
+	}
+	LeaderInfoCh <- payload
+}
+func HandleRequestLeaderInfo(request []byte) {
+	var buff bytes.Buffer
+	var payload int
+	buff.Write(request)
+	dec := gob.NewDecoder(&buff)
+	err := dec.Decode(&payload)
+	if err != nil {
+		log.Panic(err)
+	}
+	SendIDComm(shard.GlobalGroupMems[payload].Address, "LI",
+		LeaderInfo{MyGlobalID, shard.MyMenShard.EpochSNID, CurrentSlot})
 }

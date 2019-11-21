@@ -57,7 +57,7 @@ type IDCommInfo struct {
 //channel used in ID commitment
 var IDCommCh chan IDCommInfo
 
-//Epoch SNID commitment
+//Leader Info
 type LeaderInfo struct {
 	Leader      bool
 	ID          int
@@ -67,7 +67,14 @@ type LeaderInfo struct {
 	LeaderProof [312]byte
 }
 
-//channel used in ID commitment
+//Requst Leader Info
+type ReqLeaderInfo struct {
+	ID   int
+	SNID snark.PedersenCommitment
+	Slot int
+}
+
+//channel used in Leader proof
 var LeaderInfoCh chan LeaderInfo
 
 //------------------- IDUpdate process -------------------
@@ -248,12 +255,23 @@ var SyncFlag bool
 //ReadyCh channel used to indicate the process start
 var IntialReadyCh chan bool
 
+//safe update ready
 type SafeIDUpdateReady struct {
 	f   bool
 	mux sync.Mutex
 }
 
 var IDUpdateReady SafeIDUpdateReady
+
+type SafeILeaderInfo struct {
+	f    bool
+	lc   snark.LeaderCalInfo
+	slot int
+	mux  sync.RWMutex
+}
+
+var MyLeader SafeILeaderInfo
+
 var waitForFB chan bool
 
 //FinalTxReadyCh whether the FB is done

@@ -166,6 +166,7 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 	IntialReadyCh = make(chan bool)
 	IDCommCh = make(chan IDCommInfo, 300)
 	IDUpdateCh = make(chan IDUpdateInfo, 300)
+	LeaderInfoCh = make(chan LeaderInfo, 300)
 
 	FinalTxReadyCh = make(chan bool, 1)
 	waitForFB = make(chan bool, 1)
