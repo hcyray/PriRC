@@ -167,6 +167,11 @@ func StartServer(ID int) {
 			go HandleIDUpdate(request)
 		case "reqIDU":
 			go HandleRequestIDUpdate(request)
+		//Leader Proof
+		case "LI":
+			go HandleLeaderInfo(request)
+		case "reqLI":
+			go HandleRequestLeaderInfo(request)
 		//shard
 		case "shardReady":
 			go HandleShardReady(request)

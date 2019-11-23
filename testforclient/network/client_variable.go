@@ -264,10 +264,9 @@ type SafeIDUpdateReady struct {
 var IDUpdateReady SafeIDUpdateReady
 
 type SafeILeaderInfo struct {
-	f    bool
-	lc   snark.LeaderCalInfo
-	slot int
-	mux  sync.RWMutex
+	f   bool
+	lc  snark.LeaderCalInfo
+	mux sync.RWMutex
 }
 
 var MyLeader SafeILeaderInfo

@@ -1,7 +1,6 @@
 package snark
 
 import (
-	"fmt"
 	"github.com/uchihatmtkinu/PriRC/gVar"
 	"math/big"
 )
@@ -31,8 +30,8 @@ func (lc *LeaderCalInfo) LeaderCal(SNID *PedersenCommitment, Rep *PedersenCommit
 	ln := new(big.Int)
 	ln.Exp(big.NewInt(2), big.NewInt(gVar.LeaderBitSize+gVar.LeaderDifficulty), nil)
 	ln.Mul(big.NewInt(int64(rep)), ln)
-	fmt.Println(ln.String())
-	fmt.Println(rn.String())
+	//fmt.Println(ln.String())
+	//fmt.Println(rn.String())
 	lc.Leader = ln.Cmp(rn) > 0
 	r.SetPedersenCommmitment(Rep.Comm_x.String(), Rep.Comm_y.String(), 10)
 	BabyJubJubCurve.AddTwoPedersenCommitment(l, r)

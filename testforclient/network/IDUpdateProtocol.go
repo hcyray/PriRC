@@ -67,10 +67,10 @@ func HandleIDUpdate(request []byte) {
 	buff.Write(request)
 	dec := gob.NewDecoder(&buff)
 	err := dec.Decode(&payload)
-	fmt.Print("Client:", payload.ID, " ID: ")
-	payload.IDComm.PrintPC()
-	fmt.Print("Rep:", payload.ID, " ")
-	payload.RepComm.PrintPC()
+	//fmt.Print("Client:", payload.ID, " ID: ")
+	//payload.IDComm.PrintPC()
+	//fmt.Print("Rep:", payload.ID, " ")
+	//payload.RepComm.PrintPC()
 	if err != nil {
 		log.Panic(err)
 	}

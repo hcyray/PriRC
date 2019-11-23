@@ -99,7 +99,7 @@ void leader_proof<FieldT>::generate_r1cs_witness(const FieldT &in_sn_m, const Fi
     this -> pb.val(rep_y) = rep_commit_y;
     fill_with_bits_of_field_element_baby_jubjub<FieldT>(this -> pb, rep_m, in_rep_m);
     fill_with_bits_of_field_element_baby_jubjub<FieldT>(this -> pb, rep_r, in_rep_r);
-    this -> pb.val(rep) = in_rep_m;
+    this -> pb.val(rep) = in_rep_m - FieldT(30000000000);
     //commitment of sn and rep
     snCommit->generate_r1cs_witness(sn_x, sn_y, this->sn_m, this->sn_r);
     repCommit->generate_r1cs_witness(rep_x, rep_y, this->rep_m, this->rep_r);

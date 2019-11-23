@@ -36,7 +36,7 @@ const GensisAccValue = 2147483647
 const TxSendInterval = 10
 
 // number of transactions - TPS
-const NumOfTxForTest = 100
+const NumOfTxForTest = 10000
 
 const GeneralSleepTime = 50
 
@@ -45,7 +45,7 @@ var T1 time.Time = time.Now()
 const BandDiverse = false
 
 // client for listen the leader
-const MyAddress = "192.168.108.45:9999"
+const MyAddress = "143.89.147.118:9999"
 
 const MaxBand = 38 * 1024
 const MinBand = 2 * 1024
@@ -59,4 +59,4 @@ const RepUint64ToInt32 = int64(3e10)
 //Leader Proof
 // bit size for random number
 const LeaderBitSize = 10
-const LeaderDifficulty = 3
+const LeaderDifficulty = 0

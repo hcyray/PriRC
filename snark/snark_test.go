@@ -3,11 +3,23 @@ package snark
 import (
 	"bufio"
 	"fmt"
+	"github.com/uchihatmtkinu/PriRC/gVar"
+	"math"
 	"math/big"
 	"os"
 	"strconv"
 	"testing"
 )
+
+func TestParamGen(t *testing.T) {
+	n := int(gVar.ShardSize * gVar.ShardCnt)
+	d := int(math.Log2(float64(n)))
+	fmt.Println(d)
+	Init()
+	ParamGenHPC()
+	ParamGenIUP(d)
+	ParamGenLP(gVar.LeaderDifficulty, gVar.LeaderBitSize)
+}
 
 func TestPC(t *testing.T) {
 	b_m := new(big.Int)
@@ -27,25 +39,30 @@ func TestPC(t *testing.T) {
 func TestLP(t *testing.T) {
 	b_m := new(big.Int)
 	b_r := new(big.Int)
-	b_m.SetInt64(2)
+	b_m.SetInt64(2 + gVar.RepUint64ToInt32)
 	b_r.SetInt64(2)
 	pc := new(PedersenCommitment)
 	pc.Init()
 	BabyJubJubCurve.Init()
 	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc)
 	Init()
-	ParamGenLP(3, 10)
-	var blockHash string
+	ParamGenLP(gVar.LeaderDifficulty, gVar.LeaderBitSize)
 	totalRep := uint64(10)
-	blockHash = "1234"
-	rnPC := new(PedersenCommitment)
-	rnPC.Init()
-	rnPC.Comm_x.SetString("17340275048943653547614489228527344381464164653252141404090367775488601412428", 10)
-	rnPC.Comm_y.SetString("933123352423928023129012374387605308470368372720613198607919169954889220173", 10)
-	proof_buf := ProveLP(2, 2, pc.Comm_x.String(), pc.Comm_y.String(), totalRep,
-		2, 2, pc.Comm_x.String(), pc.Comm_y.String(), blockHash, 1, rnPC.Comm_x.String(), rnPC.Comm_y.String(), 3, 10)
+	block_hash := [32]byte{66}
+	sl := 1
+	var lc LeaderCalInfo
+	lc.LeaderCal(pc, pc, block_hash[:], sl, 10, 2)
+	for !lc.Leader {
+		sl++
+		lc.LeaderCal(pc, pc, block_hash[:], sl, 10, 2)
+	}
+	fmt.Println(sl)
+	proof_buf := ProveLP(b_m.Uint64(), b_r.Uint64(), pc.Comm_x.String(), pc.Comm_y.String(), totalRep,
+		b_m.Uint64(), 2, pc.Comm_x.String(), pc.Comm_y.String(), lc.BlockHash, sl, lc.RNComm.Comm_x.String(), lc.RNComm.Comm_y.String(), gVar.LeaderDifficulty, gVar.LeaderBitSize)
+	pc.PrintPC()
+	lc.RNComm.PrintPC()
 	fmt.Println("verification result:", VerifyLP(proof_buf, pc.Comm_x.String(), pc.Comm_y.String(),
-		totalRep, pc.Comm_x.String(), pc.Comm_y.String(), blockHash, 1, rnPC.Comm_x.String(), rnPC.Comm_y.String()))
+		totalRep, pc.Comm_x.String(), pc.Comm_y.String(), lc.BlockHash, sl, lc.RNComm.Comm_x.String(), lc.RNComm.Comm_y.String()))
 }
 
 func TestIUP(t *testing.T) {
@@ -102,6 +119,7 @@ func TestIUP(t *testing.T) {
 	pc2.Init()
 	BabyJubJubCurve.Init()
 	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc2)
+
 	Init()
 	ParamGenIUP(d)
 	proof_buf := ProveIUP(d, idAdd, idLeafX, idLeafY, idRootX, idRootY, idPath,
@@ -116,8 +134,8 @@ func TestPedersenCommitment(t *testing.T) {
 	BabyJubJubCurve.Init()
 	b_m := new(big.Int)
 	b_r := new(big.Int)
-	b_m.SetInt64(1)
-	b_r.SetInt64(0)
+	b_m.SetInt64(2 + 30000000000)
+	b_r.SetInt64(2)
 	pc1 := new(PedersenCommitment)
 	pc1.Init()
 	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc1)
@@ -153,7 +171,7 @@ func TestPedersenHash(t *testing.T) {
 }
 func TestMerkleTree(t *testing.T) {
 	BabyJubJubCurve.Init()
-	n := 3
+	n := 2
 	b_m := new(big.Int)
 	b_r := new(big.Int)
 	pc := make([]PedersenCommitment, n)
@@ -172,13 +190,16 @@ func TestMerkleTree(t *testing.T) {
 
 func TestLeaderCandidate(t *testing.T) {
 	BabyJubJubCurve.Init()
-	pc := new(PedersenCommitment)
-	pc.Init()
-	pc.SetPedersenCommmitment("18517123153863469553573384572371536953407444696640934598826194274645946323334", "16366639365004517936716040800897479058579589069997927276858356063876961184474", 10)
+	pc1 := new(PedersenCommitment)
+	pc1.Init()
+	pc1.SetPedersenCommmitment("18517123153863469553573384572371536953407444696640934598826194274645946323334", "16366639365004517936716040800897479058579589069997927276858356063876961184474", 10)
+	pc2 := new(PedersenCommitment)
+	pc2.Init()
+	pc2.SetPedersenCommmitment("6468125633283523844081138403201428527072905892236409266890308262966770366270", "15599159073676304331609141418095610264573471298139509244854073578575099976066", 10)
 	block_hash := new(big.Int)
 	block_hash.SetString("1234", 10)
 	var lc LeaderCalInfo
-	lc.LeaderCal(pc, pc, block_hash.Bytes(), 1, 10, 2)
+	lc.LeaderCal(pc1, pc2, block_hash.Bytes(), 1, 10, 2)
 	fmt.Println(lc.Leader)
 	lc.RNComm.PrintPC()
 }

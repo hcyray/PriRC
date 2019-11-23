@@ -76,10 +76,10 @@ func HandleIDMerkleTree(request []byte) {
 	buff.Write(request)
 	dec := gob.NewDecoder(&buff)
 	err := dec.Decode(&payload)
-	fmt.Print("Client:", payload.ID, " ID: ")
-	payload.IDComm.PrintPC()
-	fmt.Print("Rep:")
-	payload.RepComm.PrintPC()
+	//fmt.Print("Client:", payload.ID, " ID: ")
+	//payload.IDComm.PrintPC()
+	//fmt.Print("Rep:")
+	//payload.RepComm.PrintPC()
 	if err != nil {
 		log.Panic(err)
 	}
