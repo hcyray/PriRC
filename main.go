@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/uchihatmtkinu/PriRC/basic"
 	"github.com/uchihatmtkinu/PriRC/gVar"
@@ -27,24 +28,15 @@ func main() {
 	}
 
 	defer file.Close()
-	fileinfo, err := file.Stat()
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	fileSize := fileinfo.Size()
-	buffer := make([]byte, fileSize)
-
-	_, err = file.Read(buffer)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("Local Address:", string(buffer))
+	scannerMyIP := bufio.NewScanner(file)
+	scannerMyIP.Split(bufio.ScanWords)
+	scannerMyIP.Scan()
+	fmt.Println("Local Address:", scannerMyIP.Text())
 
 	ID := 0
 	totalepoch := 1
-	network.IntilizeProcess(string(buffer), &ID, os.Args[2], initType)
+	network.IntilizeProcess(scannerMyIP.Text(), &ID, os.Args[2], initType)
 	//network.IntilizeProcess("192.168.108.37", &ID, os.Args[2], initType)
 	go network.StartServer(ID)
 	<-network.IntialReadyCh
