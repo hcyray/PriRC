@@ -85,6 +85,11 @@ func (ms *MemShard) SetIDPC(IDPC snark.PedersenCommitment) {
 	ms.IDComm = IDPC
 }
 
+//SetSNID set SNID pedersen commitment
+func (ms *MemShard) SetSNID(PC snark.PedersenCommitment) {
+	ms.EpochSNID = PC
+}
+
 //int32  : -2147483648 to 2147483647
 //uint64 : 0 to 18446744073709551615
 //NewPriRep new private rep

@@ -40,7 +40,7 @@ func IDUpdateProcess() {
 		case IDUpdateMessage := <-IDUpdateCh:
 			if !receivei[IDUpdateMessage.ID] {
 				if VerifyIDUpdate(IDUpdateMessage.ID, IDUpdateMessage.IDComm, IDUpdateMessage.RepComm, IDUpdateMessage.IDUpdateProof) {
-					shard.GlobalGroupMems[IDUpdateMessage.ID].SetIDPC(IDUpdateMessage.IDComm)
+					shard.GlobalGroupMems[IDUpdateMessage.ID].SetSNID(IDUpdateMessage.IDComm)
 					shard.GlobalGroupMems[IDUpdateMessage.ID].SetPriRepPC(IDUpdateMessage.RepComm)
 					receivei[IDUpdateMessage.ID] = true
 					receiveCount++
