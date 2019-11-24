@@ -36,7 +36,7 @@ const GensisAccValue = 2147483647
 const TxSendInterval = 10
 
 // number of transactions - TPS
-const NumOfTxForTest = 100
+const NumOfTxForTest = 10000
 
 const GeneralSleepTime = 50
 
