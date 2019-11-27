@@ -1,84 +1,105 @@
 package shard
 
 import (
-	"crypto/sha256"
-	"encoding/binary"
-	"math/rand"
-	"strings"
-
 	"github.com/uchihatmtkinu/PriRC/gVar"
+	"math/big"
 )
 
-type sortType struct {
-	ID      uint32
-	Rep     int32
-	Address string
+type SortType struct {
+	ID uint32
+	RN *big.Int
 }
 
-//Instance is the struct for sharding
-type Instance struct {
-	rng *rand.Rand
+func (a *SortType) NewSortType(id uint32, x *big.Int, y *big.Int) {
+	z := new(big.Int)
+	z.Add(x, y)
+	a.RN = z
+	a.ID = id
 }
 
-//GetRBData get all the data from reputation block for sharding
-func GetRBData() {
+type SortTypes []SortType
 
+func (a SortTypes) Len() int {
+	return len(a)
 }
 
-//CompareRep returns whether a has a great reputation than b
-func CompareRep(a *sortType, b *sortType) int {
-	if a.Rep > b.Rep {
-		return 1
-	} else if b.Rep > a.Rep {
-		return -1
+func (a SortTypes) Less(i, j int) bool {
+	if a[i].RN.Cmp(a[j].RN) < 0 {
+		return true
 	} else {
-		return strings.Compare(a.Address, b.Address)
+		return false
 	}
 }
 
-//SortRep sorts all miners based on their reputation
-func SortRep(a *[]sortType, l int, r int) error {
-	x := (*a)[(l+r)/2]
-	i := l
-	j := r
-	if l >= r {
-		return nil
-	}
-	for i <= j {
-		for i < r && CompareRep(&(*a)[i], &x) > 0 {
-			i++
-		}
-		for j > 0 && CompareRep(&x, &(*a)[j]) > 0 {
-			j--
-		}
-		if i <= j {
-			y := (*a)[i]
-			(*a)[i] = (*a)[j]
-			(*a)[j] = y
-			i++
-			j--
-		}
-	}
-	if i < r {
-		SortRep(a, i, r)
-	}
-	if l < j {
-		SortRep(a, l, j)
-	}
-	return nil
+//Swap()
+func (a SortTypes) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
 }
 
-//GenerateSeed come out the seed used in random number
-func (c *Instance) GenerateSeed(a *[][32]byte) error {
-	var tmp []byte
-	for i := 0; i < len(*a); i++ {
-		tmp = append(tmp, (*a)[i][:]...)
-	}
-	hash := sha256.Sum256(tmp)
-	c.rng = rand.New(rand.NewSource(int64(binary.BigEndian.Uint64(hash[:]))))
-
-	return nil
-}
+////Instance is the struct for sharding
+//type Instance struct {
+//	rng *rand.Rand
+//}
+//
+////GetRBData get all the data from reputation block for sharding
+//func GetRBData() {
+//
+//}
+//
+////CompareRep returns whether a has a great reputation than b
+//func CompareRep(a *sortType, b *sortType) int {
+//	if a.Rep > b.Rep {
+//		return 1
+//	} else if b.Rep > a.Rep {
+//		return -1
+//	} else {
+//		return strings.Compare(a.Address, b.Address)
+//	}
+//}
+//
+////SortRep sorts all miners based on their reputation
+//func SortRep(a *[]sortType, l int, r int) error {
+//	x := (*a)[(l+r)/2]
+//	i := l
+//	j := r
+//	if l >= r {
+//		return nil
+//	}
+//	for i <= j {
+//		for i < r && CompareRep(&(*a)[i], &x) > 0 {
+//			i++
+//		}
+//		for j > 0 && CompareRep(&x, &(*a)[j]) > 0 {
+//			j--
+//		}
+//		if i <= j {
+//			y := (*a)[i]
+//			(*a)[i] = (*a)[j]
+//			(*a)[j] = y
+//			i++
+//			j--
+//		}
+//	}
+//	if i < r {
+//		SortRep(a, i, r)
+//	}
+//	if l < j {
+//		SortRep(a, l, j)
+//	}
+//	return nil
+//}
+//
+////GenerateSeed come out the seed used in random number
+//func (c *Instance) GenerateSeed(a *[][32]byte) error {
+//	var tmp []byte
+//	for i := 0; i < len(*a); i++ {
+//		tmp = append(tmp, (*a)[i][:]...)
+//	}
+//	hash := sha256.Sum256(tmp)
+//	c.rng = rand.New(rand.NewSource(int64(binary.BigEndian.Uint64(hash[:]))))
+//
+//	return nil
+//}
 
 //Sharding do the shards given reputations
 /*

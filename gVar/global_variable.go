@@ -50,6 +50,7 @@ const MyAddress = "172.31.83.178:9999"
 const MaxBand = 38 * 1024
 const MinBand = 2 * 1024
 
+// 0 - no bad, 1 - always bad, 2 - bad when leader is bad, 3- only bad when i am a leader
 const ExperimentBadLevel = 0
 
 //int32  : -2147483648 to 2147483647

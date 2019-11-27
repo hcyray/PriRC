@@ -8,6 +8,7 @@ import (
 	"log"
 	"math/big"
 	"math/rand"
+	"sort"
 	"time"
 
 	"github.com/uchihatmtkinu/PriRC/Reputation"
@@ -35,11 +36,12 @@ func ShardProcess() {
 	blockHash := shard.PreviousSyncBlockHash[0][:]
 	rand.Seed(int64(shard.MyMenShard.Shard*3000+shard.MyMenShard.InShardId) + time.Now().UTC().UnixNano())
 	sendi := rand.Perm(int(gVar.ShardSize * gVar.ShardCnt))
-	receivei := make([]bool, int(gVar.ShardSize*gVar.ShardCnt))
-	var LeaderCandidate []LeaderInfo
+	flagi := make([]bool, int(gVar.ShardSize*gVar.ShardCnt))
+	var LeaderCandidate []shard.SortTypes
 	//TODO calculate totalrep
 
 	for !leaderflag {
+		var slotLeaderCandidate []shard.SortType
 		var MyLeaderMessage LeaderInfo
 		MyLeader.mux.Lock()
 		if CurrentSlot == 0 {
@@ -57,10 +59,19 @@ func ShardProcess() {
 				shard.MyMenShard.Rep, shard.TotalRep, CurrentSlot, MyLeader.lc)
 			MyLeader.mux.Unlock()
 			MyLeader.mux.RLock()
-			MyLeaderMessage := LeaderInfo{true, MyGlobalID, CurrentSlot, shard.MyMenShard.EpochSNID,
+			MyLeaderMessage = LeaderInfo{true, MyGlobalID, CurrentSlot, shard.MyMenShard.EpochSNID,
 				MyLeader.lc.RNComm, shard.MyLeaderProof}
-			LeaderCandidate = append(LeaderCandidate, MyLeaderMessage)
+			var tempSortType shard.SortType
+			tempSortType.NewSortType(uint32(MyGlobalID), MyLeader.lc.RNComm.Comm_x, MyLeader.lc.RNComm.Comm_y)
+			slotLeaderCandidate = append(slotLeaderCandidate, tempSortType)
 			MyLeader.mux.RUnlock()
+			if gVar.ExperimentBadLevel != 0 {
+				if MyGlobalID >= int(gVar.ShardCnt*gVar.ShardSize/3) {
+					leaderflag = true
+				}
+			} else {
+				leaderflag = true
+			}
 
 		} else {
 			MyLeader.mux.Unlock()
@@ -70,51 +81,74 @@ func ShardProcess() {
 		}
 		for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
 			if sendi[i] != MyGlobalID {
-				receivei[sendi[i]] = false
+				flagi[sendi[i]] = false
 				MyLeader.mux.RLock()
 				SendIDComm(shard.GlobalGroupMems[sendi[i]].Address, "LI", MyLeaderMessage)
 				MyLeader.mux.RUnlock()
 			}
 		}
-		receivei[MyGlobalID] = true
+		flagi[MyGlobalID] = true
 		receiveCount := 1
 		for receiveCount < int(gVar.ShardSize*gVar.ShardCnt) {
 			select {
 			case LeaderMessage := <-LeaderInfoCh:
-				if LeaderMessage.Slot == CurrentSlot && !receivei[LeaderMessage.ID] {
+				if LeaderMessage.Slot == CurrentSlot && !flagi[LeaderMessage.ID] {
 					if !LeaderMessage.Leader {
-						receivei[LeaderMessage.ID] = true
+						flagi[LeaderMessage.ID] = true
 						receiveCount++
 					} else {
 						MyLeader.mux.RLock()
 						if VerifyLeaderProof(LeaderMessage.LeaderProof, LeaderMessage.IDComm, shard.GlobalGroupMems[LeaderMessage.ID].RepComm,
 							shard.TotalRep, LeaderMessage.Slot, MyLeader.lc.BlockHash, LeaderMessage.RNComm) {
 							fmt.Println("Leader Candidate:", LeaderMessage.ID)
-							LeaderCandidate = append(LeaderCandidate, LeaderMessage)
-							receivei[LeaderMessage.ID] = true
+							var tempSortType shard.SortType
+							tempSortType.NewSortType(uint32(LeaderMessage.ID), LeaderMessage.RNComm.Comm_x, LeaderMessage.RNComm.Comm_y)
+							slotLeaderCandidate = append(slotLeaderCandidate, tempSortType)
+							flagi[LeaderMessage.ID] = true
 							receiveCount++
 						} else {
 							fmt.Println("Leader Verification failed from client: ", LeaderMessage.ID)
 						}
 						MyLeader.mux.RUnlock()
-						leaderflag = true
+						if gVar.ExperimentBadLevel != 0 {
+							if LeaderMessage.ID >= int(gVar.ShardCnt*gVar.ShardSize/3) {
+								leaderflag = true
+							}
+						} else {
+							leaderflag = true
+						}
 					}
 				}
 			case <-time.After(timeoutSync * 2):
 				//resend after 20 seconds
 				for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
-					if !receivei[sendi[i]] {
+					if !flagi[sendi[i]] {
 						fmt.Println(time.Now(), "Request Leader Info from global client:", sendi[i])
 						SendIDComm(shard.GlobalGroupMems[sendi[i]].Address, "reqLI", ReqLeaderInfo{MyGlobalID, shard.MyMenShard.EpochSNID, CurrentSlot})
 					}
 				}
 			}
 		}
+		LeaderCandidate = append(LeaderCandidate, slotLeaderCandidate)
 	}
 	//Select leader from leader candidate
 	maxRN := big.NewInt(0)
 	lcRN := new(big.Int)
 	currentLeader := 0
+	for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
+		flagi[i] = false
+	}
+	lInd := 0
+	var lList []int
+	for _, slc := range LeaderCandidate {
+		if len(slc) > 0 {
+			sort.Sort(slc)
+			for i := 0; i < len(slc); i++ {
+				List
+			}
+		}
+	}
+
 	for _, l := range LeaderCandidate {
 		lcRN.Add(l.RNComm.Comm_x, l.RNComm.Comm_y)
 		if maxRN.Cmp(lcRN) > 0 {

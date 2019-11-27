@@ -39,14 +39,14 @@ func NewSynBlock(ms *[]shard.MemShard, prevSyncBlockHash [][32]byte, prevRepBloc
 	//mask := coSignature[64:]
 	//repList = make([][gVar.SlidingWindows]int64, 0)
 	rollingLeader := false
-	if gVar.ExperimentBadLevel == 2 && shard.ShardToGlobal[shard.MyMenShard.Shard][0] < 600 {
+	if gVar.ExperimentBadLevel == 2 && shard.ShardToGlobal[shard.MyMenShard.Shard][0] < int(gVar.ShardSize*gVar.ShardCnt/3) {
 		rollingLeader = true
 	}
 	for i := 0; i < int(gVar.ShardSize); i++ {
 		item = &(*ms)[shard.ShardToGlobal[shard.MyMenShard.Shard][i]]
 		//need to consider if a node fail to sign the syncBlock but it is a good node indeed
 		if gVar.ExperimentBadLevel == 2 {
-			if (shard.ShardToGlobal[shard.MyMenShard.Shard][i] >= 600 && rollingLeader) || !rollingLeader {
+			if (shard.ShardToGlobal[shard.MyMenShard.Shard][i] >= int(gVar.ShardSize*gVar.ShardCnt/3) && rollingLeader) || !rollingLeader {
 				item.Rep += 10000
 			}
 		}
