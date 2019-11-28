@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/gob"
 	"fmt"
+	"github.com/uchihatmtkinu/PriRC/snark"
 	"log"
 	"time"
 
@@ -21,7 +22,8 @@ type SyncBlock struct {
 	PrevSyncBlockHash  [][32]byte
 	PrevFinalBlockHash [32]byte
 	IDlist             []int
-	TotalRep           []int32 //Total reputation over epoch, [i][j] i-th user, j-th epoch
+	TotalRep           []int32
+	RepComm            []snark.PedersenCommitment
 	CoSignature        []byte
 	Hash               [32]byte
 }
@@ -31,6 +33,7 @@ func NewSynBlock(ms *[]shard.MemShard, prevSyncBlockHash [][32]byte, prevRepBloc
 	var item *shard.MemShard
 	var repList []int32
 	var idList []int
+	var repCommList []snark.PedersenCommitment
 	tmpprevSyncBlockHash := make([][32]byte, len(prevSyncBlockHash))
 	copy(tmpprevSyncBlockHash, prevSyncBlockHash)
 	tmpcoSignature := make([]byte, len(coSignature))
@@ -54,9 +57,10 @@ func NewSynBlock(ms *[]shard.MemShard, prevSyncBlockHash [][32]byte, prevRepBloc
 		item.SetRep(item.Rep)
 		idList = append(idList, shard.ShardToGlobal[shard.MyMenShard.Shard][i])
 		repList = append(repList, item.Rep)
+		repCommList = append(repCommList, item.RepComm)
 	}
 
-	block := &SyncBlock{time.Now().Unix(), prevRepBlockHash, tmpprevSyncBlockHash, prevFBHash, idList, repList, tmpcoSignature, [32]byte{}}
+	block := &SyncBlock{time.Now().Unix(), prevRepBlockHash, tmpprevSyncBlockHash, prevFBHash, idList, repList, repCommList, tmpcoSignature, [32]byte{}}
 	block.Hash = sha256.Sum256(block.prepareData())
 	return block
 }
@@ -69,6 +73,7 @@ func (b *SyncBlock) prepareData() []byte {
 			b.HashPrevSyncBlock(),
 			b.HashIDList(),
 			b.HashTotalRep(),
+			b.HashRepComm(),
 			b.CoSignature,
 			//IntToHex(b.Timestamp),
 		},
@@ -114,6 +119,18 @@ func (b *SyncBlock) HashPrevSyncBlock() []byte {
 	return txHash[:]
 }
 
+// HashPrevSyncBlock returns a hash of the previous sync block hash
+func (b *SyncBlock) HashRepComm() []byte {
+	var txHashes []byte
+	var txHash [32]byte
+	for _, item := range b.RepComm {
+		txHashes = append(txHashes, item.Comm_x.Bytes()[:]...)
+		txHashes = append(txHashes, item.Comm_y.Bytes()[:]...)
+	}
+	txHash = sha256.Sum256(txHashes)
+	return txHash[:]
+}
+
 // VerifyCosign verify CoSignature, k-th shard
 func (b *SyncBlock) VerifyCoSignature(ms *[]shard.MemShard) bool {
 	//verify signature
@@ -145,7 +162,8 @@ func (b *SyncBlock) Print() {
 	fmt.Println("RepTransactions:")
 	for i, item := range b.IDlist {
 		fmt.Print("	GlobalID:", item)
-		fmt.Println("		TotalRep", b.TotalRep[i])
+		fmt.Println("		Rep", b.TotalRep[i])
+		b.RepComm[i].PrintPC()
 	}
 
 	fmt.Println("CoSignature:", b.CoSignature)
