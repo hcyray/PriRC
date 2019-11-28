@@ -109,6 +109,8 @@ func VerifyIDUpdate(x int, id snark.PedersenCommitment, rep snark.PedersenCommit
 		id.Comm_x.String(), id.Comm_y.String(), rep.Comm_x.String(), rep.Comm_y.String())
 	if !res {
 		fmt.Println("Verify IDUpdate failed from client:", x)
+		tmpStr := fmt.Sprint("Verify IDUpdate failed from client:", x)
+		sendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 	}
 	return res
 }
