@@ -52,6 +52,7 @@ func (bc *RepBlockchain) MineRepBlock(rep *[]int32, cache *[][32]byte, ID int, m
 		fmt.Println("--------------------")
 	*/
 	CurrentRepBlock.Block = NewRepBlock(ms, rep, shard.StartFlag, shard.PreviousSyncBlockHash, *cache, lastHash)
+	CurrentRepBlock.Block.Print()
 	CurrentRepBlock.Round++
 	shard.StartFlag = false
 

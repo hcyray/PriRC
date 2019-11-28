@@ -187,6 +187,7 @@ func TestMerkleTree(t *testing.T) {
 	mt.Init(pc)
 	mt.Print()
 	p := mt.Proof(8)
+	fmt.Println(p.AddressBitToAdd())
 	p.PrintToTxT()
 }
 
