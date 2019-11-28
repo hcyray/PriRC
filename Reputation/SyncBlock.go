@@ -54,7 +54,6 @@ func NewSynBlock(ms *[]shard.MemShard, prevSyncBlockHash [][32]byte, prevRepBloc
 				item.AddPriRep(10000)
 			}
 		}
-		item.SetRep(item.Rep)
 		idList = append(idList, shard.ShardToGlobal[shard.MyMenShard.Shard][i])
 		repList = append(repList, item.Rep)
 		repCommList = append(repCommList, item.RepComm)
