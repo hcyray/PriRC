@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/uchihatmtkinu/PriRC/snark"
 	"log"
-	"math/big"
 	"math/rand"
 	"sort"
 	"time"
@@ -62,7 +61,7 @@ func ShardProcess() {
 			MyLeaderMessage = LeaderInfo{true, MyGlobalID, CurrentSlot, shard.MyMenShard.EpochSNID,
 				MyLeader.lc.RNComm, shard.MyLeaderProof}
 			var tempSortType shard.SortType
-			tempSortType.NewSortType(uint32(MyGlobalID), MyLeader.lc.RNComm.Comm_x, MyLeader.lc.RNComm.Comm_y)
+			tempSortType.NewSortType(MyGlobalID, MyLeader.lc.RNComm.Comm_x, MyLeader.lc.RNComm.Comm_y)
 			slotLeaderCandidate = append(slotLeaderCandidate, tempSortType)
 			MyLeader.mux.RUnlock()
 			if gVar.ExperimentBadLevel != 0 {
@@ -102,7 +101,7 @@ func ShardProcess() {
 							shard.TotalRep, LeaderMessage.Slot, MyLeader.lc.BlockHash, LeaderMessage.RNComm) {
 							fmt.Println("Leader Candidate:", LeaderMessage.ID)
 							var tempSortType shard.SortType
-							tempSortType.NewSortType(uint32(LeaderMessage.ID), LeaderMessage.RNComm.Comm_x, LeaderMessage.RNComm.Comm_y)
+							tempSortType.NewSortType(LeaderMessage.ID, LeaderMessage.RNComm.Comm_x, LeaderMessage.RNComm.Comm_y)
 							slotLeaderCandidate = append(slotLeaderCandidate, tempSortType)
 							flagi[LeaderMessage.ID] = true
 							receiveCount++
@@ -132,48 +131,44 @@ func ShardProcess() {
 		LeaderCandidate = append(LeaderCandidate, slotLeaderCandidate)
 	}
 	//Select leader from leader candidate
-	maxRN := big.NewInt(0)
-	lcRN := new(big.Int)
-	currentLeader := 0
 	for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
 		flagi[i] = false
 	}
 	lInd := 0
-	var lList []int
+	var lList [gVar.ShardCnt * gVar.ShardSize]int
 	for _, slc := range LeaderCandidate {
 		if len(slc) > 0 {
 			sort.Sort(slc)
 			for i := 0; i < len(slc); i++ {
-				List
+				if !flagi[slc[i].ID] {
+					lList[lInd] = slc[i].ID
+					lInd++
+					flagi[slc[i].ID] = true
+				}
 			}
 		}
 	}
-
-	for _, l := range LeaderCandidate {
-		lcRN.Add(l.RNComm.Comm_x, l.RNComm.Comm_y)
-		if maxRN.Cmp(lcRN) > 0 {
-			maxRN = lcRN
-			currentLeader = l.ID
-		}
-	}
-	fmt.Println("Leader is: ", currentLeader)
+	fmt.Println("Leader is: ", lList[0])
 	MyLeader.mux.Lock()
 	MyLeader.f = false
 	MyLeader.mux.Unlock()
 	shard.ShardToGlobal = make([][]int, gVar.ShardCnt)
-
+	tempi := 0
 	for i := uint32(0); i < gVar.ShardCnt; i++ {
 		shard.ShardToGlobal[i] = make([]int, gVar.ShardSize)
 		for j := uint32(0); j < gVar.ShardSize; j++ {
+			if int(j) < lInd {
+				shard.ShardToGlobal[i][j] = lList[j]
+			} else {
+				for flagi[tempi] {
+					tempi++
+				}
+				shard.ShardToGlobal[i][j] = tempi
+				tempi++
+			}
 			if j == 0 {
-				shard.ShardToGlobal[i][j] = currentLeader
 				shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Role = 0
 			} else {
-				if j == uint32(currentLeader) {
-					shard.ShardToGlobal[i][j] = 0
-				} else {
-					shard.ShardToGlobal[i][j] = int(j)
-				}
 				shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Role = 1
 			}
 			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Shard = int(i)

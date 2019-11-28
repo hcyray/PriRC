@@ -6,11 +6,11 @@ import (
 )
 
 type SortType struct {
-	ID uint32
+	ID int
 	RN *big.Int
 }
 
-func (a *SortType) NewSortType(id uint32, x *big.Int, y *big.Int) {
+func (a *SortType) NewSortType(id int, x *big.Int, y *big.Int) {
 	z := new(big.Int)
 	z.Add(x, y)
 	a.RN = z
