@@ -178,6 +178,10 @@ func ShardProcess() {
 	//beginShard.GenerateSeed(&shard.PreviousSyncBlockHash)
 	//beginShard.Sharding(&shard.GlobalGroupMems, &shard.ShardToGlobal)
 	//shard.MyMenShard = &shard.GlobalGroupMems[MyGlobalID]
+	if MyGlobalID == shard.ShardToGlobal[0][0] {
+		tmpStr := fmt.Sprintln("Leader List:", lList)
+		sendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
+	}
 	fmt.Println(time.Now(), CacheDbRef.ID, "Shard Calculated")
 	LeaderAddr = shard.GlobalGroupMems[shard.ShardToGlobal[shard.MyMenShard.Shard][0]].Address
 	CacheDbRef.Mu.Lock()

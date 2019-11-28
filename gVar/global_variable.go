@@ -6,7 +6,7 @@ import "time"
 const MagicNumber byte = 66
 
 //ShardSize is the number of miners in one shard
-const ShardSize uint32 = 2
+const ShardSize uint32 = 9
 
 //ShardCnt is the number of shards
 const ShardCnt uint32 = 1
@@ -51,7 +51,7 @@ const MaxBand = 38 * 1024
 const MinBand = 2 * 1024
 
 // 0 - no bad, 1 - always bad, 2 - bad when leader is bad, 3- random attack
-const ExperimentBadLevel = 0
+const ExperimentBadLevel = 3
 
 //int32  : -2147483648 to 2147483647
 //uint64 : 0 to 18446744073709551615
@@ -59,5 +59,5 @@ const RepUint64ToInt32 = int64(3e10)
 
 //Leader Proof
 // bit size for random number
-const LeaderBitSize = 10
+const LeaderBitSize = 50
 const LeaderDifficulty = 0
