@@ -145,7 +145,9 @@ func TestPedersenCommitment(t *testing.T) {
 	b_m.SetInt64(1)
 	b_r.SetInt64(0)
 	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, &pc2)
-	pc2 = pc1
+	old := new(big.Int)
+	pc2.Comm_x.Add(pc1.Comm_x, old)
+	pc2.Comm_y.Add(pc1.Comm_y, old)
 	pc2.PrintPC()
 	BabyJubJubCurve.AddMToPedersenCommitment(big.NewInt(10), &pc1, true)
 	//BabyJubJubCurve.SubTwoPedersenCommitment(pc1, pc2)
