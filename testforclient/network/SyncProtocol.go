@@ -67,7 +67,7 @@ func SyncProcess(ms *[]shard.MemShard) {
 		snark.BabyJubJubCurve.VerifyPedersenCommit((*ms)[i].Rep, int32(i+1), &(*ms)[i].RepComm)
 		shard.TotalRep += (*ms)[i].Rep
 	}
-	//ShardProcess()
+	fmt.Println("TotalRep:", shard.TotalRep)
 }
 
 //ReceiveSyncProcess listen to the block from shard k

@@ -82,12 +82,16 @@ func (ms *MemShard) NewSNID(epoch int, ID int) [312]byte {
 
 //SetIDPC set ID pedersen commitment
 func (ms *MemShard) SetIDPC(IDPC snark.PedersenCommitment) {
-	ms.IDComm = IDPC
+	old := new(big.Int)
+	ms.IDComm.Comm_x.Add(IDPC.Comm_x, old)
+	ms.IDComm.Comm_y.Add(IDPC.Comm_y, old)
 }
 
 //SetSNID set SNID pedersen commitment
 func (ms *MemShard) SetSNID(PC snark.PedersenCommitment) {
-	ms.EpochSNID = PC
+	old := new(big.Int)
+	ms.EpochSNID.Comm_x.Add(PC.Comm_x, old)
+	ms.EpochSNID.Comm_y.Add(PC.Comm_y, old)
 }
 
 //int32  : -2147483648 to 2147483647
@@ -113,7 +117,9 @@ func (ms *MemShard) SetPriRep(rep int32, r int) {
 
 //SetRepPC set private rep pedersen commitment
 func (ms *MemShard) SetPriRepPC(repPC snark.PedersenCommitment) {
-	ms.RepComm = repPC
+	old := new(big.Int)
+	ms.RepComm.Comm_x.Add(repPC.Comm_x, old)
+	ms.RepComm.Comm_y.Add(repPC.Comm_y, old)
 }
 
 //SetRepPC new private rep

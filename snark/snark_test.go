@@ -136,23 +136,21 @@ func TestPedersenCommitment(t *testing.T) {
 	b_r := new(big.Int)
 	b_m.SetInt64(2 + 30000000000)
 	b_r.SetInt64(2)
-	pc1 := new(PedersenCommitment)
+	var pc1 PedersenCommitment
 	pc1.Init()
-	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc1)
+	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, &pc1)
 	pc1.PrintPC()
-	pc2 := new(PedersenCommitment)
+	var pc2 PedersenCommitment
 	pc2.Init()
 	b_m.SetInt64(1)
 	b_r.SetInt64(0)
-	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc2)
+	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, &pc2)
+	pc2 = pc1
 	pc2.PrintPC()
-	BabyJubJubCurve.AddTwoPedersenCommitment(pc1, pc2)
+	BabyJubJubCurve.AddMToPedersenCommitment(big.NewInt(10), &pc1, true)
 	//BabyJubJubCurve.SubTwoPedersenCommitment(pc1, pc2)
-	pc1.PrintPC()
-	b_m.SetInt64(3 + 30000000000)
-	b_r.SetInt64(2)
-	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc2)
 	pc2.PrintPC()
+
 }
 func TestPedersenHash(t *testing.T) {
 	BabyJubJubCurve.Init()
