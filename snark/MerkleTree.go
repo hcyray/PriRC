@@ -89,11 +89,10 @@ func (m *MerkleTree) Proof(x int) MerkleProof {
 	mp.Root_x = m.Root.PC.Comm_x.String()
 	mp.Root_y = m.Root.PC.Comm_y.String()
 	mp.AdressBit = make([]bool, m.Depth-1)
-	for i := m.Depth - 2; i >= 0; i-- {
+	for i := 0; i < m.Depth-1; i++ {
 		mp.AdressBit[i] = x%2 == 1
 		x = x / 2
 	}
-	fmt.Println(mp.AdressBit)
 	root := m.Root
 	mp.PathVar = make([]string, (m.Depth-1)*2)
 	for i := m.Depth - 2; i >= 0; i-- {
@@ -124,6 +123,9 @@ func (m *MerkleTree) Print() {
 		fmt.Println("Layer: ", i)
 		for j := 0; j < len(a[i]); j++ {
 			a[i][j].PC.PrintPC()
+			fmt.Println("a has L:", a[i][j].LChild)
+
+			fmt.Println("a has R:", a[i][j].RChild)
 		}
 	}
 	fmt.Println("Merkle Tree finished")
