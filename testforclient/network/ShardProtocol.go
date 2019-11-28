@@ -148,7 +148,7 @@ func ShardProcess() {
 			}
 		}
 	}
-	fmt.Println("Leader is: ", lList[0])
+	fmt.Println("Final Leader list: ", lList)
 	MyLeader.mux.Lock()
 	MyLeader.f = false
 	MyLeader.mux.Unlock()

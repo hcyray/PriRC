@@ -25,7 +25,7 @@ const SlidingWindows = 20
 const NumTxListPerEpoch = 10 //60
 
 //NumTxBlockForRep is the number of blocks for one rep block
-const NumTxBlockForRep = 4 //10
+const NumTxBlockForRep = 5 //10
 
 const NumberRepPerEpoch = NumTxListPerEpoch/NumTxBlockForRep + 1
 
@@ -50,7 +50,7 @@ const MyAddress = "172.31.83.178:9999"
 const MaxBand = 38 * 1024
 const MinBand = 2 * 1024
 
-// 0 - no bad, 1 - always bad, 2 - bad when leader is bad, 3- only bad when i am a leader
+// 0 - no bad, 1 - always bad, 2 - bad when leader is bad, 3- random attack
 const ExperimentBadLevel = 0
 
 //int32  : -2147483648 to 2147483647
