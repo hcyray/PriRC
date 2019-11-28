@@ -58,14 +58,16 @@ func (m *MerkleTree) build(ns *[]MerkleNode, d int) {
 			pc1.Init()
 			pc1.Comm_x.SetString((*ns)[i].PC.Comm_x.String(), 10)
 			pc1.Comm_y.SetString((*ns)[i].PC.Comm_y.String(), 10)
-
+			pc2 := new(PedersenCommitment)
+			pc2.Init()
 			if i+1 < n {
-				pc2 := new(PedersenCommitment)
-				pc2.Init()
 				pc2.Comm_x.SetString((*ns)[i+1].PC.Comm_x.String(), 10)
 				pc2.Comm_y.SetString((*ns)[i+1].PC.Comm_y.String(), 10)
-				BabyJubJubCurve.AddTwoPedersenCommitment(pc1, pc2)
+			} else {
+				pc2.Comm_x.SetString("1", 10)
+				pc2.Comm_y.SetString("1", 10)
 			}
+			BabyJubJubCurve.AddTwoPedersenCommitment(pc1, pc2)
 			BabyJubJubCurve.CalPedersenHash(pc1.Comm_x, pc1.Comm_y, pc1)
 
 			//pc1.PrintPC()
@@ -75,6 +77,9 @@ func (m *MerkleTree) build(ns *[]MerkleNode, d int) {
 			if i+1 < n {
 				//(*ns)[i+1].Parent = &p
 				p.RChild = &((*ns)[i+1])
+			} else {
+				temp := MerkleNode{nil, nil, pc2, true}
+				p.RChild = &temp
 			}
 			new_ns = append(new_ns, p)
 		}

@@ -90,7 +90,7 @@ func HandleRequestIDUpdate(request []byte) {
 	if err != nil {
 		log.Panic(err)
 	}
-	SendIDComm(shard.GlobalGroupMems[payload].Address, "reqIDU",
+	SendIDComm(shard.GlobalGroupMems[payload].Address, "IDU",
 		IDUpdateInfo{MyGlobalID, shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm, shard.MyIDUpdateProof})
 }
 

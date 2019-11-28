@@ -180,13 +180,13 @@ func TestMerkleTree(t *testing.T) {
 	for i := 0; i < n; i++ {
 		pc[i].Init()
 		b_m.SetInt64(int64(i))
-		b_r.SetInt64(0)
+		b_r.SetInt64(8)
 		BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, &pc[i])
 	}
 	var mt MerkleTree
 	mt.Init(pc)
 	mt.Print()
-	p := mt.Proof(5)
+	p := mt.Proof(8)
 	p.PrintToTxT()
 }
 
