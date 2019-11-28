@@ -65,12 +65,6 @@ func (m *MerkleTree) build(ns *[]MerkleNode, d int) {
 				pc2.Comm_x.SetString((*ns)[i+1].PC.Comm_x.String(), 10)
 				pc2.Comm_y.SetString((*ns)[i+1].PC.Comm_y.String(), 10)
 				BabyJubJubCurve.AddTwoPedersenCommitment(pc1, pc2)
-				/*
-					temp_x := new(big.Int)
-					temp_x.Add((*ns)[i].PC.Comm_x, (*ns)[i+1].PC.Comm_x)
-					fmt.Println("x:", temp_x)
-					temp_x.Add((*ns)[i].PC.Comm_y, (*ns)[i+1].PC.Comm_y)
-					fmt.Println("y:", temp_x)*/
 			}
 			BabyJubJubCurve.CalPedersenHash(pc1.Comm_x, pc1.Comm_y, pc1)
 
@@ -95,10 +89,11 @@ func (m *MerkleTree) Proof(x int) MerkleProof {
 	mp.Root_x = m.Root.PC.Comm_x.String()
 	mp.Root_y = m.Root.PC.Comm_y.String()
 	mp.AdressBit = make([]bool, m.Depth-1)
-	for i := 0; i < m.Depth-1; i++ {
+	for i := m.Depth - 2; i >= 0; i-- {
 		mp.AdressBit[i] = x%2 == 1
 		x = x / 2
 	}
+	fmt.Println(mp.AdressBit)
 	root := m.Root
 	mp.PathVar = make([]string, (m.Depth-1)*2)
 	for i := m.Depth - 2; i >= 0; i-- {

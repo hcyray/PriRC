@@ -185,8 +185,8 @@ func TestMerkleTree(t *testing.T) {
 	}
 	var mt MerkleTree
 	mt.Init(pc)
-	//mt.Print()
-	p := mt.Proof(1)
+	mt.Print()
+	p := mt.Proof(8)
 	p.PrintToTxT()
 }
 

@@ -63,6 +63,7 @@ func IDMerkleTreeProcess() {
 		idpcs[i].Init()
 		idpcs[i].Comm_x.Add(shard.GlobalGroupMems[i].IDComm.Comm_x, old)
 		idpcs[i].Comm_y.Add(shard.GlobalGroupMems[i].IDComm.Comm_y, old)
+		idpcs[i].PrintPC()
 		reppcs[i].Init()
 		reppcs[i].Comm_x.Add(shard.GlobalGroupMems[i].RepComm.Comm_x, old)
 		reppcs[i].Comm_y.Add(shard.GlobalGroupMems[i].RepComm.Comm_y, old)
