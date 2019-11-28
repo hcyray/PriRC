@@ -2,6 +2,7 @@ package snark
 
 import (
 	"fmt"
+	"github.com/uchihatmtkinu/PriRC/gVar"
 	"go.dedis.ch/kyber"
 	"go.dedis.ch/kyber/group/curve25519"
 	"go.dedis.ch/kyber/group/mod"
@@ -71,13 +72,17 @@ func (b *BabyJubJub_Curve) CalPedersenHash(x, y *big.Int, pc *PedersenCommitment
 }
 
 // add m to pedersen commitment pc
-func (b *BabyJubJub_Curve) AddMToPedersenCommitment(m *big.Int, pc *PedersenCommitment) {
+func (b *BabyJubJub_Curve) AddMToPedersenCommitment(m *big.Int, pc *PedersenCommitment, flag bool) {
 	var s_m mod.Int
 	s_m.Init(m, &b.c.P)
 	lhs := b.h_p.Clone()
 	lhs.Mul(&s_m, lhs)
 	res := b.c.NewPoint(pc.Comm_x, pc.Comm_y)
-	res.Add(res, lhs)
+	if flag {
+		res.Add(res, lhs)
+	} else {
+		res.Sub(res, lhs)
+	}
 	b.setPedersenCommit(res.String(), pc)
 }
 
@@ -85,10 +90,17 @@ func (b *BabyJubJub_Curve) AddMToPedersenCommitment(m *big.Int, pc *PedersenComm
 func (b *BabyJubJub_Curve) AddTwoPedersenCommitment(pc1 *PedersenCommitment, pc2 *PedersenCommitment) {
 	lhs := b.c.NewPoint(pc1.Comm_x, pc1.Comm_y)
 	res := b.c.NewPoint(pc2.Comm_x, pc2.Comm_y)
-	res.Add(res, lhs)
+	res.Add(lhs, res)
 	b.setPedersenCommit(res.String(), pc1)
 }
 
+// pc1 = pc1 + pc2
+func (b *BabyJubJub_Curve) SubTwoPedersenCommitment(pc1 *PedersenCommitment, pc2 *PedersenCommitment) {
+	lhs := b.c.NewPoint(pc1.Comm_x, pc1.Comm_y)
+	res := b.c.NewPoint(pc2.Comm_x, pc2.Comm_y)
+	res.Sub(lhs, res)
+	b.setPedersenCommit(res.String(), pc1)
+}
 func (b *BabyJubJub_Curve) MulPedersenCommitment(t *big.Int, pc *PedersenCommitment) {
 	var s_t mod.Int
 	s_t.Init(t, &b.c.P)
@@ -97,14 +109,31 @@ func (b *BabyJubJub_Curve) MulPedersenCommitment(t *big.Int, pc *PedersenCommitm
 	b.setPedersenCommit(res.String(), pc)
 }
 
-//op is the operation, true for setting a new commit value, false for adding a commit value
+// verify commitment
+func (b *BabyJubJub_Curve) VerifyPedersenCommit(x int32, y int32, pc *PedersenCommitment) {
+	b_m := new(big.Int)
+	b_r := new(big.Int)
+	b_m.SetInt64(int64(x) + gVar.RepUint64ToInt32)
+	b_r.SetInt64(int64(y))
+	pc1 := new(PedersenCommitment)
+	pc1.Init()
+	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc1)
+	if pc1.Comm_x.Cmp(pc.Comm_x) == 0 && pc1.Comm_y.Cmp(pc.Comm_y) == 0 {
+	} else {
+		fmt.Println("rep comm false, client:", y-1, "rep:", x)
+		pc1.PrintPC()
+		pc.PrintPC()
+	}
+}
+
+//set pedersen commitment
 func (b *BabyJubJub_Curve) setPedersenCommit(s string, pc *PedersenCommitment) {
 	sA := strings.Split(s, ",")
 	s_x := sA[0][:]
 	s_y := sA[1][:]
 	pc.SetPedersenCommmitment(s_x[1:], s_y[:len(s_y)-1], 16)
-
 }
+
 func (b *BabyJubJub_Curve) printPoint(s string) {
 	sA := strings.Split(s, ",")
 	s_x := sA[0][:]

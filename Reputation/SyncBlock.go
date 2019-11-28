@@ -48,6 +48,7 @@ func NewSynBlock(ms *[]shard.MemShard, prevSyncBlockHash [][32]byte, prevRepBloc
 		if gVar.ExperimentBadLevel == 2 {
 			if (shard.ShardToGlobal[shard.MyMenShard.Shard][i] >= int(gVar.ShardSize*gVar.ShardCnt/3) && rollingLeader) || !rollingLeader {
 				item.Rep += 10000
+				item.AddPriRep(10000)
 			}
 		}
 		item.SetRep(item.Rep)

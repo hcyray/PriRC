@@ -123,12 +123,17 @@ func (ms *MemShard) SetRep(rep int32) {
 
 //AddRep add a value to the rep PC
 func (ms *MemShard) AddPriRep(value int32) {
-	ms.Rep += value
+	//ms.Rep += value
 	b_m := new(big.Int)
 	b_r := new(big.Int)
 	b_m.SetInt64(int64(value))
 	b_r.SetInt64(0)
-	snark.BabyJubJubCurve.AddMToPedersenCommitment(b_m, &ms.RepComm)
+	if value >= 0 {
+		snark.BabyJubJubCurve.AddMToPedersenCommitment(b_m, &ms.RepComm, true)
+	} else {
+		snark.BabyJubJubCurve.AddMToPedersenCommitment(b_m, &ms.RepComm, false)
+	}
+
 }
 
 //NewTotalRep set a new total rep to 0
@@ -169,6 +174,15 @@ func (ms *MemShard) AddPriRep(value int32) {
 //ClearRep clear rep
 func (ms *MemShard) ClearRep() {
 	ms.Rep = 0
+}
+
+//ClearRep clear rep
+func (ms *MemShard) ClearPriRep(r uint32) {
+	b_m := new(big.Int)
+	b_r := new(big.Int)
+	b_m.SetInt64(int64(0) + gVar.RepUint64ToInt32)
+	b_r.SetInt64(int64(r + 1))
+	snark.BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, &ms.RepComm)
 }
 
 //Print prints the sharding information

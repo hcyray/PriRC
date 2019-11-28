@@ -51,7 +51,7 @@ const MaxBand = 38 * 1024
 const MinBand = 2 * 1024
 
 // 0 - no bad, 1 - always bad, 2 - bad when leader is bad, 3- random attack
-const ExperimentBadLevel = 3
+const ExperimentBadLevel = 2
 
 //int32  : -2147483648 to 2147483647
 //uint64 : 0 to 18446744073709551615

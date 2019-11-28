@@ -3,6 +3,7 @@ package network
 import (
 	"bytes"
 	"encoding/gob"
+	"github.com/uchihatmtkinu/PriRC/snark"
 	"log"
 	"sync"
 	"time"
@@ -61,6 +62,9 @@ func SyncProcess(ms *[]shard.MemShard) {
 	}
 
 	fmt.Println("Sync Finished")
+	for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
+		snark.BabyJubJubCurve.VerifyPedersenCommit((*ms)[i].Rep, int32(i+1), &(*ms)[i].RepComm)
+	}
 	//ShardProcess()
 }
 

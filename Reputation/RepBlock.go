@@ -38,6 +38,7 @@ func NewRepBlock(ms *[]shard.MemShard, rep *[]int32, startBlock bool, prevSyncRe
 		//item = &(*ms)[shard.ShardToGlobal[shard.MyMenShard.Shard][i]]
 		r := new(RepTransaction)
 		l := shard.ShardToGlobal[shard.MyMenShard.Shard][i]
+		(*ms)[l].Rep += (*rep)[i]
 		(*ms)[l].AddPriRep((*rep)[i])
 		r.NewRepTransaction((*ms)[l].EpochSNID, (*ms)[l].RepComm)
 		repTransactions = append(repTransactions, r)

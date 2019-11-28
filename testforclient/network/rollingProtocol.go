@@ -53,6 +53,7 @@ func RollingProcess(send bool, FirstLeader bool, TBData *basic.TxBlock) {
 
 		//shard.GlobalGroupMems[CacheDbRef.Leader].ClearTotalRep()
 		shard.GlobalGroupMems[CacheDbRef.Leader].ClearRep()
+		shard.GlobalGroupMems[CacheDbRef.Leader].ClearPriRep(CacheDbRef.Leader)
 		for i := 0; i < len(CacheDbRef.RepCache); i++ {
 			CacheDbRef.RepCache[i][LeaderIndex] = 0
 		}
@@ -114,6 +115,7 @@ func RollingProcess(send bool, FirstLeader bool, TBData *basic.TxBlock) {
 			fmt.Println("Rep prepare: Round", i)
 			for j := uint32(0); j < gVar.ShardSize; j++ {
 				shard.GlobalGroupMems[shard.ShardToGlobal[CacheDbRef.ShardNum][j]].Rep += CacheDbRef.RepCache[i][j]
+				shard.GlobalGroupMems[shard.ShardToGlobal[CacheDbRef.ShardNum][j]].AddPriRep(CacheDbRef.RepCache[i][j])
 			}
 		}
 		tmpRep := shard.ReturnRepData(CacheDbRef.ShardNum)
@@ -142,6 +144,7 @@ func RollingProcess(send bool, FirstLeader bool, TBData *basic.TxBlock) {
 			fmt.Println("Rep prepare: Round", i)
 			for j := uint32(0); j < gVar.ShardSize; j++ {
 				shard.GlobalGroupMems[shard.ShardToGlobal[CacheDbRef.ShardNum][j]].Rep += CacheDbRef.RepCache[i][j]
+				shard.GlobalGroupMems[shard.ShardToGlobal[CacheDbRef.ShardNum][j]].AddPriRep(CacheDbRef.RepCache[i][j])
 			}
 		}
 		tmpRep := shard.ReturnRepData(CacheDbRef.ShardNum)
