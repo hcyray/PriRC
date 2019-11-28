@@ -8,6 +8,7 @@ import (
 	"github.com/uchihatmtkinu/PriRC/shard"
 	"github.com/uchihatmtkinu/PriRC/snark"
 	"log"
+	"math/big"
 	"math/rand"
 	"time"
 )
@@ -57,9 +58,12 @@ func IDMerkleTreeProcess() {
 	fmt.Println(time.Now(), "Received all the ID commit")
 	idpcs := make([]snark.PedersenCommitment, int(gVar.ShardSize*gVar.ShardCnt))
 	reppcs := make([]snark.PedersenCommitment, int(gVar.ShardSize*gVar.ShardCnt))
+	old := new(big.Int)
 	for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
-		idpcs[i] = shard.GlobalGroupMems[i].IDComm
-		reppcs[i] = shard.GlobalGroupMems[i].RepComm
+		idpcs[i].Comm_x.Add(shard.GlobalGroupMems[i].IDComm.Comm_x, old)
+		idpcs[i].Comm_y.Add(shard.GlobalGroupMems[i].IDComm.Comm_y, old)
+		reppcs[i].Comm_x.Add(shard.GlobalGroupMems[i].RepComm.Comm_x, old)
+		reppcs[i].Comm_y.Add(shard.GlobalGroupMems[i].RepComm.Comm_y, old)
 	}
 	shard.IDMerkleTree.Init(idpcs)
 	shard.MyIDMTProof = shard.IDMerkleTree.Proof(MyGlobalID)
