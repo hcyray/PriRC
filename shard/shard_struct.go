@@ -23,6 +23,7 @@ type MemShard struct {
 	CosiPub     ed25519.PublicKey
 	Shard       int
 	InShardId   int
+	AttackID    int // used for simulate attack 
 	EpochSNID   snark.PedersenCommitment
 	Role        byte //1 - member, 0 - leader
 	Legal       byte //0 - legal,  1 - kickout
