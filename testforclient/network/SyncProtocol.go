@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"math/rand"
-
+	"math/big"
 	"fmt"
 
 	"github.com/uchihatmtkinu/PriRC/Reputation"
