@@ -360,7 +360,6 @@ func HandleTxBlock(data []byte) error {
 				//fmt.Println(CacheDbRef.RepCache[i])
 				for j := uint32(0); j < gVar.ShardSize; j++ {
 					shard.GlobalGroupMems[shard.ShardToGlobal[CacheDbRef.ShardNum][j]].Rep += CacheDbRef.RepCache[i][j]
-					shard.GlobalGroupMems[shard.ShardToGlobal[CacheDbRef.ShardNum][j]].AddPriRep(CacheDbRef.RepCache[i][j])
 				}
 			}
 			tmpRep := shard.ReturnRepData(CacheDbRef.ShardNum)
@@ -382,7 +381,6 @@ func HandleTxBlock(data []byte) error {
 					//fmt.Println(CacheDbRef.RepCache[i])
 					for j := uint32(0); j < gVar.ShardSize; j++ {
 						shard.GlobalGroupMems[shard.ShardToGlobal[CacheDbRef.ShardNum][j]].Rep += CacheDbRef.RepCache[i][j]
-						shard.GlobalGroupMems[shard.ShardToGlobal[CacheDbRef.ShardNum][j]].AddPriRep(CacheDbRef.RepCache[i][j])
 					}
 				}
 				tmpRep := shard.ReturnRepData(CacheDbRef.ShardNum)

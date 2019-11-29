@@ -64,8 +64,8 @@ func SyncProcess(ms *[]shard.MemShard) {
 	fmt.Println("Sync Finished")
 	shard.TotalRep = 0
 	for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
-		snark.BabyJubJubCurve.VerifyPedersenCommit((*ms)[i].Rep, int32(i+1), &(*ms)[i].RepComm)
-		shard.TotalRep += (*ms)[i].Rep
+		snark.BabyJubJubCurve.VerifyPedersenCommit((*ms)[i].TotalRep, int32(i+1), &(*ms)[i].RepComm)
+		shard.TotalRep += (*ms)[i].TotalRep
 	}
 	fmt.Println("TotalRep:", shard.TotalRep)
 }

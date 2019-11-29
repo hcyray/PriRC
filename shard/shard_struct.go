@@ -16,7 +16,8 @@ type MemShard struct {
 	PrivateAddress string
 	PublicAddress  string
 	Rep            int32 //rep this epoch
-	// Pedersen Commitment for rep
+	TotalRep       int32 //rep all the time
+	// Pedersen Commitment for totalrep
 	RepComm snark.PedersenCommitment
 	//TotalRep       []int32 //rep over several epoch
 	CosiPub     ed25519.PublicKey
@@ -42,6 +43,7 @@ func (ms *MemShard) NewMemShard(acc *account.RcAcc, addr string, band int) {
 	ms.Legal = 0
 	ms.Role = 1
 	ms.Rep = 1000
+	ms.TotalRep = 1000
 	ms.Bandwidth = band
 	ms.InitialPedersenCommitment()
 }

@@ -37,7 +37,12 @@ func ShardProcess() {
 	sendi := rand.Perm(int(gVar.ShardSize * gVar.ShardCnt))
 	flagi := make([]bool, int(gVar.ShardSize*gVar.ShardCnt))
 	var LeaderCandidate []shard.SortTypes
-	//TODO calculate totalrep
+
+	if CurrentEpoch != -1 {
+		for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
+			shard.GlobalGroupMems[i].ClearRep()
+		}
+	}
 
 	for !leaderflag {
 		var slotLeaderCandidate []shard.SortType
@@ -50,12 +55,12 @@ func ShardProcess() {
 		fmt.Println("Leader Election, slot: ", CurrentSlot)
 
 		MyLeader.lc.LeaderCal(&shard.MyMenShard.EpochSNID, &shard.MyMenShard.RepComm,
-			blockHash, CurrentSlot, shard.TotalRep, shard.MyMenShard.Rep)
+			blockHash, CurrentSlot, shard.TotalRep, shard.MyMenShard.TotalRep)
 
 		if MyLeader.lc.Leader {
 			fmt.Println("I am a leader candidate")
 			shard.MyLeaderProof = GenerateLeaderProof(shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm,
-				shard.MyMenShard.Rep, shard.TotalRep, CurrentSlot, MyLeader.lc)
+				shard.MyMenShard.TotalRep, shard.TotalRep, CurrentSlot, MyLeader.lc)
 			MyLeader.mux.Unlock()
 			MyLeader.mux.RLock()
 			MyLeaderMessage = LeaderInfo{true, MyGlobalID, CurrentSlot, shard.MyMenShard.EpochSNID,
@@ -118,7 +123,7 @@ func ShardProcess() {
 						}
 					}
 				}
-			case <-time.After(timeoutSync * 2):
+			case <-time.After(timeoutSync):
 				//resend after 20 seconds
 				for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
 					if !flagi[sendi[i]] {
@@ -171,6 +176,7 @@ func ShardProcess() {
 			} else {
 				shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Role = 1
 			}
+			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].PreShard = int(i)
 			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Shard = int(i)
 			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].InShardId = int(j)
 		}
@@ -224,7 +230,7 @@ func ShardProcess() {
 	if CacheDbRef.ID == 0 {
 		tmpStr := fmt.Sprint("Epoch", CurrentEpoch, ":")
 		for i := uint32(0); i < gVar.ShardCnt*gVar.ShardSize; i++ {
-			tmpStr = tmpStr + fmt.Sprint(shard.GlobalGroupMems[i].Rep, " ")
+			tmpStr = tmpStr + fmt.Sprint(shard.GlobalGroupMems[i].TotalRep, " ")
 		}
 		sendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 	}
