@@ -37,7 +37,7 @@ var MyIDUpdateProof [312]byte
 //used for Leader Proof
 var MyLeaderProof [312]byte
 
-var TotalRep int32
+var TotalRep int64
 
 //PreviousSyncBlockHash the hash array of previous sync block from all the shards
 var PreviousSyncBlockHash [][32]byte

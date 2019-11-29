@@ -11,7 +11,7 @@ type LeaderCalInfo struct {
 	BlockHash string
 }
 
-func (lc *LeaderCalInfo) LeaderCal(SNID *PedersenCommitment, Rep *PedersenCommitment, BlockHash []byte, sl int, totalrep int32, rep int32) {
+func (lc *LeaderCalInfo) LeaderCal(SNID *PedersenCommitment, Rep *PedersenCommitment, BlockHash []byte, sl int, totalrep int64, rep int64) {
 	lc.RNComm.Init()
 	l := new(PedersenCommitment)
 	r := new(PedersenCommitment)

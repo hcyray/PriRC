@@ -28,7 +28,7 @@ type RepBlockchainIterator struct {
 }
 
 // MineRepBlock mines a new repblock with the provided transactions
-func (bc *RepBlockchain) MineRepBlock(rep *[]int32, cache *[][32]byte, ID int, ms *[]shard.MemShard) {
+func (bc *RepBlockchain) MineRepBlock(rep *[]int64, cache *[][32]byte, ID int, ms *[]shard.MemShard) {
 	var lastHash [32]byte
 
 	CurrentRepBlock.Mu.RLock()
