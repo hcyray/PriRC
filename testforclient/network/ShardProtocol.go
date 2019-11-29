@@ -59,21 +59,8 @@ func ShardProcess() {
 
 		if MyLeader.lc.Leader {
 			fmt.Println("I am a leader candidate")
-			fmt.Println(CurrentSlot)
-			
-			fmt.Println(MyLeader.lc.BlockHash)
-			fmt.Println(shard.MyMenShard.RepComm)
-			fmt.Println(shard.TotalRep)
 			shard.MyLeaderProof = GenerateLeaderProof(shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm,
 				shard.MyMenShard.TotalRep, shard.TotalRep, CurrentSlot, MyLeader.lc)
-			if VerifyLeaderProof(shard.MyLeaderProof, shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm,
-				shard.TotalRep, CurrentSlot, MyLeader.lc.BlockHash, MyLeader.lc.RNComm) {
-				tmpStr := fmt.Sprintln("Leader correct")
-				sendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
-			} else {
-				tmpStr := fmt.Sprintln("Leader falied")
-				sendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
-			}
 			MyLeader.mux.Unlock()
 			MyLeader.mux.RLock()
 			MyLeaderMessage = LeaderInfo{true, MyGlobalID, CurrentSlot, shard.MyMenShard.EpochSNID,
@@ -123,11 +110,6 @@ func ShardProcess() {
 							slotLeaderCandidate = append(slotLeaderCandidate, tempSortType)
 							flagi[LeaderMessage.ID] = true
 							receiveCount++
-						} else {
-							fmt.Println(MyLeader.lc.BlockHash)
-							fmt.Println(shard.GlobalGroupMems[LeaderMessage.ID].RepComm)
-							fmt.Println(shard.TotalRep)
-							fmt.Println("Leader Verification failed from client: ", LeaderMessage.ID)
 						}
 						MyLeader.mux.RUnlock()
 						if gVar.ExperimentBadLevel != 0 {
