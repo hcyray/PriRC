@@ -87,7 +87,7 @@ func RandomAttack(ms *[]shard.MemShard) {
 		oldRepComm[i].Init()
 		oldRepComm[i].Comm_x.Add((*ms)[i].RepComm.Comm_x, old)
 		oldRepComm[i].Comm_y.Add((*ms)[i].RepComm.Comm_y, old)
-		oldID[i] = i;
+		oldID[i] = (*ms)[i].AttackID;
 	}
 	for i := 0; i < n; i++ {
 		for j := i + 1; j < n; j++ {
