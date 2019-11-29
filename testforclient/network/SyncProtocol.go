@@ -89,7 +89,7 @@ func RandomAttack(ms *[]shard.MemShard) {
 		oldRepComm[i].Comm_y.Add((*ms)[i].RepComm.Comm_y, old)
 		oldID[i] = (*ms)[i].AttackID;
 	}
-	rand.Seed(int64(CurrentEpoch+gVar.ShardSize))
+	rand.Seed(int64(CurrentEpoch+10))
 	ri := rand.Perm(int(gVar.ShardSize * gVar.ShardCnt))
 	for i := 0; i < n; i++ {
 		oldRep[i], oldRep[ri[i]] = oldRep[ri[i]], oldRep[i]
