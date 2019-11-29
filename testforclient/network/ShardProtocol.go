@@ -258,8 +258,8 @@ func ShardProcess() {
 
 func GenerateLeaderProof(SNID snark.PedersenCommitment, RepComm snark.PedersenCommitment, rep int64, totalRep int64,
 	sl int, LC snark.LeaderCalInfo) [312]byte {
-	return snark.ProveLP(uint64(CurrentEpoch+2), uint64(MyGlobalID), SNID.Comm_x.String(), SNID.Comm_y.String(), uint64(totalRep),
-		uint64(rep+gVar.RepUint64ToInt32), uint64(CurrentEpoch+2+MyGlobalID), RepComm.Comm_x.String(), RepComm.Comm_y.String(),
+	return snark.ProveLP(1, uint64(MyGlobalID), SNID.Comm_x.String(), SNID.Comm_y.String(), uint64(totalRep),
+		uint64(rep+gVar.RepUint64ToInt32), uint64(1+MyGlobalID), RepComm.Comm_x.String(), RepComm.Comm_y.String(),
 		LC.BlockHash, sl, LC.RNComm.Comm_x.String(), LC.RNComm.Comm_y.String(), gVar.LeaderDifficulty, gVar.LeaderBitSize)
 }
 
