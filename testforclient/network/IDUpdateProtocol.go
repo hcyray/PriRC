@@ -47,7 +47,7 @@ func IDUpdateProcess() {
 					//fmt.Println(time.Now(), "Received commit from Global ID: ", commitMessage.ID, ", commits count:", signCount, "/", int(gVar.ShardSize))
 				}
 			}
-		case <-time.After(timeoutCosi):
+		case <-time.After(5 * time.Second):
 			//resend after 15 seconds
 			for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
 				if !receivei[sendi[i]] {
@@ -58,6 +58,7 @@ func IDUpdateProcess() {
 		}
 	}
 	fmt.Println(time.Now(), "Received all Identity Update")
+	time.Sleep(5 * time.Second)
 
 }
 

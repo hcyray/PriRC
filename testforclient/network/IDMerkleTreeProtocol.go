@@ -45,7 +45,7 @@ func IDMerkleTreeProcess() {
 					fmt.Println("Verify HPC failed from client: ", IDCommitMessage.ID)
 				}
 			}
-		case <-time.After(timeoutSync):
+		case <-time.After(5 * time.Second):
 			//resend after 10 seconds
 			for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
 				if !receivei[sendi[i]] {

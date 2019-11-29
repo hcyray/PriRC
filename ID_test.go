@@ -10,8 +10,8 @@ import (
 )
 
 func TestID(t *testing.T) {
-	fileIP, err := os.Open("IpAddr3.txt")
-	ID := 1688
+	fileIP, err := os.Open("InstanceIP.txt")
+	ID := 20
 
 	defer fileIP.Close()
 	if err != nil {

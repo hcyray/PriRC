@@ -143,7 +143,7 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 	shard.MyIDCommProof = shard.MyMenShard.NewIDCommitment(MyGlobalID)
 
 	fmt.Println("Generate New Root Rep")
-	shard.MyRepCommProof = shard.MyMenShard.NewPriRep(shard.MyMenShard.Rep, MyGlobalID)
+	shard.MyRepCommProof = shard.MyMenShard.NewPriRep(shard.MyMenShard.Rep, MyGlobalID+1)
 	IDUpdateReady.mux.Lock()
 	IDUpdateReady.f = false
 	IDUpdateReady.mux.Unlock()
