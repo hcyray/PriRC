@@ -105,7 +105,7 @@ func RandomAttack(ms *[]shard.MemShard) {
 		(*ms)[i].Bandwidth = oldBand[i]
 		(*ms)[i].TotalRep = oldSumRep[i]
 		(*ms)[i].SetPriRepPC(oldRepComm[i])
-		(*ms)[i].AttackID(oldID[i])
+		(*ms)[i].AttackID = oldID[i]
 	}
 }
 
