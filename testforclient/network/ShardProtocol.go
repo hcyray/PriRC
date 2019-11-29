@@ -113,6 +113,9 @@ func ShardProcess() {
 							slotLeaderCandidate = append(slotLeaderCandidate, tempSortType)
 							flagi[LeaderMessage.ID] = true
 							receiveCount++
+						} else {
+							tmpStr := fmt.Sprint("Shard Leader Failed:")
+							sendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 						}
 						MyLeader.mux.RUnlock()
 						if gVar.ExperimentBadLevel != 0 {
