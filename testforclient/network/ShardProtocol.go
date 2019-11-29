@@ -216,9 +216,9 @@ func ShardProcess() {
 	close(Reputation.RepPowRxCh)
 	Reputation.RepPowRxCh = make(chan Reputation.RepPowInfo, bufferSize)
 	if shard.MyMenShard.Role == 1 {
-		//MinerReadyProcess()
+		MinerReadyProcess()
 	} else {
-		//LeaderReadyProcess(&shard.GlobalGroupMems)
+		LeaderReadyProcess(&shard.GlobalGroupMems)
 		StartSendTx = make(chan bool, 1)
 		StartSendTx <- true
 		if CurrentEpoch != -1 {
