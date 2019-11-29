@@ -129,8 +129,8 @@ func ShardProcess() {
 						}
 					}
 				}
-			case <-time.After(timeoutSync):
-				//resend after 20 seconds
+			case <-time.After(2*time.Second):
+				//resend after 2 seconds
 				for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
 					if !flagi[sendi[i]] {
 						fmt.Println(time.Now(), "Request Leader Info from global client:", sendi[i])
@@ -138,7 +138,9 @@ func ShardProcess() {
 					}
 				}
 			}
+			
 		}
+		time.Sleep(time.Second)
 		LeaderCandidate = append(LeaderCandidate, slotLeaderCandidate)
 	}
 	//Select leader from leader candidate
