@@ -292,9 +292,9 @@ func LeaderReadyProcess(ms *[]shard.MemShard) {
 
 			}
 			cnt++
-			if cnt > 5 && readyMember >= int(gVar.ShardSize*2/3) {
-				timeoutflag = false
-				fmt.Println("Timeout! Ready Member: ", readyMember, "/", gVar.ShardSize)
+			if cnt > 5 {
+				tmpStr := fmt.Sprint("Shard Leader Ready failed Epoch", CurrentEpoch, ":")
+				sendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 			}
 		}
 	}
