@@ -93,7 +93,7 @@ func RandomAttack(ms *[]shard.MemShard) {
 	ri := rand.Perm(int(gVar.ShardSize * gVar.ShardCnt))
 	for i := 0; i < n; i++ {
 		oldRep[i], oldRep[ri[i]] = oldRep[ri[i]], oldRep[i]
-		oldSumRep[i], oldSumRep[j] = oldSumRep[ri[i]], oldSumRep[i]
+		oldSumRep[i], oldSumRep[ri[i]] = oldSumRep[ri[i]], oldSumRep[i]
 		oldBand[i], oldBand[ri[i]] = oldBand[ri[i]], oldBand[i]
 		oldRepComm[i], oldRepComm[ri[i]] = oldRepComm[ri[i]], oldRepComm[i]
 		oldID[i], oldID[ri[i]] = oldID[ri[i]], oldID[i]
