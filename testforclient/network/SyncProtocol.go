@@ -77,10 +77,14 @@ func RandomAttack(ms *[]shard.MemShard) {
 	oldRep := make([]int64, n)
 	oldSumRep := make([]int64, n)
 	oldBand := make([]int, n)
+	oldRepComm := make([]snark.PedersenCommitment, n)
+	old := new(big.Int)
 	for i := 0; i < n; i++ {
 		oldRep[i] = (*ms)[i].Rep
 		oldSumRep[i] = (*ms)[i].TotalRep
 		oldBand[i] = (*ms)[i].Bandwidth
+		oldRepComm[i].Comm_x.Add((*ms)[i].RepComm.Comm_x, old)
+		oldRepComm[i].Comm_y.Add((*ms)[i].RepComm.Comm_y, old)
 	}
 	for i := 0; i < n; i++ {
 		for j := i + 1; j < n; j++ {
@@ -88,6 +92,7 @@ func RandomAttack(ms *[]shard.MemShard) {
 				oldRep[i], oldRep[j] = oldRep[j], oldRep[i]
 				oldSumRep[i], oldSumRep[j] = oldSumRep[j], oldSumRep[i]
 				oldBand[i], oldBand[j] = oldBand[j], oldBand[i]
+				oldRepComm[i], oldRepComm[j] = oldRepComm[j], oldRepComm[i]
 			}
 		}
 	}
@@ -95,6 +100,7 @@ func RandomAttack(ms *[]shard.MemShard) {
 		(*ms)[i].Rep = oldRep[i]
 		(*ms)[i].Bandwidth = oldBand[i]
 		(*ms)[i].TotalRep = oldSumRep[i]
+		(*ms)[i].SetPriRepPC(oldRepComm[i])
 	}
 }
 
