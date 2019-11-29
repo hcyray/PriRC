@@ -89,16 +89,14 @@ func RandomAttack(ms *[]shard.MemShard) {
 		oldRepComm[i].Comm_y.Add((*ms)[i].RepComm.Comm_y, old)
 		oldID[i] = (*ms)[i].AttackID;
 	}
+	rand.Seed(int64(CurrentEpoch+gVar.ShardSize))
+	ri := rand.Perm(int(gVar.ShardSize * gVar.ShardCnt))
 	for i := 0; i < n; i++ {
-		for j := i + 1; j < n; j++ {
-			if oldSumRep[i] < oldSumRep[j] {
-				oldRep[i], oldRep[j] = oldRep[j], oldRep[i]
-				oldSumRep[i], oldSumRep[j] = oldSumRep[j], oldSumRep[i]
-				oldBand[i], oldBand[j] = oldBand[j], oldBand[i]
-				oldRepComm[i], oldRepComm[j] = oldRepComm[j], oldRepComm[i]
-				oldID[i], oldID[j] = oldID[j], oldID[i]
-			}
-		}
+		oldRep[i], oldRep[ri[i]] = oldRep[ri[i]], oldRep[i]
+		oldSumRep[i], oldSumRep[j] = oldSumRep[ri[i]], oldSumRep[i]
+		oldBand[i], oldBand[ri[i]] = oldBand[ri[i]], oldBand[i]
+		oldRepComm[i], oldRepComm[ri[i]] = oldRepComm[ri[i]], oldRepComm[i]
+		oldID[i], oldID[ri[i]] = oldID[ri[i]], oldID[i]
 	}
 	for i := 0; i < n; i++ {
 		(*ms)[i].Rep = oldRep[i]
