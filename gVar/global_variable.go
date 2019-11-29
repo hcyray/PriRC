@@ -6,7 +6,7 @@ import "time"
 const MagicNumber byte = 66
 
 //ShardSize is the number of miners in one shard
-const ShardSize uint32 = 9
+const ShardSize uint32 = 50
 
 //ShardCnt is the number of shards
 const ShardCnt uint32 = 1
@@ -36,7 +36,7 @@ const GensisAccValue = 2147483647
 const TxSendInterval = 10
 
 // number of transactions - TPS
-const NumOfTxForTest = 2000
+const NumOfTxForTest = 200
 
 const GeneralSleepTime = 50
 
@@ -50,7 +50,7 @@ const MyAddress = "172.31.83.178:9999"
 const MaxBand = 38 * 1024
 const MinBand = 2 * 1024
 
-// 0 - no bad, 1 - always bad, 2 - bad when leader is bad, 3- random attack
+// 0 - no bad, 1 - always bad, 2 - bad when leader is bad
 const ExperimentBadLevel = 0
 
 //int32  : -2147483648 to 2147483647
