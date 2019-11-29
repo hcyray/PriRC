@@ -187,7 +187,7 @@ var CosiData map[int]cosi.SignaturePart
 type repInfo struct {
 	Last  bool
 	Hash  [][32]byte
-	Rep   *[]int32
+	Rep   *[]int64
 	Round int
 }
 

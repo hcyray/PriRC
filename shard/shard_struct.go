@@ -15,8 +15,8 @@ type MemShard struct {
 	Address        string //ip+port
 	PrivateAddress string
 	PublicAddress  string
-	Rep            int32 //rep this epoch
-	TotalRep       int32 //rep all the time
+	Rep            int64 //rep this epoch
+	TotalRep       int64 //rep all the time
 	// Pedersen Commitment for totalrep
 	RepComm snark.PedersenCommitment
 	//TotalRep       []int32 //rep over several epoch
@@ -99,20 +99,20 @@ func (ms *MemShard) SetSNID(PC snark.PedersenCommitment) {
 //int32  : -2147483648 to 2147483647
 //uint64 : 0 to 18446744073709551615
 //NewPriRep new private rep
-func (ms *MemShard) NewPriRep(rep int32, r int) [312]byte {
+func (ms *MemShard) NewPriRep(rep int64, r int) [312]byte {
 	var RepBuff [312]byte
 	b_m := new(big.Int)
 	b_r := new(big.Int)
-	b_m.SetInt64(int64(rep) + gVar.RepUint64ToInt32)
+	b_m.SetInt64(rep + gVar.RepUint64ToInt32)
 	b_r.SetInt64(int64(r))
 	snark.BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, &ms.RepComm)
 	RepBuff = snark.ProveHPC(b_m.Uint64(), b_r.Uint64(), ms.RepComm.Comm_x.String(), ms.RepComm.Comm_y.String())
 	return RepBuff
 }
-func (ms *MemShard) SetPriRep(rep int32, r int) {
+func (ms *MemShard) SetPriRep(rep int64, r int) {
 	b_m := new(big.Int)
 	b_r := new(big.Int)
-	b_m.SetInt64(int64(rep) + gVar.RepUint64ToInt32)
+	b_m.SetInt64(rep + gVar.RepUint64ToInt32)
 	b_r.SetInt64(int64(r))
 	snark.BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, &ms.RepComm)
 }
@@ -125,16 +125,16 @@ func (ms *MemShard) SetPriRepPC(repPC snark.PedersenCommitment) {
 }
 
 //SetRepPC new private rep
-func (ms *MemShard) SetRep(rep int32) {
+func (ms *MemShard) SetRep(rep int64) {
 	ms.Rep = rep
 }
 
 //AddRep add a value to the rep PC
-func (ms *MemShard) AddPriRep(value int32) {
+func (ms *MemShard) AddPriRep(value int64) {
 	//ms.Rep += value
 	b_m := new(big.Int)
 	b_r := new(big.Int)
-	b_m.SetInt64(int64(value))
+	b_m.SetInt64(value)
 	b_r.SetInt64(0)
 	if value >= 0 {
 		snark.BabyJubJubCurve.AddMToPedersenCommitment(b_m, &ms.RepComm, true)

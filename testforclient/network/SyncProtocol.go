@@ -60,7 +60,9 @@ func SyncProcess(ms *[]shard.MemShard) {
 		close(syncTBCh[i])
 		close(syncNotReadyCh[i])
 	}
-
+	if gVar.RandomAttack {
+		RandomAttack(ms)
+	}
 	fmt.Println("Sync Finished")
 	shard.TotalRep = 0
 	for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
@@ -68,6 +70,31 @@ func SyncProcess(ms *[]shard.MemShard) {
 		shard.TotalRep += (*ms)[i].TotalRep
 	}
 	fmt.Println("TotalRep:", shard.TotalRep)
+}
+
+func RandomAttack(ms *[]shard.MemShard) {
+	n := int(gVar.ShardCnt * gVar.ShardSize)
+	oldRep := make([]int64, n)
+	oldSumRep := make([]int64, n)
+	oldBand := make([]int, n)
+	for i := 0; i < n; i++ {
+		oldRep[i] = (*ms)[i].Rep
+		oldSumRep[i] = (*ms)[i].TotalRep
+		oldBand[i] = (*ms)[i].Bandwidth
+	}
+	for i := 0; i < n; i++ {
+		for j := i + 1; j < n; j++ {
+			if oldSumRep[i] < oldSumRep[j] {
+				oldRep[i], oldRep[j] = oldRep[j], oldRep[i]
+				oldSumRep[i], oldSumRep[j] = oldSumRep[j], oldSumRep[i]
+				oldBand[i], oldBand[j] = oldBand[j], oldBand[i]
+			}
+		}
+	}
+	for i := 0; i < n; i++ {
+		(*ms)[i].Rep = oldRep[i]
+		(*ms)[i].Bandwidth = oldBand[i]
+	}
 }
 
 //ReceiveSyncProcess listen to the block from shard k

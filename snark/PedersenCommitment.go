@@ -110,10 +110,10 @@ func (b *BabyJubJub_Curve) MulPedersenCommitment(t *big.Int, pc *PedersenCommitm
 }
 
 // verify commitment
-func (b *BabyJubJub_Curve) VerifyPedersenCommit(x int32, y int32, pc *PedersenCommitment) {
+func (b *BabyJubJub_Curve) VerifyPedersenCommit(x int64, y int32, pc *PedersenCommitment) {
 	b_m := new(big.Int)
 	b_r := new(big.Int)
-	b_m.SetInt64(int64(x) + gVar.RepUint64ToInt32)
+	b_m.SetInt64(x + gVar.RepUint64ToInt32)
 	b_r.SetInt64(int64(y))
 	pc1 := new(PedersenCommitment)
 	pc1.Init()
