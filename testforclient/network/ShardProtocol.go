@@ -42,6 +42,9 @@ func ShardProcess() {
 		for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
 			shard.GlobalGroupMems[i].ClearRep()
 		}
+	} else {
+		//TODO move to other place
+		shard.GlobalGroupMems[i].AttackID = i
 	}
 
 	for !leaderflag {
