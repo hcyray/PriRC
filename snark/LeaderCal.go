@@ -33,6 +33,9 @@ func (lc *LeaderCalInfo) LeaderCal(SNID *PedersenCommitment, Rep *PedersenCommit
 	//fmt.Println(ln.String())
 	//fmt.Println(rn.String())
 	lc.Leader = ln.Cmp(rn) > 0
+	if rep < int64(totalrep/int64(gVar.ShardSize)) {
+		lc.Leader = false
+	}
 	r.SetPedersenCommmitment(Rep.Comm_x.String(), Rep.Comm_y.String(), 10)
 	BabyJubJubCurve.AddTwoPedersenCommitment(l, r)
 	BabyJubJubCurve.CalPedersenHash(l.Comm_x, l.Comm_y, &lc.RNComm)

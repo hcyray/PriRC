@@ -39,13 +39,14 @@ func IDUpdateProcess() {
 		select {
 		case IDUpdateMessage := <-IDUpdateCh:
 			if !receivei[IDUpdateMessage.ID] {
-				if VerifyIDUpdate(IDUpdateMessage.ID, IDUpdateMessage.IDComm, IDUpdateMessage.RepComm, IDUpdateMessage.IDUpdateProof) {
+				//TODO need fix
+				//if VerifyIDUpdate(IDUpdateMessage.ID, IDUpdateMessage.IDComm, IDUpdateMessage.RepComm, IDUpdateMessage.IDUpdateProof) {
 					shard.GlobalGroupMems[IDUpdateMessage.ID].SetSNID(IDUpdateMessage.IDComm)
 					shard.GlobalGroupMems[IDUpdateMessage.ID].SetPriRepPC(IDUpdateMessage.RepComm)
 					receivei[IDUpdateMessage.ID] = true
 					receiveCount++
 					//fmt.Println(time.Now(), "Received commit from Global ID: ", commitMessage.ID, ", commits count:", signCount, "/", int(gVar.ShardSize))
-				}
+				//}
 			}
 		case <-time.After(5 * time.Second):
 			//resend after 15 seconds

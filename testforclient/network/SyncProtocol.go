@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"math/rand"
-
+	"math/big"
 	"fmt"
 
 	"github.com/uchihatmtkinu/PriRC/Reputation"
@@ -77,23 +77,33 @@ func RandomAttack(ms *[]shard.MemShard) {
 	oldRep := make([]int64, n)
 	oldSumRep := make([]int64, n)
 	oldBand := make([]int, n)
+	oldRepComm := make([]snark.PedersenCommitment, n)
+	oldID := make([]int, n)
+	old := new(big.Int)
 	for i := 0; i < n; i++ {
 		oldRep[i] = (*ms)[i].Rep
 		oldSumRep[i] = (*ms)[i].TotalRep
 		oldBand[i] = (*ms)[i].Bandwidth
+		oldRepComm[i].Init()
+		oldRepComm[i].Comm_x.Add((*ms)[i].RepComm.Comm_x, old)
+		oldRepComm[i].Comm_y.Add((*ms)[i].RepComm.Comm_y, old)
+		oldID[i] = (*ms)[i].AttackID;
 	}
+	rand.Seed(int64(CurrentEpoch+10))
+	ri := rand.Perm(int(gVar.ShardSize * gVar.ShardCnt))
 	for i := 0; i < n; i++ {
-		for j := i + 1; j < n; j++ {
-			if oldSumRep[i] < oldSumRep[j] {
-				oldRep[i], oldRep[j] = oldRep[j], oldRep[i]
-				oldSumRep[i], oldSumRep[j] = oldSumRep[j], oldSumRep[i]
-				oldBand[i], oldBand[j] = oldBand[j], oldBand[i]
-			}
-		}
+		oldRep[i], oldRep[ri[i]] = oldRep[ri[i]], oldRep[i]
+		oldSumRep[i], oldSumRep[ri[i]] = oldSumRep[ri[i]], oldSumRep[i]
+		oldBand[i], oldBand[ri[i]] = oldBand[ri[i]], oldBand[i]
+		oldRepComm[i], oldRepComm[ri[i]] = oldRepComm[ri[i]], oldRepComm[i]
+		oldID[i], oldID[ri[i]] = oldID[ri[i]], oldID[i]
 	}
 	for i := 0; i < n; i++ {
 		(*ms)[i].Rep = oldRep[i]
 		(*ms)[i].Bandwidth = oldBand[i]
+		(*ms)[i].TotalRep = oldSumRep[i]
+		(*ms)[i].SetPriRepPC(oldRepComm[i])
+		(*ms)[i].AttackID = oldID[i]
 	}
 }
 

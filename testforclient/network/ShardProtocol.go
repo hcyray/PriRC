@@ -42,6 +42,11 @@ func ShardProcess() {
 		for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
 			shard.GlobalGroupMems[i].ClearRep()
 		}
+	} else {
+		//TODO move to other place
+		for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
+			shard.GlobalGroupMems[i].AttackID = i
+		}
 	}
 
 	for !leaderflag {
@@ -60,7 +65,7 @@ func ShardProcess() {
 		if MyLeader.lc.Leader {
 			fmt.Println("I am a leader candidate")
 			shard.MyLeaderProof = GenerateLeaderProof(shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm,
-				shard.MyMenShard.TotalRep, shard.TotalRep, CurrentSlot, MyLeader.lc)
+				shard.MyMenShard.TotalRep, shard.TotalRep, CurrentSlot, MyLeader.lc,shard.MyMenShard.AttackID)
 			MyLeader.mux.Unlock()
 			MyLeader.mux.RLock()
 			MyLeaderMessage = LeaderInfo{true, MyGlobalID, CurrentSlot, shard.MyMenShard.EpochSNID,
@@ -111,7 +116,8 @@ func ShardProcess() {
 							flagi[LeaderMessage.ID] = true
 							receiveCount++
 						} else {
-							fmt.Println("Leader Verification failed from client: ", LeaderMessage.ID)
+							tmpStr := fmt.Sprint("Shard Leader Failed:")
+							sendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 						}
 						MyLeader.mux.RUnlock()
 						if gVar.ExperimentBadLevel != 0 {
@@ -123,8 +129,8 @@ func ShardProcess() {
 						}
 					}
 				}
-			case <-time.After(timeoutSync):
-				//resend after 20 seconds
+			case <-time.After(2*time.Second):
+				//resend after 2 seconds
 				for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
 					if !flagi[sendi[i]] {
 						fmt.Println(time.Now(), "Request Leader Info from global client:", sendi[i])
@@ -132,7 +138,9 @@ func ShardProcess() {
 					}
 				}
 			}
+			
 		}
+		time.Sleep(time.Second)
 		LeaderCandidate = append(LeaderCandidate, slotLeaderCandidate)
 	}
 	//Select leader from leader candidate
@@ -216,9 +224,9 @@ func ShardProcess() {
 	close(Reputation.RepPowRxCh)
 	Reputation.RepPowRxCh = make(chan Reputation.RepPowInfo, bufferSize)
 	if shard.MyMenShard.Role == 1 {
-		//MinerReadyProcess()
+		MinerReadyProcess()
 	} else {
-		//LeaderReadyProcess(&shard.GlobalGroupMems)
+		LeaderReadyProcess(&shard.GlobalGroupMems)
 		StartSendTx = make(chan bool, 1)
 		StartSendTx <- true
 		if CurrentEpoch != -1 {
@@ -241,9 +249,9 @@ func ShardProcess() {
 }
 
 func GenerateLeaderProof(SNID snark.PedersenCommitment, RepComm snark.PedersenCommitment, rep int64, totalRep int64,
-	sl int, LC snark.LeaderCalInfo) [312]byte {
-	return snark.ProveLP(uint64(CurrentEpoch+2), uint64(MyGlobalID), SNID.Comm_x.String(), SNID.Comm_y.String(), uint64(totalRep),
-		uint64(rep+gVar.RepUint64ToInt32), uint64(CurrentEpoch+2+MyGlobalID), RepComm.Comm_x.String(), RepComm.Comm_y.String(),
+	sl int, LC snark.LeaderCalInfo, ind int) [312]byte {
+	return snark.ProveLP(1, uint64(MyGlobalID), SNID.Comm_x.String(), SNID.Comm_y.String(), uint64(totalRep),
+		uint64(rep+gVar.RepUint64ToInt32), uint64(ind+1), RepComm.Comm_x.String(), RepComm.Comm_y.String(),
 		LC.BlockHash, sl, LC.RNComm.Comm_x.String(), LC.RNComm.Comm_y.String(), gVar.LeaderDifficulty, gVar.LeaderBitSize)
 }
 
@@ -292,9 +300,9 @@ func LeaderReadyProcess(ms *[]shard.MemShard) {
 
 			}
 			cnt++
-			if cnt > 5 && readyMember >= int(gVar.ShardSize*2/3) {
-				timeoutflag = false
-				fmt.Println("Timeout! Ready Member: ", readyMember, "/", gVar.ShardSize)
+			if cnt > 5 {
+				tmpStr := fmt.Sprint("Shard Leader Ready failed Epoch", CurrentEpoch, ":")
+				sendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 			}
 		}
 	}

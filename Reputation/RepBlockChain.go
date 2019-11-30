@@ -52,7 +52,6 @@ func (bc *RepBlockchain) MineRepBlock(rep *[]int64, cache *[][32]byte, ID int, m
 		fmt.Println("--------------------")
 	*/
 	CurrentRepBlock.Block = NewRepBlock(ms, rep, shard.StartFlag, shard.PreviousSyncBlockHash, *cache, lastHash)
-	CurrentRepBlock.Block.Print()
 	CurrentRepBlock.Round++
 	shard.StartFlag = false
 
@@ -124,7 +123,6 @@ func (bc *RepBlockchain) AddSyncBlock(ms *[]shard.MemShard, preFBHash [32]byte, 
 	CurrentSyncBlock.Mu.Lock()
 	CurrentSyncBlock.Block = NewSynBlock(ms, shard.PreviousSyncBlockHash, lastRepBlockHash, preFBHash, tmpCoSignature)
 	CurrentSyncBlock.Epoch++
-	CurrentSyncBlock.Block.Print()
 	shard.PreviousSyncBlockHash = make([][32]byte, gVar.ShardCnt)
 	shard.PreviousSyncBlockHash[shard.MyMenShard.Shard] = CurrentSyncBlock.Block.Hash
 	defer CurrentSyncBlock.Mu.Unlock()
