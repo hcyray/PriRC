@@ -58,6 +58,7 @@ func main() {
 	for k := 1; k <= totalepoch; k++ {
 		//test shard
 		fmt.Println("Current time: ", time.Now())
+		gVar.T1 = time.Now()
 		network.ShardProcess()
 
 		rand.Seed(int64(network.CacheDbRef.ID*3000) + time.Now().Unix()%3000)
@@ -69,9 +70,7 @@ func main() {
 			//fmt.Println(base58.Encode(tmptx[l].Hash[:]))
 		}
 
-		gVar.T1 = time.Now()
-		fmt.Println("This time", time.Now())
-
+		
 		if shard.MyMenShard.Role == shard.RoleLeader {
 			fmt.Println("This is a Leader")
 			go network.TxGeneralLoop()
