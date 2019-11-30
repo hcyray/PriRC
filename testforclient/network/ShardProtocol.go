@@ -129,7 +129,7 @@ func ShardProcess() {
 						}
 					}
 				}
-			case <-time.After(2*time.Second):
+			case <-time.After(time.Second):
 				//resend after 2 seconds
 				for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
 					if !flagi[sendi[i]] {
