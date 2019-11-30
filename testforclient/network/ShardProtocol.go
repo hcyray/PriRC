@@ -129,7 +129,7 @@ func ShardProcess() {
 						}
 					}
 				}
-			case <-time.After(2*time.Second):
+			case <-time.After(time.Second):
 				//resend after 2 seconds
 				for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
 					if !flagi[sendi[i]] {
@@ -224,9 +224,9 @@ func ShardProcess() {
 	close(Reputation.RepPowRxCh)
 	Reputation.RepPowRxCh = make(chan Reputation.RepPowInfo, bufferSize)
 	if shard.MyMenShard.Role == 1 {
-		MinerReadyProcess()
+		//MinerReadyProcess()
 	} else {
-		LeaderReadyProcess(&shard.GlobalGroupMems)
+		//LeaderReadyProcess(&shard.GlobalGroupMems)
 		StartSendTx = make(chan bool, 1)
 		StartSendTx <- true
 		if CurrentEpoch != -1 {
