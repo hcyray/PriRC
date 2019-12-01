@@ -90,8 +90,7 @@ func RollingProcess(send bool, FirstLeader bool, TBData *basic.TxBlock) {
 				go SendTxBlockAfterRolling(tmpData)
 				Flag = false
 			}
-			//simulate transaction data
-			time.Sleep(time.Duration(gVar.ShardSize/2) * time.Second)
+
 		} else {
 			tmpVD := rollingInfo{ID: CacheDbRef.ID, Epoch: uint32(CurrentEpoch + 1), Leader: CacheDbRef.Leader}
 			sendTxMessage(shard.GlobalGroupMems[CacheDbRef.Leader].Address, "VTD", tmpVD.Encode())
@@ -105,6 +104,8 @@ func RollingProcess(send bool, FirstLeader bool, TBData *basic.TxBlock) {
 				Flag = false
 			}
 		}
+		//simulate transaction data
+		time.Sleep(time.Duration(gVar.ShardSize/2) * time.Second)
 	}
 	fmt.Println("Rolling done, new leader", CacheDbRef.Leader)
 	LeaderAddr = shard.GlobalGroupMems[shard.ShardToGlobal[shard.MyMenShard.Shard][LeaderIndex]].Address
