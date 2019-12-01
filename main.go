@@ -70,7 +70,6 @@ func main() {
 			//fmt.Println(base58.Encode(tmptx[l].Hash[:]))
 		}
 
-		
 		if shard.MyMenShard.Role == shard.RoleLeader {
 			fmt.Println("This is a Leader")
 			go network.TxGeneralLoop()
@@ -101,7 +100,19 @@ func main() {
 	fmt.Println("Time: ", time.Since(timestart), "TPS:", float64(uint32(totalepoch)*(1+gVar.NumTxListPerEpoch*(gVar.ShardSize-1))*gVar.NumOfTxForTest)/time.Since(timestart).Seconds())
 	fmt.Println(network.CacheDbRef.ID, ": All finished")
 	if network.CacheDbRef.ID == 0 {
-		tmpStr := fmt.Sprint("All finished")
+		tmpStr := fmt.Sprint("TotalRep")
+		for i := uint32(0); i < gVar.ShardCnt*gVar.ShardSize; i++ {
+			tmpStr = tmpStr + fmt.Sprint(shard.GlobalGroupMems[i].TotalRep, " ")
+		}
+		network.SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
+		if gVar.BandDiverse {
+			tmpStr = fmt.Sprint("Band")
+			for i := uint32(0); i < gVar.ShardCnt*gVar.ShardSize; i++ {
+				tmpStr = tmpStr + fmt.Sprint(shard.GlobalGroupMems[i].Bandwidth, " ")
+			}
+			network.SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
+		}
+		tmpStr = fmt.Sprint("All finished")
 		network.SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 	}
 
