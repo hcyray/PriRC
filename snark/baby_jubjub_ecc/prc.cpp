@@ -1,6 +1,6 @@
 #include "prc.h"
 #include <fstream>
-#include "libff/algebra/curves/alt_bn128/alt_bn128_pp.hpp" //hold key
+#include "libff/algebra/curves/bn128/bn128_pp.hpp" //hold key
 #include "leader_proof.hpp"
 #include "pedersen_commitment.hpp"
 #include <iostream>
@@ -76,7 +76,7 @@ void setbits(ulong x, bool a[], int d){
 }
 
 void prc_initialize(){
-    libff::alt_bn128_pp::init_public_params();
+    libff::bn128_pp::init_public_params();
     libff::inhibit_profiling_info = true;
     libff::inhibit_profiling_counters = true;
 }
@@ -91,7 +91,7 @@ bool prc_verify_hpc(void *proof_ptr, char *comm_x, char *comm_y) {
     }
     assert(proof_data.str().size() == 312);
     proof_data.rdbuf()->pubseekpos(0, std::ios_base::in);
-    r1cs_ppzksnark_proof<libff::alt_bn128_pp> proof_obj;
+    r1cs_ppzksnark_proof<libff::bn128_pp> proof_obj;
     proof_data >> proof_obj;
 
     // Add commitment value
@@ -99,9 +99,9 @@ bool prc_verify_hpc(void *proof_ptr, char *comm_x, char *comm_y) {
     witness_map.insert(witness_map.end(), FieldT(comm_x));
     witness_map.insert(witness_map.end(), FieldT(comm_y));
 
-    r1cs_ppzksnark_verification_key<libff::alt_bn128_pp> verification_key;
+    r1cs_ppzksnark_verification_key<libff::bn128_pp> verification_key;
     loadFromFile<r1cs_ppzksnark_verification_key<ppT>>("hpc.vk", verification_key);
-    return r1cs_ppzksnark_verifier_strong_IC<libff::alt_bn128_pp>(verification_key, witness_map, proof_obj);
+    return r1cs_ppzksnark_verifier_strong_IC<libff::bn128_pp>(verification_key, witness_map, proof_obj);
 }
 
 
@@ -114,10 +114,10 @@ void prc_prove_hpc(void *output_proof_ptr, ulong m_ulong, ulong r_ulong, char* c
 
     assert(pb.is_satisfied());
 
-    r1cs_ppzksnark_proving_key<libff::alt_bn128_pp> proving_key;
+    r1cs_ppzksnark_proving_key<libff::bn128_pp> proving_key;
     loadFromFile<r1cs_ppzksnark_proving_key<ppT>>("hpc.pk", proving_key);
 
-    r1cs_ppzksnark_proof<libff::alt_bn128_pp> proof = r1cs_ppzksnark_prover<libff::alt_bn128_pp>(proving_key, pb.primary_input(), pb.auxiliary_input());
+    r1cs_ppzksnark_proof<libff::bn128_pp> proof = r1cs_ppzksnark_prover<libff::bn128_pp>(proving_key, pb.primary_input(), pb.auxiliary_input());
     std::stringstream proof_data;
     proof_data << proof;
     auto proof_str = proof_data.str();
@@ -152,7 +152,7 @@ bool prc_verify_lp(void *proof_ptr, char* sn_comm_x, char* sn_comm_y, ulong tota
     }
     assert(proof_data.str().size() == 312);
     proof_data.rdbuf()->pubseekpos(0, std::ios_base::in);
-    r1cs_ppzksnark_proof<libff::alt_bn128_pp> proof_obj;
+    r1cs_ppzksnark_proof<libff::bn128_pp> proof_obj;
     proof_data >> proof_obj;
 
     // Add witness value
@@ -167,9 +167,9 @@ bool prc_verify_lp(void *proof_ptr, char* sn_comm_x, char* sn_comm_y, ulong tota
     witness_map.insert(witness_map.end(), FieldT(rn_x));
     witness_map.insert(witness_map.end(), FieldT(rn_y));
 
-    r1cs_ppzksnark_verification_key<libff::alt_bn128_pp> verification_key;
+    r1cs_ppzksnark_verification_key<libff::bn128_pp> verification_key;
     loadFromFile<r1cs_ppzksnark_verification_key<ppT>>("lp.vk", verification_key);
-    return r1cs_ppzksnark_verifier_strong_IC<libff::alt_bn128_pp>(verification_key, witness_map, proof_obj);
+    return r1cs_ppzksnark_verifier_strong_IC<libff::bn128_pp>(verification_key, witness_map, proof_obj);
 }
 
 
@@ -185,10 +185,10 @@ void prc_prove_lp(void *output_proof_ptr, ulong sn_m, ulong sn_r, char* sn_comm_
 
     assert(pb.is_satisfied());
 
-    r1cs_ppzksnark_proving_key<libff::alt_bn128_pp> proving_key;
+    r1cs_ppzksnark_proving_key<libff::bn128_pp> proving_key;
     loadFromFile<r1cs_ppzksnark_proving_key<ppT>>("lp.pk", proving_key);
 
-    r1cs_ppzksnark_proof<libff::alt_bn128_pp> proof = r1cs_ppzksnark_prover<libff::alt_bn128_pp>(proving_key, pb.primary_input(), pb.auxiliary_input());
+    r1cs_ppzksnark_proof<libff::bn128_pp> proof = r1cs_ppzksnark_prover<libff::bn128_pp>(proving_key, pb.primary_input(), pb.auxiliary_input());
     std::stringstream proof_data;
     proof_data << proof;
     auto proof_str = proof_data.str();
@@ -223,7 +223,7 @@ bool prc_verify_iup(void *proof_ptr, char* old_id_root_x, char* old_id_root_y, c
     }
     assert(proof_data.str().size() == 312);
     proof_data.rdbuf()->pubseekpos(0, std::ios_base::in);
-    r1cs_ppzksnark_proof<libff::alt_bn128_pp> proof_obj;
+    r1cs_ppzksnark_proof<libff::bn128_pp> proof_obj;
     proof_data >> proof_obj;
 
     // Add witness value
@@ -237,9 +237,9 @@ bool prc_verify_iup(void *proof_ptr, char* old_id_root_x, char* old_id_root_y, c
     witness_map.insert(witness_map.end(), FieldT(new_rep_x));
     witness_map.insert(witness_map.end(), FieldT(new_rep_y));
 
-    r1cs_ppzksnark_verification_key<libff::alt_bn128_pp> verification_key;
+    r1cs_ppzksnark_verification_key<libff::bn128_pp> verification_key;
     loadFromFile<r1cs_ppzksnark_verification_key<ppT>>("iup.vk", verification_key);
-    return r1cs_ppzksnark_verifier_strong_IC<libff::alt_bn128_pp>(verification_key, witness_map, proof_obj);
+    return r1cs_ppzksnark_verifier_strong_IC<libff::bn128_pp>(verification_key, witness_map, proof_obj);
 }
 
 
@@ -280,10 +280,10 @@ void prc_prove_iup(void *output_proof_ptr, int depth, ulong in_id_address, char*
 
     assert(pb.is_satisfied());
 
-    r1cs_ppzksnark_proving_key<libff::alt_bn128_pp> proving_key;
+    r1cs_ppzksnark_proving_key<libff::bn128_pp> proving_key;
     loadFromFile<r1cs_ppzksnark_proving_key<ppT>>("iup.pk", proving_key);
 
-    r1cs_ppzksnark_proof<libff::alt_bn128_pp> proof = r1cs_ppzksnark_prover<libff::alt_bn128_pp>(proving_key, pb.primary_input(), pb.auxiliary_input());
+    r1cs_ppzksnark_proof<libff::bn128_pp> proof = r1cs_ppzksnark_prover<libff::bn128_pp>(proving_key, pb.primary_input(), pb.auxiliary_input());
     std::stringstream proof_data;
     proof_data << proof;
     auto proof_str = proof_data.str();

@@ -17,7 +17,7 @@
     along with baby_jubjub_ecc.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "libff/algebra/curves/alt_bn128/alt_bn128_pp.hpp" //hold key
+#include "libff/algebra/curves/bn128/bn128_pp.hpp" //hold key
 using namespace libff;
 
 using namespace libsnark;

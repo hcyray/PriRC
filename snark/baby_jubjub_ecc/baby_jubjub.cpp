@@ -20,10 +20,10 @@
 
 #include <libff/common/profiling.hpp>
 #include <libff/common/utils.hpp>
-#include <depends/libsnark/depends/libff/libff/algebra/curves/alt_bn128/alt_bn128_init.hpp>
+#include <depends/libsnark/depends/libff/libff/algebra/curves/bn128/bn128_init.hpp>
 
 using namespace libff;
-typedef bigint<alt_bn128_r_limbs> bigint_r;
+typedef bigint<bn128_r_limbs> bigint_r;
 
 using namespace libsnark;
 

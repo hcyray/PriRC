@@ -8,9 +8,9 @@ import (
 	"sync"
 	"time"
 
-	"math/rand"
-	"math/big"
 	"fmt"
+	"math/big"
+	"math/rand"
 
 	"github.com/uchihatmtkinu/PriRC/Reputation"
 	"github.com/uchihatmtkinu/PriRC/base58"
@@ -66,13 +66,15 @@ func SyncProcess(ms *[]shard.MemShard) {
 	fmt.Println("Sync Finished")
 	shard.TotalRep = 0
 	for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
-		snark.BabyJubJubCurve.VerifyPedersenCommit((*ms)[i].TotalRep, int32(i+1), &(*ms)[i].RepComm)
+		snark.BabyJubJubCurve.VerifyPedersenCommit((*ms)[i].TotalRep, int32((*ms)[i].AttackID+1), &(*ms)[i].RepComm)
 		shard.TotalRep += (*ms)[i].TotalRep
 	}
 	fmt.Println("TotalRep:", shard.TotalRep)
 }
 
 func RandomAttack(ms *[]shard.MemShard) {
+	(*ms)[shard.ShardToGlobal[shard.MyMenShard.Shard][0]].Bandwidth, (*ms)[LeaderBandID].Bandwidth =
+		(*ms)[LeaderBandID].Bandwidth, (*ms)[shard.ShardToGlobal[shard.MyMenShard.Shard][0]].Bandwidth
 	n := int(gVar.ShardCnt * gVar.ShardSize)
 	oldRep := make([]int64, n)
 	oldSumRep := make([]int64, n)
@@ -87,9 +89,9 @@ func RandomAttack(ms *[]shard.MemShard) {
 		oldRepComm[i].Init()
 		oldRepComm[i].Comm_x.Add((*ms)[i].RepComm.Comm_x, old)
 		oldRepComm[i].Comm_y.Add((*ms)[i].RepComm.Comm_y, old)
-		oldID[i] = (*ms)[i].AttackID;
+		oldID[i] = (*ms)[i].AttackID
 	}
-	rand.Seed(int64(CurrentEpoch+10))
+	rand.Seed(int64(CurrentEpoch + 10))
 	ri := rand.Perm(int(gVar.ShardSize * gVar.ShardCnt))
 	for i := 0; i < n; i++ {
 		oldRep[i], oldRep[ri[i]] = oldRep[ri[i]], oldRep[i]

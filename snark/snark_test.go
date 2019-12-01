@@ -46,7 +46,7 @@ func TestLP(t *testing.T) {
 	BabyJubJubCurve.Init()
 	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc)
 	Init()
-	ParamGenLP(gVar.LeaderDifficulty, gVar.LeaderBitSize)
+	//ParamGenLP(gVar.LeaderDifficulty, gVar.LeaderBitSize)
 	totalRep := uint64(10)
 	block_hash := [32]byte{66}
 	sl := 1

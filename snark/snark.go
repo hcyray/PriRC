@@ -1,6 +1,6 @@
 package snark
 
-// #cgo LDFLAGS: -L${SRCDIR} -lbaby_jubjub_ecc -lm  -lstdc++ -lsnark -lff  -lprocps -lgmp -lgmpxx
+// #cgo LDFLAGS: -L${SRCDIR} -lbaby_jubjub_ecc -lm  -lstdc++ -lsnark -lff -lzm  -lprocps -lgmp -lgmpxx
 // #include "baby_jubjub_ecc/prc.h"
 import "C"
 import (

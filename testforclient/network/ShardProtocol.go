@@ -65,7 +65,7 @@ func ShardProcess() {
 		if MyLeader.lc.Leader {
 			fmt.Println("I am a leader candidate")
 			shard.MyLeaderProof = GenerateLeaderProof(shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm,
-				shard.MyMenShard.TotalRep, shard.TotalRep, CurrentSlot, MyLeader.lc,shard.MyMenShard.AttackID)
+				shard.MyMenShard.TotalRep, shard.TotalRep, CurrentSlot, MyLeader.lc, shard.MyMenShard.AttackID)
 			MyLeader.mux.Unlock()
 			MyLeader.mux.RLock()
 			MyLeaderMessage = LeaderInfo{true, MyGlobalID, CurrentSlot, shard.MyMenShard.EpochSNID,
@@ -138,7 +138,7 @@ func ShardProcess() {
 					}
 				}
 			}
-			
+
 		}
 		time.Sleep(time.Second)
 		LeaderCandidate = append(LeaderCandidate, slotLeaderCandidate)
@@ -161,6 +161,7 @@ func ShardProcess() {
 			}
 		}
 	}
+
 	fmt.Println("Final Leader list: ", lList)
 	MyLeader.mux.Lock()
 	MyLeader.f = false
@@ -188,6 +189,15 @@ func ShardProcess() {
 			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].Shard = int(i)
 			shard.GlobalGroupMems[shard.ShardToGlobal[i][j]].InShardId = int(j)
 		}
+	}
+	if gVar.RandomAttack {
+		LeaderInd := 0
+		for shard.ShardToGlobal[shard.MyMenShard.Shard][LeaderInd] < int(gVar.ShardSize*gVar.ShardCnt/3) {
+			LeaderInd++
+		}
+		LeaderBandID = shard.ShardToGlobal[shard.MyMenShard.Shard][LeaderInd]
+		shard.GlobalGroupMems[shard.ShardToGlobal[shard.MyMenShard.Shard][0]].Bandwidth, shard.GlobalGroupMems[LeaderBandID].Bandwidth =
+			shard.GlobalGroupMems[LeaderBandID].Bandwidth, shard.GlobalGroupMems[shard.ShardToGlobal[shard.MyMenShard.Shard][0]].Bandwidth
 	}
 	//beginShard.GenerateSeed(&shard.PreviousSyncBlockHash)
 	//beginShard.Sharding(&shard.GlobalGroupMems, &shard.ShardToGlobal)

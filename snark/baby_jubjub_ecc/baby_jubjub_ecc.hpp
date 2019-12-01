@@ -1,12 +1,12 @@
 #ifndef BABY_JUBJUB_ECC_HPP_
 #define BABY_JUBJUB_ECC_HPP_
 
-#include <libff/algebra/curves/alt_bn128/alt_bn128_pp.hpp>
+#include <libff/algebra/curves/bn128/bn128_pp.hpp>
 #include <libsnark/gadgetlib1/protoboard.hpp>
 
 
 
-typedef libff::alt_bn128_pp ppT;
+typedef libff::bn128_pp ppT;
 typedef libff::Fr<ppT> FieldT;
 typedef libsnark::r1cs_constraint<FieldT> ConstraintT;
 typedef libsnark::protoboard<FieldT> ProtoboardT;
