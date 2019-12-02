@@ -19,7 +19,7 @@ const RepFN = 0
 
 //channel
 
-const SlidingWindows = 20
+const SlidingWindows = 8
 
 //NumTxListPerEpoch is the number of txblocks in one epoch
 const NumTxListPerEpoch = 10 //60
@@ -42,7 +42,7 @@ const GeneralSleepTime = 50
 
 var T1 time.Time = time.Now()
 
-const BandDiverse = true
+const BandDiverse = false
 
 // client for listen the leader
 const MyAddress = "172.31.83.178:9999"

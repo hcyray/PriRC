@@ -46,7 +46,7 @@ func TestLP(t *testing.T) {
 	BabyJubJubCurve.Init()
 	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc)
 	Init()
-	ParamGenLP(gVar.LeaderDifficulty, gVar.LeaderBitSize)
+	//ParamGenLP(gVar.LeaderDifficulty, gVar.LeaderBitSize)
 	totalRep := uint64(10)
 	block_hash := [32]byte{66}
 	sl := 1
@@ -58,11 +58,13 @@ func TestLP(t *testing.T) {
 	}
 	fmt.Println(sl)
 	proof_buf := ProveLP(b_m.Uint64(), b_r.Uint64(), pc.Comm_x.String(), pc.Comm_y.String(), totalRep,
-		b_m.Uint64(), 2, pc.Comm_x.String(), pc.Comm_y.String(), lc.BlockHash, sl, lc.RNComm.Comm_x.String(), lc.RNComm.Comm_y.String(), gVar.LeaderDifficulty, gVar.LeaderBitSize)
+		b_m.Uint64(), 2, pc.Comm_x.String(), pc.Comm_y.String(), lc.BlockHash, sl,
+		lc.RNComm.Comm_x.String(), lc.RNComm.Comm_y.String(), gVar.LeaderDifficulty, gVar.LeaderBitSize, 1)
 	pc.PrintPC()
 	lc.RNComm.PrintPC()
 	fmt.Println("verification result:", VerifyLP(proof_buf, pc.Comm_x.String(), pc.Comm_y.String(),
-		totalRep, pc.Comm_x.String(), pc.Comm_y.String(), lc.BlockHash, sl, lc.RNComm.Comm_x.String(), lc.RNComm.Comm_y.String()))
+		totalRep, pc.Comm_x.String(), pc.Comm_y.String(), lc.BlockHash, sl,
+		lc.RNComm.Comm_x.String(), lc.RNComm.Comm_y.String(), 1))
 }
 
 func TestIUP(t *testing.T) {

@@ -21,6 +21,8 @@ private:
     size_t difficulty;
     pb_variable<FieldT> less;
     pb_variable<FieldT> less_or_eq;
+    pb_variable<FieldT> less_avg_rep;
+    pb_variable<FieldT> less_or_eq_avg_rep;
     pb_variable<FieldT> rep; // rep score
     pb_variable<FieldT> full_rn_pack; // a random number
     pb_variable<FieldT> rn; // a random number with length of difficulty;
@@ -34,12 +36,13 @@ private:
     pb_variable_array<FieldT> rep_m;
     pb_variable_array<FieldT> rep_r;
     pb_variable_array<FieldT> full_rn;
-
+    pb_variable<FieldT> avg_rep;
     pb_variable<FieldT> repRN;
     std::shared_ptr<pedersen_commitment<FieldT>> snCommit;
     std::shared_ptr<pedersen_commitment<FieldT>> repCommit;
     std::shared_ptr<pedersen_hash<FieldT>> randomCommit;
     std::shared_ptr<comparison_gadget<FieldT>> rangeProof;
+    std::shared_ptr<comparison_gadget<FieldT>> rangeProof_avg_rep;
     std::shared_ptr<packing_gadget<FieldT> > pack_full_rn;
     std::shared_ptr<packing_gadget<FieldT> > pack_rn;
     std::shared_ptr<pedersen_hash<FieldT>> outRNCommit;
@@ -63,7 +66,7 @@ public:
                                const FieldT &in_total_rep, const FieldT &in_rep_m, const FieldT &in_rep_r,
                                const FieldT &rep_commit_x, const FieldT &rep_commit_y,
                                const FieldT &in_block_hash, const FieldT &in_sl,
-                               const FieldT &in_rn_x, const FieldT &in_rn_y);
+                               const FieldT &in_rn_x, const FieldT &in_rn_y, const FieldT & in_avg_rep);
 
     static size_t verifying_field_element_size() {
         return libff::div_ceil(verifying_input_bit_size(), FieldT::capacity());
@@ -80,6 +83,7 @@ public:
         acc += 253; // rep y
         acc += 253; // rn x
         acc += 253; // rn y
+        acc += 253; // avg rep
         return acc;
     }
 };

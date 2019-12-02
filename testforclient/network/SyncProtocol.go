@@ -66,8 +66,8 @@ func SyncProcess(ms *[]shard.MemShard) {
 	fmt.Println("Sync Finished")
 	shard.TotalRep = 0
 	for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
-		snark.BabyJubJubCurve.VerifyPedersenCommit((*ms)[i].TotalRep, int32((*ms)[i].AttackID+1), &(*ms)[i].RepComm)
-		shard.TotalRep += (*ms)[i].TotalRep
+		snark.BabyJubJubCurve.VerifyPedersenCommit((*ms)[i].CalTotalRep(), int32((*ms)[i].AttackID+1), &(*ms)[i].RepComm)
+		shard.TotalRep += (*ms)[i].CalTotalRep()
 	}
 	fmt.Println("TotalRep:", shard.TotalRep)
 }
@@ -78,18 +78,21 @@ func RandomAttack(ms *[]shard.MemShard) {
 	n := int(gVar.ShardCnt * gVar.ShardSize)
 	oldRep := make([]int64, n)
 	oldSumRep := make([]int64, n)
+	oldTotalRep := make([][]int64, n)
 	oldBand := make([]int, n)
 	oldRepComm := make([]snark.PedersenCommitment, n)
 	oldID := make([]int, n)
 	old := new(big.Int)
 	for i := 0; i < n; i++ {
 		oldRep[i] = (*ms)[i].Rep
-		oldSumRep[i] = (*ms)[i].TotalRep
+		oldSumRep[i] = (*ms)[i].CalTotalRep()
 		oldBand[i] = (*ms)[i].Bandwidth
 		oldRepComm[i].Init()
 		oldRepComm[i].Comm_x.Add((*ms)[i].RepComm.Comm_x, old)
 		oldRepComm[i].Comm_y.Add((*ms)[i].RepComm.Comm_y, old)
 		oldID[i] = (*ms)[i].AttackID
+		oldTotalRep[i] = make([]int64, len((*ms)[i].TotalRep))
+		copy(oldTotalRep[i], (*ms)[i].TotalRep)
 	}
 	rand.Seed(int64(CurrentEpoch + 10))
 	ri := rand.Perm(int(gVar.ShardSize * gVar.ShardCnt))
@@ -99,11 +102,12 @@ func RandomAttack(ms *[]shard.MemShard) {
 		oldBand[i], oldBand[ri[i]] = oldBand[ri[i]], oldBand[i]
 		oldRepComm[i], oldRepComm[ri[i]] = oldRepComm[ri[i]], oldRepComm[i]
 		oldID[i], oldID[ri[i]] = oldID[ri[i]], oldID[i]
+		oldTotalRep[i], oldTotalRep[ri[i]] = oldTotalRep[ri[i]], oldTotalRep[i]
 	}
 	for i := 0; i < n; i++ {
 		(*ms)[i].Rep = oldRep[i]
 		(*ms)[i].Bandwidth = oldBand[i]
-		(*ms)[i].TotalRep = oldSumRep[i]
+		copy((*ms)[i].TotalRep, oldTotalRep[i])
 		(*ms)[i].SetPriRepPC(oldRepComm[i])
 		(*ms)[i].AttackID = oldID[i]
 	}

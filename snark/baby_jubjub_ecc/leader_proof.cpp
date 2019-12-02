@@ -26,6 +26,7 @@ leader_proof<FieldT>::leader_proof(protoboard<FieldT> &pb, const size_t &in_diff
     total_rep.allocate(pb, FMT(annotation_prefix, " total rep"));
     rn_x.allocate(pb, FMT(annotation_prefix, " rn x"));
     rn_y.allocate(pb, FMT(annotation_prefix, " rn y"));
+    avg_rep.allocate(pb,FMT(annotation_prefix, "avg rep score"));
     pb.set_input_sizes(verifying_field_element_size());
 
     sn_m.allocate(pb, 253, FMT(annotation_prefix, "sn m"));
@@ -44,6 +45,8 @@ leader_proof<FieldT>::leader_proof(protoboard<FieldT> &pb, const size_t &in_diff
     repDiff.allocate(pb, FMT(annotation_prefix, " rep times diff"));
     less.allocate(pb, FMT(annotation_prefix, "less"));
     less_or_eq.allocate(pb, FMT(annotation_prefix, "less_or_eq"));
+    less_avg_rep.allocate(pb, FMT(annotation_prefix, "less"));
+    less_or_eq_avg_rep.allocate(pb, FMT(annotation_prefix, "less_or_eq"));
 
     snCommit.reset(new pedersen_commitment<FieldT>(pb, FMT(annotation_prefix, "SN Pedersen Commitment")));
     repCommit.reset(new pedersen_commitment<FieldT>(pb, FMT(annotation_prefix, "Rep Pedersen Commitment")));
@@ -53,6 +56,7 @@ leader_proof<FieldT>::leader_proof(protoboard<FieldT> &pb, const size_t &in_diff
     pack_rn.reset(new packing_gadget<FieldT>(pb, pb_variable_array<FieldT>(full_rn.begin(), full_rn.begin()+n), rn, FMT(annotation_prefix, " pack rn")));
 
     rangeProof.reset(new comparison_gadget<FieldT>(pb, 253, repRN, repDiff, less, less_or_eq, FMT(this->annotation_prefix, "cmp")));
+    rangeProof_avg_rep.reset(new comparison_gadget<FieldT>(pb, 253, avg_rep, rep, less_avg_rep, less_or_eq_avg_rep, FMT(this->annotation_prefix, "cmp avg rep")));
 
 }
 
@@ -75,7 +79,10 @@ void leader_proof<FieldT>::generate_r1cs_constraints(){
     this->pb.add_r1cs_constraint(r1cs_constraint<FieldT>( rep, (FieldT(2)^(n+difficulty)),  repDiff),
                                  FMT(this-> annotation_prefix, " rep times diff"));
     rangeProof->generate_r1cs_constraints();
+    rangeProof_avg_rep->generate_r1cs_constraints();
     this->pb.add_r1cs_constraint(r1cs_constraint<FieldT>(less, FieldT::one(), FieldT::one()),
+                                 FMT(this-> annotation_prefix, " check comparison"));
+    this->pb.add_r1cs_constraint(r1cs_constraint<FieldT>(less_or_eq_avg_rep, FieldT::one(), FieldT::one()),
                                  FMT(this-> annotation_prefix, " check comparison"));
 }
 
@@ -85,7 +92,7 @@ void leader_proof<FieldT>::generate_r1cs_witness(const FieldT &in_sn_m, const Fi
                                                  const FieldT &in_total_rep, const FieldT &in_rep_m, const FieldT &in_rep_r,
                                                  const FieldT &rep_commit_x, const FieldT &rep_commit_y,
                                                  const FieldT &in_block_hash, const FieldT &in_sl,
-                                                 const FieldT &in_rn_x, const FieldT &in_rn_y)
+                                                 const FieldT &in_rn_x, const FieldT &in_rn_y, const FieldT & in_avg_rep)
 {
     this -> pb.val(total_rep) = in_total_rep;
     this -> pb.val(block_hash) = in_block_hash;
@@ -100,6 +107,7 @@ void leader_proof<FieldT>::generate_r1cs_witness(const FieldT &in_sn_m, const Fi
     fill_with_bits_of_field_element_baby_jubjub<FieldT>(this -> pb, rep_m, in_rep_m);
     fill_with_bits_of_field_element_baby_jubjub<FieldT>(this -> pb, rep_r, in_rep_r);
     this -> pb.val(rep) = in_rep_m - FieldT(30000000000);
+    this -> pb.val(avg_rep) = in_avg_rep;
     //commitment of sn and rep
     snCommit->generate_r1cs_witness(sn_x, sn_y, this->sn_m, this->sn_r);
     repCommit->generate_r1cs_witness(rep_x, rep_y, this->rep_m, this->rep_r);
@@ -126,5 +134,6 @@ void leader_proof<FieldT>::generate_r1cs_witness(const FieldT &in_sn_m, const Fi
 //    cout << this -> pb.val(repRN) << endl;
 //    cout << this -> pb.val(repDiff) << endl;
     rangeProof->generate_r1cs_witness();
+    rangeProof_avg_rep->generate_r1cs_witness();
 }
 

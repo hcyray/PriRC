@@ -102,7 +102,7 @@ func main() {
 	if network.CacheDbRef.ID == 0 {
 		tmpStr := fmt.Sprint("TotalRep")
 		for i := uint32(0); i < gVar.ShardCnt*gVar.ShardSize; i++ {
-			tmpStr = tmpStr + fmt.Sprint(shard.GlobalGroupMems[i].TotalRep, " ")
+			tmpStr = tmpStr + fmt.Sprint(shard.GlobalGroupMems[i].CalTotalRep(), " ")
 		}
 		network.SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 		if gVar.BandDiverse {

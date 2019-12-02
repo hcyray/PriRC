@@ -43,7 +43,6 @@ func ShardProcess() {
 			shard.GlobalGroupMems[i].ClearRep()
 		}
 	} else {
-		//TODO move to other place
 		for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
 			shard.GlobalGroupMems[i].AttackID = i
 		}
@@ -60,12 +59,12 @@ func ShardProcess() {
 		fmt.Println("Leader Election, slot: ", CurrentSlot)
 
 		MyLeader.lc.LeaderCal(&shard.MyMenShard.EpochSNID, &shard.MyMenShard.RepComm,
-			blockHash, CurrentSlot, shard.TotalRep, shard.MyMenShard.TotalRep)
+			blockHash, CurrentSlot, shard.TotalRep, shard.MyMenShard.CalTotalRep())
 
 		if MyLeader.lc.Leader {
 			fmt.Println("I am a leader candidate")
 			shard.MyLeaderProof = GenerateLeaderProof(shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm,
-				shard.MyMenShard.TotalRep, shard.TotalRep, CurrentSlot, MyLeader.lc, shard.MyMenShard.AttackID)
+				shard.MyMenShard.CalTotalRep(), shard.TotalRep, CurrentSlot, MyLeader.lc, shard.MyMenShard.AttackID)
 			MyLeader.mux.Unlock()
 			MyLeader.mux.RLock()
 			MyLeaderMessage = LeaderInfo{true, MyGlobalID, CurrentSlot, shard.MyMenShard.EpochSNID,
@@ -262,13 +261,13 @@ func GenerateLeaderProof(SNID snark.PedersenCommitment, RepComm snark.PedersenCo
 	sl int, LC snark.LeaderCalInfo, ind int) [312]byte {
 	return snark.ProveLP(1, uint64(MyGlobalID), SNID.Comm_x.String(), SNID.Comm_y.String(), uint64(totalRep),
 		uint64(rep+gVar.RepUint64ToInt32), uint64(ind+1), RepComm.Comm_x.String(), RepComm.Comm_y.String(),
-		LC.BlockHash, sl, LC.RNComm.Comm_x.String(), LC.RNComm.Comm_y.String(), gVar.LeaderDifficulty, gVar.LeaderBitSize)
+		LC.BlockHash, sl, LC.RNComm.Comm_x.String(), LC.RNComm.Comm_y.String(), gVar.LeaderDifficulty, gVar.LeaderBitSize, uint64(totalRep/int64(gVar.ShardSize)))
 }
 
 func VerifyLeaderProof(proof [312]byte, SNID snark.PedersenCommitment, RepComm snark.PedersenCommitment, totalRep int64,
 	sl int, blockHash string, RNComm snark.PedersenCommitment) bool {
 	return snark.VerifyLP(proof, SNID.Comm_x.String(), SNID.Comm_y.String(), uint64(totalRep), RepComm.Comm_x.String(), RepComm.Comm_y.String(),
-		blockHash, sl, RNComm.Comm_x.String(), RNComm.Comm_y.String())
+		blockHash, sl, RNComm.Comm_x.String(), RNComm.Comm_y.String(), uint64(totalRep/int64(gVar.ShardSize)))
 }
 
 //LeaderReadyProcess leader use this

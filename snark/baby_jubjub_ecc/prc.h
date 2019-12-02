@@ -44,7 +44,8 @@ void prc_prove_lp(
         char* rn_x,
         char* rn_y,
         int d,
-        int n
+        int n,
+        ulong avg_rep
 );
 bool prc_verify_lp(
         void *output_proof_ptr,
@@ -56,7 +57,8 @@ bool prc_verify_lp(
         char* block_hash,
         int sl,
         char* rn_x,
-        char* rn_y
+        char* rn_y,
+        ulong avg_rep
 );
 void prc_paramgen_lp(int d, int n);
 

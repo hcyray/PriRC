@@ -54,7 +54,10 @@ func NewSynBlock(ms *[]shard.MemShard, prevSyncBlockHash [][32]byte, prevRepBloc
 
 			}
 		}
-		item.TotalRep += item.Rep
+		if len(item.TotalRep) == gVar.SlidingWindows {
+			item.AddPriRep(0 - item.TotalRep[0])
+		}
+		item.SetTotalRep(item.Rep)
 		item.AddPriRep(item.Rep)
 		idList = append(idList, shard.ShardToGlobal[shard.MyMenShard.Shard][i])
 		repList = append(repList, item.Rep)

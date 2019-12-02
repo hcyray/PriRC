@@ -15,15 +15,15 @@ type MemShard struct {
 	Address        string //ip+port
 	PrivateAddress string
 	PublicAddress  string
-	Rep            int64 //rep this epoch
-	TotalRep       int64 //rep all the time
+	Rep            int64   //rep this epoch
+	TotalRep       []int64 //rep all the time
 	// Pedersen Commitment for totalrep
 	RepComm snark.PedersenCommitment
 	//TotalRep       []int32 //rep over several epoch
 	CosiPub     ed25519.PublicKey
 	Shard       int
 	InShardId   int
-	AttackID    int // used for simulate attack 
+	AttackID    int // used for simulate attack
 	EpochSNID   snark.PedersenCommitment
 	Role        byte //1 - member, 0 - leader
 	Legal       byte //0 - legal,  1 - kickout
@@ -44,7 +44,7 @@ func (ms *MemShard) NewMemShard(acc *account.RcAcc, addr string, band int) {
 	ms.Legal = 0
 	ms.Role = 1
 	ms.Rep = 1000
-	ms.TotalRep = 1000
+	ms.TotalRep = []int64{}
 	ms.Bandwidth = band
 	ms.InitialPedersenCommitment()
 }
@@ -164,21 +164,21 @@ func (ms *MemShard) AddPriRep(value int64) {
 //}
 
 //SetTotalRep set totalrep
-//func (ms *MemShard) SetTotalRep(value int32) {
-//	if len(ms.TotalRep) == gVar.SlidingWindows {
-//		ms.TotalRep = ms.TotalRep[1:]
-//	}
-//	ms.TotalRep = append(ms.TotalRep, value)
-//}
+func (ms *MemShard) SetTotalRep(value int64) {
+	if len(ms.TotalRep) == gVar.SlidingWindows {
+		ms.TotalRep = ms.TotalRep[1:]
+	}
+	ms.TotalRep = append(ms.TotalRep, value)
+}
 
 //CalTotalRep cal total rep over epoches
-//func (ms *MemShard) CalTotalRep() int32 {
-//	sum := int32(0)
-//	for i := range ms.TotalRep {
-//		sum += ms.TotalRep[i]
-//	}
-//	return sum
-//}
+func (ms *MemShard) CalTotalRep() int64 {
+	sum := int64(0)
+	for i := range ms.TotalRep {
+		sum += ms.TotalRep[i]
+	}
+	return sum
+}
 
 //ClearRep clear rep
 func (ms *MemShard) ClearRep() {
