@@ -135,11 +135,13 @@ func (ms *MemShard) AddPriRep(value int64) {
 	//ms.Rep += value
 	b_m := new(big.Int)
 	b_r := new(big.Int)
-	b_m.SetInt64(value)
-	b_r.SetInt64(0)
 	if value >= 0 {
+		b_m.SetInt64(value)
+		b_r.SetInt64(0)
 		snark.BabyJubJubCurve.AddMToPedersenCommitment(b_m, &ms.RepComm, true)
 	} else {
+		b_m.SetInt64(-value)
+		b_r.SetInt64(0)
 		snark.BabyJubJubCurve.AddMToPedersenCommitment(b_m, &ms.RepComm, false)
 	}
 
@@ -165,6 +167,9 @@ func (ms *MemShard) AddPriRep(value int64) {
 
 //SetTotalRep set totalrep
 func (ms *MemShard) SetTotalRep(value int64) {
+	if len(ms.TotalRep) == 0 {
+		ms.TotalRep = append(ms.TotalRep, value+1000)
+	}
 	if len(ms.TotalRep) == gVar.SlidingWindows {
 		ms.TotalRep = ms.TotalRep[1:]
 	}

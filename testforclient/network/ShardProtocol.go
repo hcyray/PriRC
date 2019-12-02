@@ -254,9 +254,17 @@ func ShardProcess() {
 	}
 	fmt.Println("shard finished")
 	if CacheDbRef.ID == 0 {
+
 		tmpStr := fmt.Sprint("Epoch", CurrentEpoch, ":")
+		tmpStr = fmt.Sprint("Previous Epoch Rep:")
 		for i := uint32(0); i < gVar.ShardCnt*gVar.ShardSize; i++ {
-			tmpStr = tmpStr + fmt.Sprint(shard.GlobalGroupMems[i].TotalRep, " ")
+			tmpStr = tmpStr + fmt.Sprint(shard.GlobalGroupMems[i].CalTotalRep(), " ")
+		}
+		if gVar.BandDiverse {
+			tmpStr = fmt.Sprint("Previous Epoch Band:")
+			for i := uint32(0); i < gVar.ShardCnt*gVar.ShardSize; i++ {
+				tmpStr = tmpStr + fmt.Sprint(shard.GlobalGroupMems[i].Bandwidth, " ")
+			}
 		}
 		sendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 	}
