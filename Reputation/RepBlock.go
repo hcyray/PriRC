@@ -123,7 +123,7 @@ func (b *RepBlock) Print() {
 func (b *RepBlock) VerifyCoSignature(ms *[]shard.MemShard) bool {
 	//verify signature
 	return true
-	//TODO currently, the follows are useless
+	// currently, the follows are useless
 	/*
 		var pubKeys []ed25519.PublicKey
 		sbMessage := b.PrevRepBlockHash[:]

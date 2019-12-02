@@ -235,7 +235,7 @@ func MemberCoSiRepProcess(ms *[]shard.MemShard, res repInfo) (bool, []byte) {
 		fmt.Println("Rep Block from leader is wrong!")
 		//tmpStr := fmt.Sprintln(CacheDbRef.ID, "Get wrong SBM from leader")
 		//sendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
-		//TODO send warning
+
 	}
 	fmt.Println(time.Now(), "received cosi announce")
 

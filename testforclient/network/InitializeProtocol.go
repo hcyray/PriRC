@@ -85,7 +85,7 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 	//snark.ParamGenLP(1, 4)
 	//snark.ParamGenIUP(shard.MyIDMTProof.Depth)
 	//tmp, _ := x509.MarshalECPrivateKey(&acc[i].Pri)
-	//TODO need modify
+
 	for i := 0; i < int(IPCnt); i++ {
 		scannerPri.Scan()
 		IPAddrPri = scannerPri.Text()

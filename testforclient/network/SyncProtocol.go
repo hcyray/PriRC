@@ -139,7 +139,7 @@ func ReceiveSyncProcess(k int, wg *sync.WaitGroup, ms *[]shard.MemShard) {
 					//aski[k] = (aski[k] + 1) % int(gVar.ShardSize)
 					fmt.Println("Verifyied cosi falied")
 					sbrxflag = false
-					//TODO test
+
 					//tbrxflag = true
 					//go SendSyncMessage((*ms)[shard.ShardToGlobal[k][aski[k]]].Address, "requestSync", syncRequestInfo{MyGlobalID, CurrentEpoch})
 				}
@@ -175,7 +175,7 @@ func ReceiveSyncProcess(k int, wg *sync.WaitGroup, ms *[]shard.MemShard) {
 	}
 	if !sbrxflag && !tbrxflag {
 		//add transaction block
-		//TODO test
+
 		CacheDbRef.Mu.Lock()
 		CacheDbRef.GetFinalTxBlock(&txBlockMessage.Block)
 		CacheDbRef.Mu.Unlock()
@@ -227,7 +227,7 @@ func HandleRequestSync(request []byte) {
 		return
 	}
 	if payload.Epoch == Reputation.CurrentSyncBlock.Epoch {
-		//TODO test
+
 		tmp := syncTBInfo{MyGlobalID, *(CacheDbRef.FB[CacheDbRef.HistoryShard[payload.Epoch]])}
 		sendTxMessage(addr, "syncTB", tmp.Encode())
 		SendSyncMessage(addr, "syncSB", syncSBInfo{MyGlobalID, *Reputation.CurrentSyncBlock.Block})
