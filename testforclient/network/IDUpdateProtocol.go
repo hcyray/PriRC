@@ -102,14 +102,14 @@ func GenIDUpateProof(IDMTP snark.MerkleProof, RepMTP snark.MerkleProof, rep int6
 		RepMTP.AddressBitToAdd(), RepMTP.Leaf_x, RepMTP.Leaf_y, RepMTP.Root_x, RepMTP.Root_y, RepMTP.PathVar,
 		uint64(CurrentEpoch+2), uint64(MyGlobalID), shard.MyMenShard.EpochSNID.Comm_x.String(), shard.MyMenShard.EpochSNID.Comm_y.String(),
 		uint64(rep+gVar.RepUint64ToInt32), uint64(CurrentEpoch+2+MyGlobalID),
-		shard.MyMenShard.RepComm.Comm_x.String(), shard.MyMenShard.RepComm.Comm_y.String(), 2)
+		shard.MyMenShard.RepComm.Comm_x.String(), shard.MyMenShard.RepComm.Comm_y.String(), 1)
 
 }
 
 func VerifyIDUpdate(x int, id snark.PedersenCommitment, rep snark.PedersenCommitment, proof [312]byte) bool {
 
 	res := snark.VerifyIUP(proof, shard.MyIDMTProof.Root_x, shard.MyIDMTProof.Root_y, shard.MyRepMTProof.Root_x, shard.MyRepMTProof.Root_y,
-		id.Comm_x.String(), id.Comm_y.String(), rep.Comm_x.String(), rep.Comm_y.String(), 2)
+		id.Comm_x.String(), id.Comm_y.String(), rep.Comm_x.String(), rep.Comm_y.String(), 1)
 	if !res {
 		fmt.Println("Verify IDUpdate failed from client:", x)
 	}
