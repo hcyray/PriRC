@@ -3,7 +3,7 @@
 
 #include <libff/algebra/curves/bn128/bn128_pp.hpp>
 #include <libsnark/gadgetlib1/protoboard.hpp>
-
+#include <libsnark/gadgetlib1/gadget.hpp>
 
 
 typedef libff::bn128_pp ppT;

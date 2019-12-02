@@ -14,10 +14,11 @@ import (
 func TestParamGen(t *testing.T) {
 	n := int(gVar.ShardSize * gVar.ShardCnt)
 	d := int(math.Log2(float64(n)))
+	w := 2
 	fmt.Println(d)
 	Init()
 	ParamGenHPC()
-	ParamGenIUP(d)
+	ParamGenIUP(d, w)
 	ParamGenLP(gVar.LeaderDifficulty, gVar.LeaderBitSize)
 }
 
@@ -121,15 +122,15 @@ func TestIUP(t *testing.T) {
 	pc2.Init()
 	BabyJubJubCurve.Init()
 	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc2)
-
+	w := 2
 	Init()
-	ParamGenIUP(d)
+	ParamGenIUP(d, w)
 	proof_buf := ProveIUP(d, idAdd, idLeafX, idLeafY, idRootX, idRootY, idPath,
 		repAdd, repLeafX, repLeafY, repRootX, repRootY, repPath, 2, 2, pc1.Comm_x.String(), pc1.Comm_y.String(),
-		2, 2, pc2.Comm_x.String(), pc2.Comm_y.String())
+		2, 2, pc2.Comm_x.String(), pc2.Comm_y.String(), w)
 	fmt.Println("Ok")
 	fmt.Println("verification result:", VerifyIUP(proof_buf, idRootX, idRootY, repRootX, repRootY,
-		pc1.Comm_x.String(), pc1.Comm_y.String(), pc2.Comm_x.String(), pc2.Comm_y.String()))
+		pc1.Comm_x.String(), pc1.Comm_y.String(), pc2.Comm_x.String(), pc2.Comm_y.String(), w))
 }
 
 func TestPedersenCommitment(t *testing.T) {
@@ -182,7 +183,7 @@ func TestMerkleTree(t *testing.T) {
 	for i := 0; i < n; i++ {
 		pc[i].Init()
 		b_m.SetInt64(int64(i))
-		b_r.SetInt64(8)
+		b_r.SetInt64(48)
 		BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, &pc[i])
 	}
 	var mt MerkleTree

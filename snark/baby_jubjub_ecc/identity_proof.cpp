@@ -220,9 +220,12 @@ void merkle_path_compute::generate_r1cs_witness(
 identity_update_proof::identity_update_proof(
             ProtoboardT &pb,
             const size_t& in_depth,
+            const size_t& in_w,
             const std::string &annotation_prefix
     ) : GadgetT(pb, annotation_prefix)
 {
+    d = in_depth;
+    w = in_w;
     old_id_expected_root_x.allocate(pb, FMT(annotation_prefix, " old id expected root x"));
     old_id_expected_root_y.allocate(pb, FMT(annotation_prefix, " old id expected root y"));
     old_rep_expected_root_x.allocate(pb, FMT(annotation_prefix, " old rep expected root x"));
@@ -231,17 +234,32 @@ identity_update_proof::identity_update_proof(
     new_id_comm_y.allocate(pb, FMT(annotation_prefix, " new id comm y"));
     new_rep_comm_x.allocate(pb, FMT(annotation_prefix, " new rep comm x"));
     new_rep_comm_y.allocate(pb, FMT(annotation_prefix, " new rep comm y"));
-    pb.set_input_sizes(verifying_field_element_size());
+    new_epoch_rep_comm_x.allocate(pb, FMT(annotation_prefix, " new epoch rep comm x"));
+    new_epoch_rep_comm_y.allocate(pb, FMT(annotation_prefix, " new epoch rep comm y"));
+    new_rep_matrix_comm_x.allocate(pb, in_w, FMT(annotation_prefix, "new rep matrix x"));
+    new_rep_matrix_comm_y.allocate(pb, in_w, FMT(annotation_prefix, "new rep matrix y"));
+    old_rep_matrix_expected_root_x.allocate(pb, in_w, FMT(annotation_prefix, "old rep matrix root x"));
+    old_rep_matrix_expected_root_y.allocate(pb, in_w, FMT(annotation_prefix, "old rep matrix root y"));
+
+    pb.set_input_sizes(verifying_field_element_size(in_w));
 
     new_id_m.allocate(pb, 253, FMT(annotation_prefix, " new id m"));
     new_id_r.allocate(pb, 253, FMT(annotation_prefix, " new id r"));
     new_rep_m.allocate(pb, 253, FMT(annotation_prefix, " new rep m"));
     new_rep_r.allocate(pb, 253, FMT(annotation_prefix, " new rep r"));
+    new_epoch_rep_m.allocate(pb, 253, FMT(annotation_prefix, " new epoch rep m"));
+    new_epoch_rep_r.allocate(pb, 253, FMT(annotation_prefix, " new epoch rep r"));
 
     new_id_pedersen_comm.reset(new pedersen_commitment<FieldT>(pb, FMT(annotation_prefix, " new id pedersen commitment")));
     new_rep_pedersen_comm.reset(new pedersen_commitment<FieldT>(pb, FMT(annotation_prefix, " new rep pedersen commitment")));
+    new_epoch_rep_pedersen_comm.reset(new pedersen_commitment<FieldT>(pb, FMT(annotation_prefix, " new epoch rep pedersen commitment")));
     old_id_merkle_tree.reset(new merkle_path_compute(pb, in_depth, FMT(annotation_prefix," id merkle tree")));
     old_rep_merkle_tree.reset(new merkle_path_compute(pb, in_depth, FMT(annotation_prefix," rep merkle tree")));
+   for(size_t i=0; i < in_w; i ++) {
+        old_rep_matrix_merkle_tree.emplace_back(new merkle_path_compute(pb, in_depth, FMT(annotation_prefix," rep matrix merkle tree")));
+        new_epoch_rep_matrix_comm.emplace_back(new pedersen_commitment<FieldT>(pb, FMT(annotation_prefix, " new rep matirx commitment")));
+    }
+
 }
 
 
@@ -249,9 +267,13 @@ void identity_update_proof::generate_r1cs_constraints()
 {
     new_id_pedersen_comm -> generate_r1cs_constraints();
     new_rep_pedersen_comm -> generate_r1cs_constraints();
+    new_epoch_rep_pedersen_comm->generate_r1cs_constraints();
     old_id_merkle_tree -> generate_r1cs_constraints();
     old_rep_merkle_tree -> generate_r1cs_constraints();
-
+    for(size_t i=0; i < w; i ++) {
+        old_rep_matrix_merkle_tree[i]->generate_r1cs_constraints();
+        new_epoch_rep_matrix_comm[i]->generate_r1cs_constraints();
+    }
     // Ensure root matches calculated path hash
 
 }
@@ -274,16 +296,28 @@ void identity_update_proof::generate_r1cs_witness(
     pb.val(new_id_comm_y) = in_new_id_y;
     pb.val(new_rep_comm_x) = in_new_rep_x;
     pb.val(new_rep_comm_y) = in_new_rep_y;
+    pb.val(new_epoch_rep_comm_x) = in_new_rep_x;
+    pb.val(new_epoch_rep_comm_y) = in_new_rep_y;
 
     fill_with_bits_of_field_element_baby_jubjub<FieldT>(pb, new_id_m, in_new_id_m);
     fill_with_bits_of_field_element_baby_jubjub<FieldT>(pb, new_id_r, in_new_id_r);
     fill_with_bits_of_field_element_baby_jubjub<FieldT>(pb, new_rep_m, in_new_rep_m);
     fill_with_bits_of_field_element_baby_jubjub<FieldT>(pb, new_rep_r, in_new_rep_r);
-
+    fill_with_bits_of_field_element_baby_jubjub<FieldT>(pb, new_epoch_rep_m, in_new_rep_m);
+    fill_with_bits_of_field_element_baby_jubjub<FieldT>(pb, new_epoch_rep_r, in_new_rep_r);
     new_id_pedersen_comm -> generate_r1cs_witness(new_id_comm_x, new_id_comm_y, new_id_m, new_id_r);
     new_rep_pedersen_comm ->generate_r1cs_witness(new_rep_comm_x, new_rep_comm_y, new_rep_m, new_rep_r);
+    new_epoch_rep_pedersen_comm->generate_r1cs_witness(new_epoch_rep_comm_x, new_epoch_rep_comm_y, new_rep_m, new_rep_r);
     old_id_merkle_tree->generate_r1cs_witness(in_id_address_bits, in_id_leaf_x, in_id_leaf_y, in_id_path, old_id_expected_root_x, old_id_expected_root_y);
     old_rep_merkle_tree->generate_r1cs_witness(in_rep_address_bits, in_rep_leaf_x, in_rep_leaf_y, in_rep_path, old_rep_expected_root_x, old_rep_expected_root_y);
 
+    for(size_t i=0; i < w; i ++) {
+        pb.val(old_rep_matrix_expected_root_x[i]) = in_rep_expected_root_x;
+        pb.val(old_rep_matrix_expected_root_y[i]) = in_rep_expected_root_y;
+        pb.val(new_rep_matrix_comm_x[i]) = in_new_rep_x;
+        pb.val(new_rep_matrix_comm_y[i]) = in_new_rep_y;
+        old_rep_matrix_merkle_tree[i]->generate_r1cs_witness(in_rep_address_bits, in_rep_leaf_x, in_rep_leaf_y, in_rep_path, old_rep_matrix_expected_root_x[i], old_rep_matrix_expected_root_y[i]);
+        new_epoch_rep_matrix_comm[i]->generate_r1cs_witness(new_rep_matrix_comm_x[i], new_rep_matrix_comm_y[i], new_rep_m, new_rep_r);
+    }
 }
 

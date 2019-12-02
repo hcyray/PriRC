@@ -214,7 +214,7 @@ void prc_paramgen_lp(int d, int n) {
 }
 
 bool prc_verify_iup(void *proof_ptr, char* old_id_root_x, char* old_id_root_y, char* old_rep_root_x, char* old_rep_root_y,
-                   char* new_id_x, char* new_id_y, char* new_rep_x, char* new_rep_y) {
+                   char* new_id_x, char* new_id_y, char* new_rep_x, char* new_rep_y,int w) {
     unsigned char *proof = reinterpret_cast<unsigned char *>(proof_ptr);
     //input proof
     std::vector<unsigned char> proof_v(proof, proof+312);
@@ -237,7 +237,20 @@ bool prc_verify_iup(void *proof_ptr, char* old_id_root_x, char* old_id_root_y, c
     witness_map.insert(witness_map.end(), FieldT(new_id_y));
     witness_map.insert(witness_map.end(), FieldT(new_rep_x));
     witness_map.insert(witness_map.end(), FieldT(new_rep_y));
-
+    witness_map.insert(witness_map.end(), FieldT(new_rep_x));
+    witness_map.insert(witness_map.end(), FieldT(new_rep_y));
+    for(int i=0; i < w; i ++){
+        witness_map.insert(witness_map.end(), FieldT(new_rep_x));
+    }
+    for(int i=0; i < w; i ++){
+        witness_map.insert(witness_map.end(), FieldT(new_rep_y));
+    }
+    for(int i=0; i < w; i ++){
+        witness_map.insert(witness_map.end(), FieldT(old_rep_root_x));
+    }
+    for(int i=0; i < w; i ++){
+        witness_map.insert(witness_map.end(), FieldT(old_rep_root_y));
+    }
     r1cs_ppzksnark_verification_key<libff::bn128_pp> verification_key;
     loadFromFile<r1cs_ppzksnark_verification_key<ppT>>("iup.vk", verification_key);
     return r1cs_ppzksnark_verifier_strong_IC<libff::bn128_pp>(verification_key, witness_map, proof_obj);
@@ -247,10 +260,10 @@ bool prc_verify_iup(void *proof_ptr, char* old_id_root_x, char* old_id_root_y, c
 void prc_prove_iup(void *output_proof_ptr, int depth, ulong in_id_address, char* id_leaf_x, char* id_leaf_y,
         char* id_root_x, char* id_root_y, char* in_id_path[], ulong in_rep_address, char* rep_leaf_x, char * rep_leaf_y,
         char* rep_root_x, char* rep_root_y, char* in_rep_path[], ulong id_m, ulong id_r, char* id_x, char* id_y,
-        ulong rep_m, ulong rep_r, char* rep_x, char* rep_y){
+        ulong rep_m, ulong rep_r, char* rep_x, char* rep_y, int w){
     unsigned char *output_proof = reinterpret_cast<unsigned char *>(output_proof_ptr);
     protoboard<FieldT> pb;
-    identity_update_proof g(pb, depth," identity update");
+    identity_update_proof g(pb, depth,w," identity update");
     vector<FieldT> id_address_bits, rep_address_bits, id_path, rep_path;
     bool in_id_address_bits[depth];
     bool in_rep_address_bits[depth];
@@ -294,9 +307,9 @@ void prc_prove_iup(void *output_proof_ptr, int depth, ulong in_id_address, char*
     }
 }
 
-void prc_paramgen_iup(int depth) {
+void prc_paramgen_iup(int depth, int w) {
     protoboard<FieldT> pb;
-    identity_update_proof g(pb, depth," identity update");
+    identity_update_proof g(pb, depth, w," identity update");
     g.generate_r1cs_constraints();
 
     const r1cs_constraint_system<FieldT> constraint_system = pb.get_constraint_system();

@@ -6,9 +6,9 @@
 #include <cassert>
 #include <memory>
 #include "pedersen_commitment.hpp"
-#include <libsnark/gadgetlib1/gadget.hpp>
 #include <libsnark/gadgetlib1/gadgets/basic_gadgets.hpp>
-
+#include "libff/algebra/curves/bn128/bn128_pp.hpp" //hold key
+#include <baby_jubjub_ecc.hpp>
 
 
 using namespace libsnark;

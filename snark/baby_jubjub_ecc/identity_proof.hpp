@@ -145,12 +145,18 @@ private:
     std::shared_ptr<merkle_path_compute> old_rep_merkle_tree;
     std::shared_ptr<pedersen_commitment<FieldT>> new_id_pedersen_comm;
     std::shared_ptr<pedersen_commitment<FieldT>> new_rep_pedersen_comm;
+    std::shared_ptr<pedersen_commitment<FieldT>> new_epoch_rep_pedersen_comm;
+    std::vector<std::shared_ptr<pedersen_commitment<FieldT>>> new_epoch_rep_matrix_comm;
+    std::vector<std::shared_ptr<merkle_path_compute>> old_rep_matrix_merkle_tree;
 
     VariableArrayT new_id_m;
     VariableArrayT new_id_r;
 
     VariableArrayT new_rep_m;
     VariableArrayT new_rep_r;
+
+    VariableArrayT new_epoch_rep_m;
+    VariableArrayT new_epoch_rep_r;
 public:
     VariableT   old_id_expected_root_x;
     VariableT   old_id_expected_root_y;
@@ -160,10 +166,18 @@ public:
     VariableT   new_id_comm_y;
     VariableT   new_rep_comm_x;
     VariableT   new_rep_comm_y;
-
+    VariableT   new_epoch_rep_comm_x;
+    VariableT   new_epoch_rep_comm_y;
+    VariableArrayT old_rep_matrix_expected_root_x;
+    VariableArrayT old_rep_matrix_expected_root_y;
+    VariableArrayT new_rep_matrix_comm_x;
+    VariableArrayT new_rep_matrix_comm_y;
+    size_t      w;
+    size_t      d;
     identity_update_proof(
         ProtoboardT &in_pb,
         const size_t& in_depth,
+        const size_t& in_w,
         const std::string &in_annotation_prefix
     );
 
@@ -178,11 +192,11 @@ public:
             const FieldT &in_new_id_m, const FieldT &in_new_id_r, const FieldT &in_new_id_x, const FieldT &in_new_id_y,
             const FieldT &in_new_rep_m, const FieldT &in_new_rep_r, const FieldT &in_new_rep_x, const FieldT &in_new_rep_y
             );
-    static size_t verifying_field_element_size() {
-        return libff::div_ceil(verifying_input_bit_size(), FieldT::capacity());
+    static size_t verifying_field_element_size(size_t w) {
+        return libff::div_ceil(verifying_input_bit_size(w), FieldT::capacity());
     }
 
-    static size_t verifying_input_bit_size() {
+    static size_t verifying_input_bit_size(size_t w) {
         size_t acc = 0;
         acc += 253; // old id expected root commitment x
         acc += 253; // old id expected root commitment y
@@ -192,6 +206,12 @@ public:
         acc += 253; // new id commitment y
         acc += 253; // new rep commitment x
         acc += 253; // new rep commitment y
+        acc += 253; // new epoch rep commitment x
+        acc += 253; // new epoch rep commitment y
+        acc += 253*w; // old rep matrix root x
+        acc += 253*w; // old rep matrix root y
+        acc += 253*w; // new rep matrix commitment x
+        acc += 253*w; // new rep matrix commitment x
         return acc;
     }
 };

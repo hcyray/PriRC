@@ -106,14 +106,14 @@ func VerifyLP(proof [312]byte, snX string, snY string, totalRep uint64, repX str
 }
 
 //Identity update Proof param gen
-func ParamGenIUP(d int) {
-	C.prc_paramgen_iup(C.int(d))
+func ParamGenIUP(d int, w int) {
+	C.prc_paramgen_iup(C.int(d), C.int(w))
 }
 
 // prove identity update
 func ProveIUP(d int, idAddress uint64, idLeafX string, idLeafY string, idRootX string, idRootY string, idPath []string,
 	repAddress uint64, repLeafX string, repLeafY string, repRootX string, repRootY string, repPath []string,
-	idM uint64, idR uint64, idCommX string, idCommY string, repM uint64, repR uint64, repCommX string, repCommY string) [312]byte {
+	idM uint64, idR uint64, idCommX string, idCommY string, repM uint64, repR uint64, repCommX string, repCommY string, w int) [312]byte {
 	var proof_buf [312]byte
 	cIdLeafX := C.CString(idLeafX)
 	cIdLeafY := C.CString(idLeafY)
@@ -152,13 +152,13 @@ func ProveIUP(d int, idAddress uint64, idLeafX string, idLeafY string, idRootX s
 	C.prc_prove_iup(unsafe.Pointer(&proof_buf[0]), C.int(d),
 		C.ulong(idAddress), cIdLeafX, cIdLeafY, cIdRootX, cIdRootY, &cIdPath[0],
 		C.ulong(repAddress), cRepLeafX, cRepLeafY, cRepRootX, cRepRootY, &cRepPath[0],
-		C.ulong(idM), C.ulong(idR), cIdCommX, cIdCommY, C.ulong(repM), C.ulong(repR), cRepCommX, cRepCommY)
+		C.ulong(idM), C.ulong(idR), cIdCommX, cIdCommY, C.ulong(repM), C.ulong(repR), cRepCommX, cRepCommY, C.int(w))
 	return proof_buf
 }
 
 // verify identity update
 func VerifyIUP(proof [312]byte, oldIdRootX string, oldIdRootY string, oldRepRootX string, oldRepRootY string,
-	newIdX string, newIdY string, newRepX string, newRepY string) bool {
+	newIdX string, newIdY string, newRepX string, newRepY string, w int) bool {
 	cOldIdRootX := C.CString(oldIdRootX)
 	cOldIdRootY := C.CString(oldIdRootY)
 	cOldRepRootX := C.CString(oldRepRootX)
@@ -176,7 +176,7 @@ func VerifyIUP(proof [312]byte, oldIdRootX string, oldIdRootY string, oldRepRoot
 	defer C.free(unsafe.Pointer(cNewRepX))
 	defer C.free(unsafe.Pointer(cNewRepY))
 	ret := C.prc_verify_iup(unsafe.Pointer(&proof[0]), cOldIdRootX, cOldIdRootY, cOldRepRootX, cOldRepRootY,
-		cNewIdX, cNewIdY, cNewRepX, cNewRepY)
+		cNewIdX, cNewIdY, cNewRepX, cNewRepY, C.int(w))
 	if ret {
 		return true
 	} else {

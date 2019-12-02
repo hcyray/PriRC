@@ -2,8 +2,7 @@
 // Created by hcy_ray on 10/23/19.
 
 
-#include "libff/algebra/curves/bn128/bn128_pp.hpp" //hold key
-#include <baby_jubjub_ecc.hpp>
+
 using namespace libff;
 using namespace libsnark;
 
