@@ -169,11 +169,12 @@ func (ms *MemShard) AddPriRep(value int64) {
 func (ms *MemShard) SetTotalRep(value int64) {
 	if len(ms.TotalRep) == 0 {
 		ms.TotalRep = append(ms.TotalRep, value+1000)
+	} else {
+		if len(ms.TotalRep) == gVar.SlidingWindows {
+			ms.TotalRep = ms.TotalRep[1:]
+		}
+		ms.TotalRep = append(ms.TotalRep, value)
 	}
-	if len(ms.TotalRep) == gVar.SlidingWindows {
-		ms.TotalRep = ms.TotalRep[1:]
-	}
-	ms.TotalRep = append(ms.TotalRep, value)
 }
 
 //CalTotalRep cal total rep over epoches

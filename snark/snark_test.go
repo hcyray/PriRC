@@ -137,8 +137,8 @@ func TestPedersenCommitment(t *testing.T) {
 	BabyJubJubCurve.Init()
 	b_m := new(big.Int)
 	b_r := new(big.Int)
-	b_m.SetInt64(2 + 30000000000)
-	b_r.SetInt64(2)
+	b_m.SetInt64(12000 + 30000000000)
+	b_r.SetInt64(11)
 	var pc1 PedersenCommitment
 	pc1.Init()
 	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, &pc1)
