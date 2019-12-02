@@ -57,14 +57,23 @@ func ShardProcess() {
 		}
 		CurrentSlot++
 		fmt.Println("Leader Election, slot: ", CurrentSlot)
-
-		MyLeader.lc.LeaderCal(&shard.MyMenShard.EpochSNID, &shard.MyMenShard.RepComm,
-			blockHash, CurrentSlot, shard.TotalRep, shard.MyMenShard.CalTotalRep())
+		if CurrentEpoch == -1 {
+			MyLeader.lc.LeaderCal(&shard.MyMenShard.EpochSNID, &shard.MyMenShard.RepComm,
+				blockHash, CurrentSlot, shard.TotalRep, 1000)
+		} else {
+			MyLeader.lc.LeaderCal(&shard.MyMenShard.EpochSNID, &shard.MyMenShard.RepComm,
+				blockHash, CurrentSlot, shard.TotalRep, shard.MyMenShard.CalTotalRep())
+		}
 
 		if MyLeader.lc.Leader {
 			fmt.Println("I am a leader candidate")
-			shard.MyLeaderProof = GenerateLeaderProof(shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm,
-				shard.MyMenShard.CalTotalRep(), shard.TotalRep, CurrentSlot, MyLeader.lc, shard.MyMenShard.AttackID)
+			if CurrentEpoch == -1 {
+				shard.MyLeaderProof = GenerateLeaderProof(shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm,
+					1000, shard.TotalRep, CurrentSlot, MyLeader.lc, shard.MyMenShard.AttackID)
+			} else {
+				shard.MyLeaderProof = GenerateLeaderProof(shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm,
+					shard.MyMenShard.CalTotalRep(), shard.TotalRep, CurrentSlot, MyLeader.lc, shard.MyMenShard.AttackID)
+			}
 			MyLeader.mux.Unlock()
 			MyLeader.mux.RLock()
 			MyLeaderMessage = LeaderInfo{true, MyGlobalID, CurrentSlot, shard.MyMenShard.EpochSNID,
