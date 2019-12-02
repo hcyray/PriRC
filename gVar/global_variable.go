@@ -6,7 +6,7 @@ import "time"
 const MagicNumber byte = 66
 
 //ShardSize is the number of miners in one shard
-const ShardSize uint32 = 50
+const ShardSize uint32 = 100
 
 //ShardCnt is the number of shards
 const ShardCnt uint32 = 1
@@ -36,7 +36,7 @@ const GensisAccValue = 2147483647
 const TxSendInterval = 10
 
 // number of transactions - TPS
-const NumOfTxForTest = 200
+const NumOfTxForTest = 100
 
 const GeneralSleepTime = 50
 

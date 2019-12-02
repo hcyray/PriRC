@@ -105,7 +105,7 @@ func RollingProcess(send bool, FirstLeader bool, TBData *basic.TxBlock) {
 			}
 		}
 		//simulate transaction data
-		time.Sleep(time.Duration(gVar.ShardSize/2) * time.Second)
+		time.Sleep(time.Duration(gVar.ShardSize/4) * time.Second)
 	}
 	fmt.Println("Rolling done, new leader", CacheDbRef.Leader)
 	LeaderAddr = shard.GlobalGroupMems[shard.ShardToGlobal[shard.MyMenShard.Shard][LeaderIndex]].Address
