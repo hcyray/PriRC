@@ -11,7 +11,7 @@ import (
 
 func TestID(t *testing.T) {
 	fileIP, err := os.Open("InstanceIP.txt")
-	ID := 20
+	ID := 40
 
 	defer fileIP.Close()
 	if err != nil {
