@@ -171,9 +171,7 @@ func ShardProcess() {
 	}
 
 	fmt.Println("Final Leader list: ", lList)
-	MyLeader.mux.Lock()
-	MyLeader.f = false
-	MyLeader.mux.Unlock()
+
 	shard.ShardToGlobal = make([][]int, gVar.ShardCnt)
 	tempi := 0
 	for i := uint32(0); i < gVar.ShardCnt; i++ {
@@ -215,6 +213,10 @@ func ShardProcess() {
 		sendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 	}
 	fmt.Println(time.Now(), CacheDbRef.ID, "Shard Calculated")
+	MyLeader.mux.Lock()
+	MyLeader.f = false
+	MyLeader.mux.Unlock()
+
 	LeaderAddr = shard.GlobalGroupMems[shard.ShardToGlobal[shard.MyMenShard.Shard][0]].Address
 	CacheDbRef.Mu.Lock()
 	if CurrentEpoch != -1 {
