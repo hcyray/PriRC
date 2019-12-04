@@ -42,7 +42,7 @@ const GeneralSleepTime = 50
 
 var T1 time.Time = time.Now()
 
-const BandDiverse = false
+const BandDiverse = true
 
 // client for listen the leader
 const MyAddress = "172.31.83.178:9999"
