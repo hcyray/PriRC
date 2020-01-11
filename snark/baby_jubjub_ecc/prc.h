@@ -82,6 +82,18 @@ bool prc_verify_iup(
 );
 void prc_paramgen_iup(int depth, int w);
 
+//pow proof
+void prc_prove_pow(
+        void *output_proof_ptr, ulong rep_m, ulong rep_r,
+        char* rep_comm_x, char* rep_comm_y,
+        ulong nonce, char* block
+        );
+bool prc_verify_pow(
+        void *proof_ptr, char* rep_comm_x,
+        char* rep_comm_y, char* block
+);
+void prc_paramgen_pow();
+
 
 #ifdef __cplusplus
 }

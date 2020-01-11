@@ -14,12 +14,12 @@ import (
 func TestParamGen(t *testing.T) {
 	n := int(gVar.ShardSize * gVar.ShardCnt)
 	d := int(math.Log2(float64(n)))
-	w := 1
+	w := 2
 	fmt.Println(d)
 	Init()
-	ParamGenHPC()
+	//ParamGenHPC()
 	ParamGenIUP(d, w)
-	ParamGenLP(gVar.LeaderDifficulty, gVar.LeaderBitSize)
+	//ParamGenLP(gVar.LeaderDifficulty, gVar.LeaderBitSize)
 }
 
 func TestPC(t *testing.T) {
@@ -173,7 +173,7 @@ func TestPedersenHash(t *testing.T) {
 }
 func TestMerkleTree(t *testing.T) {
 	BabyJubJubCurve.Init()
-	n := 50
+	n := 10
 	b_m := new(big.Int)
 	b_r := new(big.Int)
 	pc := make([]PedersenCommitment, n)

@@ -9,6 +9,7 @@ import (
 	"github.com/uchihatmtkinu/PriRC/snark"
 	"log"
 	"math/rand"
+	"strconv"
 	"time"
 )
 
@@ -18,6 +19,13 @@ func IDUpdateProcess() {
 	shard.MyMenShard.SetPriRep(shard.MyMenShard.Rep, CurrentEpoch+2+MyGlobalID)
 	shard.MySNIDCommProof = shard.MyMenShard.NewSNID(CurrentEpoch+2, MyGlobalID)
 	shard.MyIDUpdateProof = GenIDUpateProof(shard.MyIDMTProof, shard.MyRepMTProof, shard.MyMenShard.Rep)
+	if VerifyIDUpdate(MyGlobalID, shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm, shard.MyIDUpdateProof) {
+		tmpStr := "I am correct"
+		SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
+	} else {
+		tmpStr := "I am wrong"
+		SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
+	}
 	IDUpdateReady.mux.Lock()
 	IDUpdateReady.f = true
 	IDUpdateReady.mux.Unlock()
@@ -26,6 +34,7 @@ func IDUpdateProcess() {
 	sendi := rand.Perm(int(gVar.ShardSize * gVar.ShardCnt))
 	receivei := make([]bool, int(gVar.ShardSize*gVar.ShardCnt))
 	fmt.Println("start sending ID Update")
+
 	for i := 0; i < int(gVar.ShardSize*gVar.ShardCnt); i++ {
 		if sendi[i] != MyGlobalID {
 			receivei[sendi[i]] = false
@@ -40,13 +49,16 @@ func IDUpdateProcess() {
 		case IDUpdateMessage := <-IDUpdateCh:
 			if !receivei[IDUpdateMessage.ID] {
 				//TODO need fix
-				//if VerifyIDUpdate(IDUpdateMessage.ID, IDUpdateMessage.IDComm, IDUpdateMessage.RepComm, IDUpdateMessage.IDUpdateProof) {
-				shard.GlobalGroupMems[IDUpdateMessage.ID].SetSNID(IDUpdateMessage.IDComm)
-				shard.GlobalGroupMems[IDUpdateMessage.ID].SetPriRepPC(IDUpdateMessage.RepComm)
-				receivei[IDUpdateMessage.ID] = true
-				receiveCount++
-				//fmt.Println(time.Now(), "Received commit from Global ID: ", commitMessage.ID, ", commits count:", signCount, "/", int(gVar.ShardSize))
-				//}
+				if VerifyIDUpdate(IDUpdateMessage.ID, IDUpdateMessage.IDComm, IDUpdateMessage.RepComm, IDUpdateMessage.IDUpdateProof) {
+					shard.GlobalGroupMems[IDUpdateMessage.ID].SetSNID(IDUpdateMessage.IDComm)
+					shard.GlobalGroupMems[IDUpdateMessage.ID].SetPriRepPC(IDUpdateMessage.RepComm)
+					receivei[IDUpdateMessage.ID] = true
+					receiveCount++
+					//fmt.Println(time.Now(), "Received commit from Global ID: ", commitMessage.ID, ", commits count:", signCount, "/", int(gVar.ShardSize))
+				} else {
+					tmpStr := "idu error from:" + strconv.Itoa(IDUpdateMessage.ID)
+					SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
+				}
 			}
 		case <-time.After(5 * time.Second):
 			//resend after 15 seconds

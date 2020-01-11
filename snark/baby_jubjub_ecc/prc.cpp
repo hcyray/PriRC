@@ -2,6 +2,7 @@
 #include <fstream>
 #include "libff/algebra/curves/bn128/bn128_pp.hpp" //hold key
 #include "leader_proof.hpp"
+#include "pow_proof.hpp"
 #include "pedersen_commitment.hpp"
 #include <iostream>
 #include  "identity_proof.hpp"
@@ -318,5 +319,67 @@ void prc_paramgen_iup(int depth, int w) {
 
     saveToFile<r1cs_ppzksnark_proving_key<ppT>>("iup.pk", crs.pk);
     saveToFile<r1cs_ppzksnark_verification_key<ppT>>("iup.vk", crs.vk);
+
+}
+
+
+bool prc_verify_pow(void *proof_ptr, char* rep_comm_x, char* rep_comm_y, char* block) {
+    unsigned char *proof = reinterpret_cast<unsigned char *>(proof_ptr);
+    //input proof
+    std::vector<unsigned char> proof_v(proof, proof+312);
+    std::stringstream proof_data;
+    for (int i = 0; i < 312; i++) {
+        proof_data << proof_v[i];
+    }
+    assert(proof_data.str().size() == 312);
+    proof_data.rdbuf()->pubseekpos(0, std::ios_base::in);
+    r1cs_ppzksnark_proof<libff::bn128_pp> proof_obj;
+    proof_data >> proof_obj;
+
+    // Add witness value
+    r1cs_primary_input<FieldT> witness_map;
+    witness_map.insert(witness_map.end(), FieldT(rep_comm_x));
+    witness_map.insert(witness_map.end(), FieldT(rep_comm_y));
+    witness_map.insert(witness_map.end(), FieldT(block));
+
+    r1cs_ppzksnark_verification_key<libff::bn128_pp> verification_key;
+    loadFromFile<r1cs_ppzksnark_verification_key<ppT>>("pow.vk", verification_key);
+    return r1cs_ppzksnark_verifier_strong_IC<libff::bn128_pp>(verification_key, witness_map, proof_obj);
+}
+
+
+void prc_prove_pow(void *output_proof_ptr, ulong rep_m, ulong rep_r, char* rep_comm_x, char* rep_comm_y, ulong nonce, char* block){
+    unsigned char *output_proof = reinterpret_cast<unsigned char *>(output_proof_ptr);
+    protoboard<FieldT> pb;
+    pow_proof<FieldT> g(pb,  " pow_proof");
+    g.generate_r1cs_constraints();
+    g.generate_r1cs_witness(FieldT(rep_m), FieldT(rep_r), FieldT(rep_comm_x), FieldT(rep_comm_y), FieldT(nonce),FieldT(block));
+
+    assert(pb.is_satisfied());
+
+    r1cs_ppzksnark_proving_key<libff::bn128_pp> proving_key;
+    loadFromFile<r1cs_ppzksnark_proving_key<ppT>>("pow.pk", proving_key);
+
+    r1cs_ppzksnark_proof<libff::bn128_pp> proof = r1cs_ppzksnark_prover<libff::bn128_pp>(proving_key, pb.primary_input(), pb.auxiliary_input());
+    std::stringstream proof_data;
+    proof_data << proof;
+    auto proof_str = proof_data.str();
+    assert(proof_str.size() == 312);
+    for (int i = 0; i < 312; i++) {
+        output_proof[i] = proof_str[i];
+    }
+}
+
+void prc_paramgen_pow() {
+    protoboard<FieldT> pb;
+    pow_proof<FieldT> g(pb, " pow proof");
+    g.generate_r1cs_constraints();
+
+    const r1cs_constraint_system<FieldT> constraint_system = pb.get_constraint_system();
+    //cout << "Number of R1CS constraints: " << constraint_system.num_constraints() << endl;
+    auto crs = r1cs_ppzksnark_generator<ppT>(constraint_system);
+
+    saveToFile<r1cs_ppzksnark_proving_key<ppT>>("pow.pk", crs.pk);
+    saveToFile<r1cs_ppzksnark_verification_key<ppT>>("pow.vk", crs.vk);
 
 }
