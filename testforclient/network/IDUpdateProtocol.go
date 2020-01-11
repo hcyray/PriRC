@@ -18,8 +18,8 @@ func IDUpdateProcess() {
 
 	shard.MyMenShard.SetPriRep(shard.MyMenShard.Rep, CurrentEpoch+2+MyGlobalID)
 	shard.MySNIDCommProof = shard.MyMenShard.NewSNID(CurrentEpoch+2, MyGlobalID)
-	shard.MyIDUpdateProof = GenIDUpateProof(shard.MyIDMTProof, shard.MyRepMTProof, shard.MyMenShard.Rep)
-	if VerifyIDUpdate(MyGlobalID, shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm, shard.MyIDUpdateProof) {
+	shard.MyIDUpdateProof = GenIDUpateProof(shard.MyIDMTProof, shard.MyRepMTProof, shard.MyMenShard.Rep, gVar.SlidingWindows+1)
+	if VerifyIDUpdate(MyGlobalID, shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm, shard.MyIDUpdateProof, gVar.SlidingWindows+1) {
 		tmpStr := "I am correct"
 		SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 	} else {
@@ -49,7 +49,7 @@ func IDUpdateProcess() {
 		case IDUpdateMessage := <-IDUpdateCh:
 			if !receivei[IDUpdateMessage.ID] {
 				//TODO need fix
-				if VerifyIDUpdate(IDUpdateMessage.ID, IDUpdateMessage.IDComm, IDUpdateMessage.RepComm, IDUpdateMessage.IDUpdateProof) {
+				if VerifyIDUpdate(IDUpdateMessage.ID, IDUpdateMessage.IDComm, IDUpdateMessage.RepComm, IDUpdateMessage.IDUpdateProof, gVar.SlidingWindows+1) {
 					shard.GlobalGroupMems[IDUpdateMessage.ID].SetSNID(IDUpdateMessage.IDComm)
 					shard.GlobalGroupMems[IDUpdateMessage.ID].SetPriRepPC(IDUpdateMessage.RepComm)
 					receivei[IDUpdateMessage.ID] = true
@@ -109,19 +109,19 @@ func HandleRequestIDUpdate(request []byte) {
 }
 
 //TODO modidfy the w to be the sliding window
-func GenIDUpateProof(IDMTP snark.MerkleProof, RepMTP snark.MerkleProof, rep int64) [312]byte {
+func GenIDUpateProof(IDMTP snark.MerkleProof, RepMTP snark.MerkleProof, rep int64, w int) [312]byte {
 	return snark.ProveIUP(IDMTP.Depth, IDMTP.AddressBitToAdd(), IDMTP.Leaf_x, IDMTP.Leaf_y, IDMTP.Root_x, IDMTP.Root_y, IDMTP.PathVar,
 		RepMTP.AddressBitToAdd(), RepMTP.Leaf_x, RepMTP.Leaf_y, RepMTP.Root_x, RepMTP.Root_y, RepMTP.PathVar,
 		uint64(CurrentEpoch+2), uint64(MyGlobalID), shard.MyMenShard.EpochSNID.Comm_x.String(), shard.MyMenShard.EpochSNID.Comm_y.String(),
 		uint64(rep+gVar.RepUint64ToInt32), uint64(CurrentEpoch+2+MyGlobalID),
-		shard.MyMenShard.RepComm.Comm_x.String(), shard.MyMenShard.RepComm.Comm_y.String(), 1)
+		shard.MyMenShard.RepComm.Comm_x.String(), shard.MyMenShard.RepComm.Comm_y.String(), w)
 
 }
 
-func VerifyIDUpdate(x int, id snark.PedersenCommitment, rep snark.PedersenCommitment, proof [312]byte) bool {
+func VerifyIDUpdate(x int, id snark.PedersenCommitment, rep snark.PedersenCommitment, proof [312]byte, w int) bool {
 
 	res := snark.VerifyIUP(proof, shard.MyIDMTProof.Root_x, shard.MyIDMTProof.Root_y, shard.MyRepMTProof.Root_x, shard.MyRepMTProof.Root_y,
-		id.Comm_x.String(), id.Comm_y.String(), rep.Comm_x.String(), rep.Comm_y.String(), 1)
+		id.Comm_x.String(), id.Comm_y.String(), rep.Comm_x.String(), rep.Comm_y.String(), w)
 	if !res {
 		fmt.Println("Verify IDUpdate failed from client:", x)
 	}

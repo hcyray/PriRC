@@ -19,7 +19,7 @@ const RepFN = 0
 
 //channel
 
-const SlidingWindows = 8
+const SlidingWindows = 1
 
 //NumTxListPerEpoch is the number of txblocks in one epoch
 const NumTxListPerEpoch = 10 //60
