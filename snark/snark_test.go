@@ -14,7 +14,7 @@ import (
 func TestParamGen(t *testing.T) {
 	n := int(gVar.ShardSize * gVar.ShardCnt)
 	d := int(math.Log2(float64(n))) + 1
-	w := 2
+	w := 13
 	fmt.Println(d)
 	Init()
 	//ParamGenHPC()
