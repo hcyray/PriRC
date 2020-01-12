@@ -138,7 +138,7 @@ func TestIUP(t *testing.T) {
 
 func TestMerkleTree(t *testing.T) {
 	BabyJubJubCurve.Init()
-	n := 10
+	n := 100
 	b_m := new(big.Int)
 	b_r := new(big.Int)
 	pc := make([]PedersenCommitment, n)
