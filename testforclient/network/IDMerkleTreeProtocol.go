@@ -72,6 +72,7 @@ func IDMerkleTreeProcess() {
 	shard.MyIDMTProof.PrintToTxT()
 	shard.RepMerkleTree.Init(reppcs)
 	shard.MyRepMTProof = shard.RepMerkleTree.Proof(MyGlobalID)
+	shard.MyRepMTProof.PrintToTxT()
 	fmt.Println("ID merkle tree built done")
 
 }
