@@ -120,6 +120,7 @@ func TestIUP(t *testing.T) {
 	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc1)
 	pc2 := new(PedersenCommitment)
 	pc2.Init()
+	b_m.SetInt64(2 + gVar.RepUint64ToInt32)
 	BabyJubJubCurve.Init()
 	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc2)
 	w := 2
@@ -127,7 +128,7 @@ func TestIUP(t *testing.T) {
 	ParamGenIUP(d, w)
 	proof_buf := ProveIUP(d, idAdd, idLeafX, idLeafY, idRootX, idRootY, idPath,
 		repAdd, repLeafX, repLeafY, repRootX, repRootY, repPath, 2, 2, pc1.Comm_x.String(), pc1.Comm_y.String(),
-		2, 2, pc2.Comm_x.String(), pc2.Comm_y.String(), w)
+		uint64(2+gVar.RepUint64ToInt32), 2, pc2.Comm_x.String(), pc2.Comm_y.String(), w)
 	fmt.Println("Ok")
 	fmt.Println("verification result:", VerifyIUP(proof_buf, idRootX, idRootY, repRootX, repRootY,
 		pc1.Comm_x.String(), pc1.Comm_y.String(), pc2.Comm_x.String(), pc2.Comm_y.String(), w))

@@ -40,10 +40,10 @@ func main() {
 	// ID merkle tree generation
 	network.IDMerkleTreeProcess()
 	// update id
+
 	gVar.T1 = time.Now()
 	network.IDUpdateProcess()
 	elapsed := time.Since(gVar.T1)
-	fmt.Println("MyGloablID: ", network.MyGlobalID)
 
 	tmpStr := fmt.Sprint("All finished, time used:", elapsed)
 	network.SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))

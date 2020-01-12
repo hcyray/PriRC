@@ -69,8 +69,7 @@ func (ms *MemShard) NewIDCommitment(ID int) [312]byte {
 }
 
 //NewIDSN new Epoch SN ID
-func (ms *MemShard) NewSNID(epoch int, ID int) [312]byte {
-	var buff [312]byte
+func (ms *MemShard) NewSNID(epoch int, ID int) {
 	b_m := new(big.Int)
 	b_r := new(big.Int)
 	//tmp := make([]byte, 32)
@@ -79,8 +78,7 @@ func (ms *MemShard) NewSNID(epoch int, ID int) [312]byte {
 	b_m.SetInt64(int64(epoch))
 	b_r.SetInt64(int64(ID))
 	snark.BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, &ms.EpochSNID)
-	buff = snark.ProveHPC(b_m.Uint64(), b_r.Uint64(), ms.EpochSNID.Comm_x.String(), ms.EpochSNID.Comm_y.String())
-	return buff
+	//buff = snark.ProveHPC(b_m.Uint64(), b_r.Uint64(), ms.EpochSNID.Comm_x.String(), ms.EpochSNID.Comm_y.String())
 }
 
 //SetIDPC set ID pedersen commitment

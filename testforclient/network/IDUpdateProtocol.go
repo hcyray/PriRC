@@ -17,13 +17,13 @@ import (
 func IDUpdateProcess() {
 
 	shard.MyMenShard.SetPriRep(shard.MyMenShard.Rep, CurrentEpoch+2+MyGlobalID)
-	shard.MySNIDCommProof = shard.MyMenShard.NewSNID(CurrentEpoch+2, MyGlobalID)
+	shard.MyMenShard.NewSNID(CurrentEpoch+2, MyGlobalID)
 	shard.MyIDUpdateProof = GenIDUpateProof(shard.MyIDMTProof, shard.MyRepMTProof, shard.MyMenShard.Rep, gVar.SlidingWindows+1)
 	if VerifyIDUpdate(MyGlobalID, shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm, shard.MyIDUpdateProof, gVar.SlidingWindows+1) {
 		tmpStr := "I am correct"
 		SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 	} else {
-		tmpStr := "I am wrong, id root x: " + shard.MyIDMTProof.Root_x + "id root_x:" + shard.MyRepMTProof.Root_x
+		tmpStr := "I am wrong"
 		SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 	}
 	IDUpdateReady.mux.Lock()
