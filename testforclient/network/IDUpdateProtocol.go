@@ -15,14 +15,14 @@ import (
 
 // generate MerkleTree for ID
 func IDUpdateProcess() {
-	shard.MyMenShard.NewSNID(CurrentEpoch+2, MyGlobalID)
-	shard.MyMenShard.SetPriRep(shard.MyMenShard.Rep, CurrentEpoch+2+MyGlobalID)
-	shard.MyIDUpdateProof = GenIDUpateProof(shard.MyRepMTProof, shard.MyRepMTProof, shard.MyMenShard.Rep, gVar.SlidingWindows+1)
+	shard.MyMenShard.NewSNID(1, MyGlobalID)
+	shard.MyMenShard.SetPriRep(shard.MyMenShard.Rep, 1+MyGlobalID)
+	shard.MyIDUpdateProof = GenIDUpateProof(shard.MyIDMTProof, shard.MyRepMTProof, shard.MyMenShard.Rep, gVar.SlidingWindows+1)
 	if VerifyIDUpdate(MyGlobalID, shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm, shard.MyIDUpdateProof, gVar.SlidingWindows+1) {
 		tmpStr := "I am correct"
 		SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 	} else {
-		tmpStr := "I am wrong, from" + strconv.Itoa(MyGlobalID)
+		tmpStr := "I am wrong, from:" + strconv.Itoa(MyGlobalID)
 		SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 	}
 	IDUpdateReady.mux.Lock()
@@ -109,15 +109,15 @@ func HandleRequestIDUpdate(request []byte) {
 func GenIDUpateProof(IDMTP snark.MerkleProof, RepMTP snark.MerkleProof, rep int64, w int) [312]byte {
 	return snark.ProveIUP(IDMTP.Depth, IDMTP.AddressBitToAdd(), IDMTP.Leaf_x, IDMTP.Leaf_y, IDMTP.Root_x, IDMTP.Root_y, IDMTP.PathVar,
 		RepMTP.AddressBitToAdd(), RepMTP.Leaf_x, RepMTP.Leaf_y, RepMTP.Root_x, RepMTP.Root_y, RepMTP.PathVar,
-		uint64(CurrentEpoch+2), uint64(MyGlobalID), shard.MyMenShard.EpochSNID.Comm_x.String(), shard.MyMenShard.EpochSNID.Comm_y.String(),
-		uint64(rep+gVar.RepUint64ToInt32), uint64(CurrentEpoch+2+MyGlobalID),
+		uint64(1), uint64(MyGlobalID), shard.MyMenShard.EpochSNID.Comm_x.String(), shard.MyMenShard.EpochSNID.Comm_y.String(),
+		uint64(rep+gVar.RepUint64ToInt32), uint64(1+MyGlobalID),
 		shard.MyMenShard.RepComm.Comm_x.String(), shard.MyMenShard.RepComm.Comm_y.String(), w)
 
 }
 
 func VerifyIDUpdate(x int, id snark.PedersenCommitment, rep snark.PedersenCommitment, proof [312]byte, w int) bool {
 
-	res := snark.VerifyIUP(proof, shard.MyRepMTProof.Root_x, shard.MyRepMTProof.Root_y, shard.MyRepMTProof.Root_x, shard.MyRepMTProof.Root_y,
+	res := snark.VerifyIUP(proof, shard.MyIDMTProof.Root_x, shard.MyIDMTProof.Root_y, shard.MyRepMTProof.Root_x, shard.MyRepMTProof.Root_y,
 		id.Comm_x.String(), id.Comm_y.String(), rep.Comm_x.String(), rep.Comm_y.String(), w)
 	return res
 }

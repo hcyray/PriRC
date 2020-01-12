@@ -127,7 +127,8 @@ func TestIUP(t *testing.T) {
 	w := 2
 	Init()
 	ParamGenIUP(d, w)
-	proof_buf := ProveIUP(d, idAdd, idLeafX, idLeafY, idRootX, idRootY, idPath,
+	var proof_buf [312]byte
+	proof_buf = ProveIUP(d, idAdd, idLeafX, idLeafY, idRootX, idRootY, idPath,
 		repAdd, repLeafX, repLeafY, repRootX, repRootY, repPath, 3, 3, pc1.Comm_x.String(), pc1.Comm_y.String(),
 		uint64(2+gVar.RepUint64ToInt32), 5, pc2.Comm_x.String(), pc2.Comm_y.String(), w)
 	fmt.Println("Ok")
