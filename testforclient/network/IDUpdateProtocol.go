@@ -19,13 +19,6 @@ func IDUpdateProcess() {
 	shard.MyMenShard.NewSNID(1, MyGlobalID)
 	shard.MyMenShard.SetPriRep(shard.MyMenShard.Rep, 1+MyGlobalID)
 	shard.MyIDUpdateProof = GenIDUpateProof(shard.MyIDMTProof, shard.MyRepMTProof, shard.MyMenShard.Rep, gVar.SlidingWindows+1)
-	if VerifyIDUpdate(MyGlobalID, shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm, shard.MyIDUpdateProof, gVar.SlidingWindows+1) {
-		tmpStr := "I am correct"
-		SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
-	} else {
-		tmpStr := "I am wrong, from:" + strconv.Itoa(MyGlobalID)
-		SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
-	}
 	elapsed := time.Since(gVar.T1)
 	tmpStr := fmt.Sprint("Generating proof time used:", elapsed)
 	gVar.T1 = time.Now()
