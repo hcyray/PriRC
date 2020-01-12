@@ -23,7 +23,7 @@ func IDUpdateProcess() {
 		tmpStr := "I am correct"
 		SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 	} else {
-		tmpStr := "I am wrong"
+		tmpStr := "I am wrong, from" + strconv.Itoa(MyGlobalID)
 		SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 	}
 	IDUpdateReady.mux.Lock()
