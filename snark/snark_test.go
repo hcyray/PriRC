@@ -13,7 +13,7 @@ import (
 
 func TestParamGen(t *testing.T) {
 	n := int(gVar.ShardSize * gVar.ShardCnt)
-	d := int(math.Log2(float64(n)))
+	d := int(math.Log2(float64(n))) + 1
 	w := 2
 	fmt.Println(d)
 	Init()
@@ -126,7 +126,7 @@ func TestIUP(t *testing.T) {
 	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc2)
 	w := 2
 	Init()
-	ParamGenIUP(d, w)
+	//ParamGenIUP(d, w)
 	var proof_buf [312]byte
 	proof_buf = ProveIUP(d, idAdd, idLeafX, idLeafY, idRootX, idRootY, idPath,
 		repAdd, repLeafX, repLeafY, repRootX, repRootY, repPath, 3, 3, pc1.Comm_x.String(), pc1.Comm_y.String(),
