@@ -15,9 +15,8 @@ import (
 
 // generate MerkleTree for ID
 func IDUpdateProcess() {
-
-	shard.MyMenShard.SetPriRep(shard.MyMenShard.Rep, CurrentEpoch+2+MyGlobalID)
 	shard.MyMenShard.NewSNID(CurrentEpoch+2, MyGlobalID)
+	shard.MyMenShard.SetPriRep(shard.MyMenShard.Rep, CurrentEpoch+2+MyGlobalID)
 	shard.MyIDUpdateProof = GenIDUpateProof(shard.MyIDMTProof, shard.MyRepMTProof, shard.MyMenShard.Rep, gVar.SlidingWindows+1)
 	if VerifyIDUpdate(MyGlobalID, shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm, shard.MyIDUpdateProof, gVar.SlidingWindows+1) {
 		tmpStr := "I am correct"
@@ -48,7 +47,6 @@ func IDUpdateProcess() {
 		select {
 		case IDUpdateMessage := <-IDUpdateCh:
 			if !receivei[IDUpdateMessage.ID] {
-				//TODO need fix
 				if VerifyIDUpdate(IDUpdateMessage.ID, IDUpdateMessage.IDComm, IDUpdateMessage.RepComm, IDUpdateMessage.IDUpdateProof, gVar.SlidingWindows+1) {
 					shard.GlobalGroupMems[IDUpdateMessage.ID].SetSNID(IDUpdateMessage.IDComm)
 					shard.GlobalGroupMems[IDUpdateMessage.ID].SetPriRepPC(IDUpdateMessage.RepComm)

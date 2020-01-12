@@ -112,8 +112,8 @@ func TestIUP(t *testing.T) {
 
 	b_m := new(big.Int)
 	b_r := new(big.Int)
-	b_m.SetInt64(2)
-	b_r.SetInt64(2)
+	b_m.SetInt64(3)
+	b_r.SetInt64(3)
 	pc1 := new(PedersenCommitment)
 	pc1.Init()
 	BabyJubJubCurve.Init()
@@ -121,17 +121,37 @@ func TestIUP(t *testing.T) {
 	pc2 := new(PedersenCommitment)
 	pc2.Init()
 	b_m.SetInt64(2 + gVar.RepUint64ToInt32)
+	b_r.SetInt64(5)
 	BabyJubJubCurve.Init()
 	BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, pc2)
 	w := 2
 	Init()
 	ParamGenIUP(d, w)
 	proof_buf := ProveIUP(d, idAdd, idLeafX, idLeafY, idRootX, idRootY, idPath,
-		repAdd, repLeafX, repLeafY, repRootX, repRootY, repPath, 2, 2, pc1.Comm_x.String(), pc1.Comm_y.String(),
-		uint64(2+gVar.RepUint64ToInt32), 2, pc2.Comm_x.String(), pc2.Comm_y.String(), w)
+		repAdd, repLeafX, repLeafY, repRootX, repRootY, repPath, 3, 3, pc1.Comm_x.String(), pc1.Comm_y.String(),
+		uint64(2+gVar.RepUint64ToInt32), 5, pc2.Comm_x.String(), pc2.Comm_y.String(), w)
 	fmt.Println("Ok")
 	fmt.Println("verification result:", VerifyIUP(proof_buf, idRootX, idRootY, repRootX, repRootY,
 		pc1.Comm_x.String(), pc1.Comm_y.String(), pc2.Comm_x.String(), pc2.Comm_y.String(), w))
+}
+
+func TestMerkleTree(t *testing.T) {
+	BabyJubJubCurve.Init()
+	n := 10
+	b_m := new(big.Int)
+	b_r := new(big.Int)
+	pc := make([]PedersenCommitment, n)
+	for i := 0; i < n; i++ {
+		pc[i].Init()
+		b_m.SetInt64(int64(i))
+		b_r.SetInt64(48)
+		BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, &pc[i])
+	}
+	var mt MerkleTree
+	mt.Init(pc)
+	p := mt.Proof(6)
+	p.PrintToTxT()
+
 }
 
 func TestPedersenCommitment(t *testing.T) {
@@ -171,23 +191,6 @@ func TestPedersenHash(t *testing.T) {
 	pc1.PrintPC()
 	BabyJubJubCurve.CalPedersenHash(pc1.Comm_x, pc1.Comm_y, pc1)
 	pc1.PrintPC()
-}
-func TestMerkleTree(t *testing.T) {
-	BabyJubJubCurve.Init()
-	n := 10
-	b_m := new(big.Int)
-	b_r := new(big.Int)
-	pc := make([]PedersenCommitment, n)
-	for i := 0; i < n; i++ {
-		pc[i].Init()
-		b_m.SetInt64(int64(i))
-		b_r.SetInt64(48)
-		BabyJubJubCurve.CalPedersenCommitment(b_m, b_r, &pc[i])
-	}
-	var mt MerkleTree
-	mt.Init(pc)
-	p := mt.Proof(7)
-	p.PrintToTxT()
 }
 
 func TestLeaderCandidate(t *testing.T) {

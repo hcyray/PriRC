@@ -125,7 +125,6 @@ func IntilizeProcess(input string, ID *int, PriIPFile string, initType int) {
 		//dbs[i].New(uint32(i), acc[i].Pri)
 	}
 	fmt.Println("My Global ID:", MyGlobalID)
-	fmt.Println("My Global ID:", *ID)
 	if MyGlobalID == -1 {
 		os.Exit(0)
 	}
