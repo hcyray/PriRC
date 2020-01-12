@@ -17,7 +17,7 @@ import (
 func IDUpdateProcess() {
 	shard.MyMenShard.NewSNID(CurrentEpoch+2, MyGlobalID)
 	shard.MyMenShard.SetPriRep(shard.MyMenShard.Rep, CurrentEpoch+2+MyGlobalID)
-	shard.MyIDUpdateProof = GenIDUpateProof(shard.MyIDMTProof, shard.MyRepMTProof, shard.MyMenShard.Rep, gVar.SlidingWindows+1)
+	shard.MyIDUpdateProof = GenIDUpateProof(shard.MyRepMTProof, shard.MyRepMTProof, shard.MyMenShard.Rep, gVar.SlidingWindows+1)
 	if VerifyIDUpdate(MyGlobalID, shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm, shard.MyIDUpdateProof, gVar.SlidingWindows+1) {
 		tmpStr := "I am correct"
 		SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
@@ -117,7 +117,7 @@ func GenIDUpateProof(IDMTP snark.MerkleProof, RepMTP snark.MerkleProof, rep int6
 
 func VerifyIDUpdate(x int, id snark.PedersenCommitment, rep snark.PedersenCommitment, proof [312]byte, w int) bool {
 
-	res := snark.VerifyIUP(proof, shard.MyIDMTProof.Root_x, shard.MyIDMTProof.Root_y, shard.MyRepMTProof.Root_x, shard.MyRepMTProof.Root_y,
+	res := snark.VerifyIUP(proof, shard.MyRepMTProof.Root_x, shard.MyRepMTProof.Root_y, shard.MyRepMTProof.Root_x, shard.MyRepMTProof.Root_y,
 		id.Comm_x.String(), id.Comm_y.String(), rep.Comm_x.String(), rep.Comm_y.String(), w)
 	return res
 }
