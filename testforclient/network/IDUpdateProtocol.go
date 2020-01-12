@@ -15,6 +15,7 @@ import (
 
 // generate MerkleTree for ID
 func IDUpdateProcess() {
+	gVar.T1 = time.Now()
 	shard.MyMenShard.NewSNID(1, MyGlobalID)
 	shard.MyMenShard.SetPriRep(shard.MyMenShard.Rep, 1+MyGlobalID)
 	shard.MyIDUpdateProof = GenIDUpateProof(shard.MyIDMTProof, shard.MyRepMTProof, shard.MyMenShard.Rep, gVar.SlidingWindows+1)
@@ -25,7 +26,10 @@ func IDUpdateProcess() {
 		tmpStr := "I am wrong, from:" + strconv.Itoa(MyGlobalID)
 		SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 	}
+	elapsed := time.Since(gVar.T1)
+	tmpStr := fmt.Sprint("Generating proof time used:", elapsed)
 	gVar.T1 = time.Now()
+	SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 	IDUpdateReady.mux.Lock()
 	IDUpdateReady.f = true
 	IDUpdateReady.mux.Unlock()
