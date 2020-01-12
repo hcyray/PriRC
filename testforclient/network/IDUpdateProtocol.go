@@ -23,7 +23,7 @@ func IDUpdateProcess() {
 		tmpStr := "I am correct"
 		SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 	} else {
-		tmpStr := "I am wrong"
+		tmpStr := "I am wrong, id root x: " + shard.MyIDMTProof.Root_x + "id root_x:" + shard.MyRepMTProof.Root_x
 		SendTxMessage(gVar.MyAddress, "LogInfo", []byte(tmpStr))
 	}
 	IDUpdateReady.mux.Lock()
@@ -108,7 +108,6 @@ func HandleRequestIDUpdate(request []byte) {
 		IDUpdateInfo{MyGlobalID, shard.MyMenShard.EpochSNID, shard.MyMenShard.RepComm, shard.MyIDUpdateProof})
 }
 
-//TODO modidfy the w to be the sliding window
 func GenIDUpateProof(IDMTP snark.MerkleProof, RepMTP snark.MerkleProof, rep int64, w int) [312]byte {
 	return snark.ProveIUP(IDMTP.Depth, IDMTP.AddressBitToAdd(), IDMTP.Leaf_x, IDMTP.Leaf_y, IDMTP.Root_x, IDMTP.Root_y, IDMTP.PathVar,
 		RepMTP.AddressBitToAdd(), RepMTP.Leaf_x, RepMTP.Leaf_y, RepMTP.Root_x, RepMTP.Root_y, RepMTP.PathVar,
@@ -122,8 +121,5 @@ func VerifyIDUpdate(x int, id snark.PedersenCommitment, rep snark.PedersenCommit
 
 	res := snark.VerifyIUP(proof, shard.MyIDMTProof.Root_x, shard.MyIDMTProof.Root_y, shard.MyRepMTProof.Root_x, shard.MyRepMTProof.Root_y,
 		id.Comm_x.String(), id.Comm_y.String(), rep.Comm_x.String(), rep.Comm_y.String(), w)
-	if !res {
-		fmt.Println("Verify IDUpdate failed from client:", x)
-	}
 	return res
 }
