@@ -41,7 +41,6 @@ func main() {
 	network.IDMerkleTreeProcess()
 	// update id
 
-	gVar.T1 = time.Now()
 	network.IDUpdateProcess()
 	elapsed := time.Since(gVar.T1)
 
